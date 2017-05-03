@@ -6,6 +6,8 @@
 #ifndef TEK_INDIVIDUAL_HPP_
 #define TEK_INDIVIDUAL_HPP_
 
+#include <iosfwd>
+
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
@@ -14,7 +16,13 @@ class Individual {
   public:
     Individual() = default;
 
-    static void unit_test() {}
+    std::ostream& write(std::ostream&) const;
+    friend std::ostream& operator<<(std::ostream&, const Individual&);
+
+    static void unit_test();
+
+  private:
+    double fitness_ = 1.0;
 };
 
 } // namespace tek

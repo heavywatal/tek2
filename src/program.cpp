@@ -95,7 +95,7 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 
 void Program::run() {HERE;
     try {
-        Population pop;
+        Population pop(4);
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;
     }

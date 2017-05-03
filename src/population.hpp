@@ -18,7 +18,10 @@ class Population {
   public:
     Population(const size_t n);
 
-    static void unit_test() {}
+    std::ostream& write(std::ostream&) const;
+    friend std::ostream& operator<<(std::ostream&, const Population&);
+
+    static void unit_test();
   private:
     std::vector<Individual> individuals_;
 };
