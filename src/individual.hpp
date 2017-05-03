@@ -12,6 +12,8 @@ namespace tek {
 
 class Individual {
   public:
+    Individual() = default;
+
     static void unit_test() {}
 };
 
