@@ -18,6 +18,7 @@ class Transposon {
     Transposon() = default;
 
     void mutate();
+    void deactivate() {sequence_.set();}
     double activity() const;
 
     std::ostream& write(std::ostream&) const;

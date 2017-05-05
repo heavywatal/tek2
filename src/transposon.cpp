@@ -8,20 +8,23 @@
 
 #include "wtl/debug.hpp"
 #include "wtl/math.hpp"
+#include "wtl/prandom.hpp"
 
 namespace tek {
 
 double Transposon::ALPHA_ = 0.8;
-unsigned int Transposon::BETA_ = 24;
+unsigned int Transposon::BETA_ = 24U;
 
 void Transposon::mutate() {
-    sequence_.flip(0);
+    std::uniform_int_distribution<unsigned int> dist(0U, SEQUENCE_LENGTH_ - 1U);
+    sequence_.flip(dist(wtl::sfmt()));
 }
 
 double Transposon::activity() const {
-    const double d = sequence_.count() * OVER_L_;
-    const double a = 1.0 - ALPHA_;  // TODO: class variable
-    return wtl::pow((a - d) / a, BETA_);
+    const double diff = sequence_.count() * OVER_L_;
+    const double threshold = 1.0 - ALPHA_;  // TODO: class variable
+    if (diff >= threshold) return 0.0;
+    return wtl::pow((threshold - diff) / threshold, BETA_);
 }
 
 std::ostream& Transposon::write(std::ostream& ost) const {
@@ -35,12 +38,13 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& ind) {
 
 void Transposon::unit_test() {HERE;
     Transposon te;
-    std::cout << te << std::endl;
-    std::cout << te.activity() << std::endl;
+    te.mutate();
     te.mutate();
     std::cout << te << std::endl;
     std::cout << te.activity() << std::endl;
+    te.deactivate();
+    std::cout << te << std::endl;
+    std::cout << te.activity() << std::endl;
 }
-
 
 } // namespace tek
