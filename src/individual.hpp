@@ -7,6 +7,9 @@
 #define TEK_INDIVIDUAL_HPP_
 
 #include <iosfwd>
+#include <vector>
+#include <valarray>
+#include <memory>
 
 #include "transposon.hpp"
 
@@ -14,9 +17,16 @@
 
 namespace tek {
 
+typedef std::vector<std::shared_ptr<Transposon>> haploid_t;
+
 class Individual {
   public:
-    Individual() = default;
+    static constexpr unsigned int NUM_SITES = 2000;
+
+    Individual(): chromosomes_{haploid_t(NUM_SITES), haploid_t(NUM_SITES)} {};
+    Individual(const haploid_t&, const haploid_t&);
+
+    double fitness() const;
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Individual&);
@@ -24,7 +34,13 @@ class Individual {
     static void unit_test();
 
   private:
-    double fitness_ = 1.0;
+    std::valarray<double> genotype() const;
+    double s_cn(const unsigned int) const;
+
+    static constexpr double TAU_ = 1.5;
+    static double XI_;
+
+    std::pair<haploid_t, haploid_t> chromosomes_;
 };
 
 } // namespace tek
