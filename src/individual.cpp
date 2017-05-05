@@ -1,6 +1,6 @@
 // -*- mode: c++; coding: utf-8 -*-
-/*! @file population.cpp
-    @brief Implementation of Population class
+/*! @file individual.cpp
+    @brief Implementation of Individual class
 */
 #include "individual.hpp"
 

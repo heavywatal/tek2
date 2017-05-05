@@ -59,6 +59,7 @@ inline void test(const int flg) {HERE;
       case 0:
         break;
       case 1:
+        Transposon::unit_test();
         Individual::unit_test();
         Population::unit_test();
         throw wtl::ExitSuccess();
