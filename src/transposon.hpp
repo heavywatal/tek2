@@ -17,6 +17,9 @@ class Transposon {
   public:
     Transposon() = default;
 
+    void mutate();
+    double activity() const;
+
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
@@ -24,6 +27,7 @@ class Transposon {
 
   private:
     static constexpr unsigned int SEQUENCE_LENGTH_ = 200;
+    static constexpr double OVER_L_ = 1.0 / SEQUENCE_LENGTH_;
     static double ALPHA_;
     static unsigned int BETA_;
 
