@@ -27,6 +27,9 @@ class Individual {
     Individual(const haploid_t&, const haploid_t&);
 
     double fitness() const;
+    void transpose();
+    void recombine();
+    void mutate();
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Individual&);
@@ -37,8 +40,10 @@ class Individual {
     std::valarray<double> genotype() const;
     double s_cn(const unsigned int) const;
 
+    static constexpr double INDEL_RATIO_ = 0.2;
     static constexpr double TAU_ = 1.5;
     static double XI_;
+    static double EXCISION_RATE_;
 
     std::pair<haploid_t, haploid_t> chromosomes_;
 };

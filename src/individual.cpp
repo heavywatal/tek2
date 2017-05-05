@@ -9,10 +9,12 @@
 #include <numeric>
 
 #include "wtl/debug.hpp"
+#include "wtl/prandom.hpp"
 
 namespace tek {
 
 double Individual::XI_ = 1e-4;
+double Individual::EXCISION_RATE_ = 1e-6;
 
 Individual::Individual(const haploid_t& hap0, const haploid_t& hap1)
 : chromosomes_{hap0, hap1} {}
@@ -37,6 +39,55 @@ std::valarray<double> Individual::genotype() const {
 
 double Individual::s_cn(const unsigned int n) const {
     return std::pow(XI_ * n, TAU_);
+}
+
+void Individual::transpose() {
+    std::bernoulli_distribution bern_excision(EXCISION_RATE_);
+    for (auto& p: chromosomes_.first) {
+        if (!p) continue;
+        std::bernoulli_distribution bern(p->transposition_rate());
+        if (bern(wtl::sfmt())) {
+            // TODO: record the transposon and its new site
+        }
+        if (bern_excision(wtl::sfmt())) {p.reset();}
+    }
+    // TODO: second
+    // TODO: actual transposition
+}
+
+void Individual::recombine() {
+    // TODO: population parameters
+    constexpr double rho = 200;
+    constexpr size_t popsize = 1000;
+    const double c = rho / popsize / 4.0;
+    std::poisson_distribution<size_t> poisson(c * NUM_SITES); // -1?
+    const size_t num_chiasma = poisson(wtl::sfmt());
+    if (num_chiasma == 0U) return;
+    std::uniform_int_distribution<size_t> unif(0, NUM_SITES - 1);
+    std::vector<size_t> positions(num_chiasma);
+    for (size_t i=0; i<num_chiasma; ++i) {
+        positions[i] = unif(wtl::sfmt());
+    }
+    std::sort(positions.begin(), positions.end());
+    // TODO: make new haploid_t instances
+}
+
+void Individual::mutate() {
+    // TODO: population parameters
+    constexpr double theta = 0.01;
+    constexpr size_t popsize = 1000;
+    const double mu = theta / popsize / 4.0;  // per TE site?
+    std::poisson_distribution<size_t> poisson(mu);
+    std::bernoulli_distribution bern_indel(mu * INDEL_RATIO_);
+    for (auto& p: chromosomes_.first) {
+        if (!p) continue;
+        const size_t num_mutations = poisson(wtl::sfmt());
+        for (size_t i=0; i<num_mutations; ++i) {
+            p->mutate();
+        }
+        if (bern_indel(wtl::sfmt())) {p->indel();}
+    }
+    // TODO: second
 }
 
 std::ostream& Individual::write(std::ostream& ost) const {
