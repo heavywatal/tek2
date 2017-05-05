@@ -21,6 +21,7 @@ void Transposon::mutate() {
 }
 
 double Transposon::activity() const {
+    if (has_indel_) return 0.0;
     const double diff = sequence_.count() * OVER_L_;
     const double threshold = 1.0 - ALPHA_;  // TODO: class variable
     if (diff >= threshold) return 0.0;
@@ -28,8 +29,7 @@ double Transposon::activity() const {
 }
 
 std::ostream& Transposon::write(std::ostream& ost) const {
-    ost << sequence_;
-    return ost;
+    return ost << has_indel_ << sequence_;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Transposon& ind) {
@@ -42,7 +42,7 @@ void Transposon::unit_test() {HERE;
     te.mutate();
     std::cout << te << std::endl;
     std::cout << te.activity() << std::endl;
-    te.deactivate();
+    te.indel();
     std::cout << te << std::endl;
     std::cout << te.activity() << std::endl;
 }
