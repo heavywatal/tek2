@@ -40,18 +40,41 @@ double Haploid::fitness(const Haploid& other) const {
     return (1.0 - s_gp) * (1.0 - s_cn(z.sum()));
 }
 
-void Haploid::transpose(Haploid& other) {
+std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
     std::bernoulli_distribution bern_excision(EXCISION_RATE_);
+    std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto& p: sites_) {
         if (!p) continue;
         std::bernoulli_distribution bern(p->transposition_rate());
         if (bern(wtl::sfmt())) {
-            // TODO: record the transposon and its new site
+            copying_transposons.push_back(p);
         }
         if (bern_excision(wtl::sfmt())) {p.reset();}
     }
-    // TODO: other
-    // TODO: actual transposition
+    return copying_transposons;
+}
+
+void Haploid::transpose(Haploid& other) {
+    auto copying_transposons = this->transpose();
+    {
+        auto tmp = other.transpose();
+        copying_transposons.insert(copying_transposons.end(),
+            std::make_move_iterator(tmp.begin()),
+            std::make_move_iterator(tmp.end()));
+    }
+    std::bernoulli_distribution coin_dist(0.5);
+    for (auto& p: copying_transposons) {
+        if (coin_dist(wtl::sfmt())) {
+            auto& dest = this->sites_[random_index()];
+            if (dest) continue;
+            dest = std::move(p);
+        } else {
+            auto& dest = other.sites_[random_index()];
+            if (dest) continue;
+            dest = std::move(p);
+        }
+    }
+    // TODO: should we choose targets from empty sites?
 }
 
 void Haploid::recombine(Haploid& other) {

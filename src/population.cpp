@@ -41,7 +41,9 @@ std::ostream& operator<<(std::ostream& ost, const Population& pop) {
 }
 
 void Population::unit_test() {HERE;
-    Population pop(4);
+    Population pop(6);
+    std::cout << pop << std::endl;
+    pop.step();
     std::cout << pop << std::endl;
 }
 

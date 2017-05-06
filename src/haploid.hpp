@@ -48,6 +48,7 @@ class Haploid {
     static double s_cn(const unsigned int);
 
     void transpose(Haploid&);
+    std::vector<std::shared_ptr<Transposon>> transpose();
     void recombine(Haploid&);
     void mutate();
 
