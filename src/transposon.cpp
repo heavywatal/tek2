@@ -32,8 +32,8 @@ std::ostream& Transposon::write(std::ostream& ost) const {
     return ost << has_indel_ << sequence_;
 }
 
-std::ostream& operator<<(std::ostream& ost, const Transposon& ind) {
-    return ind.write(ost);
+std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
+    return x.write(ost);
 }
 
 void Transposon::unit_test() {HERE;

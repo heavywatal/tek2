@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "individual.hpp"
+#include "haploid.hpp"
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -25,7 +25,7 @@ class Population {
 
     static void unit_test();
   private:
-    std::vector<haploid_t> gametes_;
+    std::vector<Haploid> gametes_;
 };
 
 } // namespace tek

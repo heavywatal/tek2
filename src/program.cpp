@@ -60,7 +60,7 @@ inline void test(const int flg) {HERE;
         break;
       case 1:
         Transposon::unit_test();
-        Individual::unit_test();
+        Haploid::unit_test();
         Population::unit_test();
         throw wtl::ExitSuccess();
       default:

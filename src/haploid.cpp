@@ -1,8 +1,8 @@
 // -*- mode: c++; coding: utf-8 -*-
-/*! @file individual.cpp
-    @brief Implementation of Individual class
+/*! @file haploid.cpp
+    @brief Implementation of Haploid class
 */
-#include "individual.hpp"
+#include "haploid.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -14,46 +14,27 @@
 
 namespace tek {
 
-std::ostream& operator<<(std::ostream& ost, const haploid_t& chr) {
-    size_t occupied = 0;
-    size_t active = 0;
-    for (const auto& p: chr) {
-        if (p) {
-            ++occupied;
-            if (p->transposition_rate() > 0.0) ++active;
-        }
-    }
-    return ost << "(" << active << "/" << occupied << ")";
+double Haploid::XI_ = 1e-4;
+double Haploid::EXCISION_RATE_ = 1e-6;
+
+Haploid::Haploid(): sites_(NUM_SITES) {}
+
+double Haploid::s_cn(const unsigned int n) {
+    return std::pow(XI_ * n, TAU_);
 }
 
-double Individual::XI_ = 1e-4;
-double Individual::EXCISION_RATE_ = 1e-6;
-
-double Individual::fitness() const {
+double Haploid::fitness(const Haploid& other) const {
     std::valarray<double> s_gpj(NUM_SITES);  // TODO: class variable
-    const auto z = genotype();
+    const auto z = valarray() + other.valarray();
     const std::valarray<double> v = 1.0 - z * s_gpj;
     double s_gp = 1.0;
     s_gp -= std::accumulate(std::begin(v), std::end(v), 1.0, std::multiplies<double>());
     return (1.0 - s_gp) * (1.0 - s_cn(z.sum()));
 }
 
-std::valarray<double> Individual::genotype() const {
-    std::valarray<double> z(NUM_SITES);
-    for (size_t j=0; j<NUM_SITES; ++j) {
-        if (genome_.first[j]) ++z[j];
-        if (genome_.second[j]) ++z[j];
-    }
-    return z;
-}
-
-double Individual::s_cn(const unsigned int n) const {
-    return std::pow(XI_ * n, TAU_);
-}
-
-void Individual::transpose() {
+void Haploid::transpose(Haploid& other) {
     std::bernoulli_distribution bern_excision(EXCISION_RATE_);
-    for (auto& p: genome_.first) {
+    for (auto& p: sites_) {
         if (!p) continue;
         std::bernoulli_distribution bern(p->transposition_rate());
         if (bern(wtl::sfmt())) {
@@ -61,11 +42,11 @@ void Individual::transpose() {
         }
         if (bern_excision(wtl::sfmt())) {p.reset();}
     }
-    // TODO: second
+    // TODO: other
     // TODO: actual transposition
 }
 
-void Individual::recombine() {
+void Haploid::recombine(Haploid& other) {
     // TODO: population parameters
     constexpr double rho = 200;
     constexpr size_t popsize = 1000;
@@ -82,14 +63,14 @@ void Individual::recombine() {
     // TODO: make new haploid_t instances
 }
 
-void Individual::mutate() {
+void Haploid::mutate() {
     // TODO: population parameters
     constexpr double theta = 0.01;
     constexpr size_t popsize = 1000;
     const double mu = theta / popsize / 4.0;  // per TE site?
     std::poisson_distribution<size_t> poisson(mu);
     std::bernoulli_distribution bern_indel(mu * INDEL_RATIO_);
-    for (auto& p: genome_.first) {
+    for (auto& p: sites_) {
         if (!p) continue;
         const size_t num_mutations = poisson(wtl::sfmt());
         for (size_t i=0; i<num_mutations; ++i) {
@@ -97,22 +78,27 @@ void Individual::mutate() {
         }
         if (bern_indel(wtl::sfmt())) {p->indel();}
     }
-    // TODO: second
 }
 
-std::ostream& Individual::write(std::ostream& ost) const {
-    ost << genome_;
-    return ost;
+std::ostream& Haploid::write(std::ostream& ost) const {
+    size_t occupied = 0;
+    size_t active = 0;
+    for (const auto& p: sites_) {
+        if (p) {
+            ++occupied;
+            if (p->transposition_rate() > 0.0) ++active;
+        }
+    }
+    return ost << "(" << active << "/" << occupied << ")";
 }
 
-std::ostream& operator<<(std::ostream& ost, const Individual& ind) {
-    return ind.write(ost);
+std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
+    return x.write(ost);
 }
 
-void Individual::unit_test() {HERE;
-    Individual ind;
-    std::cout << ind << std::endl;
+void Haploid::unit_test() {HERE;
+    Haploid x;
+    std::cout << x << std::endl;
 }
-
 
 } // namespace tek
