@@ -19,17 +19,23 @@ namespace tek {
 
 typedef std::vector<std::shared_ptr<Transposon>> haploid_t;
 
+extern std::ostream& operator<<(std::ostream& ost, const haploid_t& chr);
+
 class Individual {
   public:
     static constexpr unsigned int NUM_SITES = 2000;
 
-    Individual(): chromosomes_{haploid_t(NUM_SITES), haploid_t(NUM_SITES)} {};
-    Individual(const haploid_t&, const haploid_t&);
+    Individual(): genome_{haploid_t(NUM_SITES), haploid_t(NUM_SITES)} {};
+    Individual(const haploid_t& egg, const haploid_t& sperm)
+    : genome_{egg, sperm} {};
 
     double fitness() const;
     void transpose();
     void recombine();
     void mutate();
+    std::pair<haploid_t, haploid_t>&& extract_genome() {
+        return std::move(genome_);
+    }
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Individual&);
@@ -45,7 +51,7 @@ class Individual {
     static double XI_;
     static double EXCISION_RATE_;
 
-    std::pair<haploid_t, haploid_t> chromosomes_;
+    std::pair<haploid_t, haploid_t> genome_;
 };
 
 } // namespace tek

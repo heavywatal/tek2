@@ -18,12 +18,14 @@ class Population {
   public:
     Population(const size_t n);
 
+    void step();
+
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 
     static void unit_test();
   private:
-    std::vector<Individual> individuals_;
+    std::vector<haploid_t> gametes_;
 };
 
 } // namespace tek

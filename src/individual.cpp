@@ -9,15 +9,25 @@
 #include <numeric>
 
 #include "wtl/debug.hpp"
+#include "wtl/iostr.hpp"
 #include "wtl/prandom.hpp"
 
 namespace tek {
 
+std::ostream& operator<<(std::ostream& ost, const haploid_t& chr) {
+    size_t occupied = 0;
+    size_t active = 0;
+    for (const auto& p: chr) {
+        if (p) {
+            ++occupied;
+            if (p->transposition_rate() > 0.0) ++active;
+        }
+    }
+    return ost << "(" << active << "/" << occupied << ")";
+}
+
 double Individual::XI_ = 1e-4;
 double Individual::EXCISION_RATE_ = 1e-6;
-
-Individual::Individual(const haploid_t& hap0, const haploid_t& hap1)
-: chromosomes_{hap0, hap1} {}
 
 double Individual::fitness() const {
     std::valarray<double> s_gpj(NUM_SITES);  // TODO: class variable
@@ -31,8 +41,8 @@ double Individual::fitness() const {
 std::valarray<double> Individual::genotype() const {
     std::valarray<double> z(NUM_SITES);
     for (size_t j=0; j<NUM_SITES; ++j) {
-        if (chromosomes_.first[j]) ++z[j];
-        if (chromosomes_.second[j]) ++z[j];
+        if (genome_.first[j]) ++z[j];
+        if (genome_.second[j]) ++z[j];
     }
     return z;
 }
@@ -43,7 +53,7 @@ double Individual::s_cn(const unsigned int n) const {
 
 void Individual::transpose() {
     std::bernoulli_distribution bern_excision(EXCISION_RATE_);
-    for (auto& p: chromosomes_.first) {
+    for (auto& p: genome_.first) {
         if (!p) continue;
         std::bernoulli_distribution bern(p->transposition_rate());
         if (bern(wtl::sfmt())) {
@@ -79,7 +89,7 @@ void Individual::mutate() {
     const double mu = theta / popsize / 4.0;  // per TE site?
     std::poisson_distribution<size_t> poisson(mu);
     std::bernoulli_distribution bern_indel(mu * INDEL_RATIO_);
-    for (auto& p: chromosomes_.first) {
+    for (auto& p: genome_.first) {
         if (!p) continue;
         const size_t num_mutations = poisson(wtl::sfmt());
         for (size_t i=0; i<num_mutations; ++i) {
@@ -91,7 +101,7 @@ void Individual::mutate() {
 }
 
 std::ostream& Individual::write(std::ostream& ost) const {
-    ost << fitness();
+    ost << genome_;
     return ost;
 }
 
