@@ -16,8 +16,16 @@ namespace tek {
 
 double Haploid::XI_ = 1e-4;
 double Haploid::EXCISION_RATE_ = 1e-6;
+std::uniform_int_distribution<size_t> Haploid::SITES_DIST_(0, Haploid::NUM_SITES - 1U);
+std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
-Haploid::Haploid(): sites_(NUM_SITES) {}
+size_t Haploid::random_index() {
+    return SITES_DIST_(wtl::sfmt());
+}
+
+Haploid::Haploid(): sites_(NUM_SITES) {
+    sites_[random_index()] = ORIGINAL_TE_;
+}
 
 double Haploid::s_cn(const unsigned int n) {
     return std::pow(XI_ * n, TAU_);
@@ -54,10 +62,9 @@ void Haploid::recombine(Haploid& other) {
     std::poisson_distribution<size_t> poisson(c * NUM_SITES); // -1?
     const size_t num_chiasma = poisson(wtl::sfmt());
     if (num_chiasma == 0U) return;
-    std::uniform_int_distribution<size_t> unif(0, NUM_SITES - 1);
     std::vector<size_t> positions(num_chiasma);
     for (size_t i=0; i<num_chiasma; ++i) {
-        positions[i] = unif(wtl::sfmt());
+        positions[i] = random_index();
     }
     std::sort(positions.begin(), positions.end());
     // TODO: make new haploid_t instances

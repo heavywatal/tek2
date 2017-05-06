@@ -44,6 +44,7 @@ class Haploid {
         }
         return v;
     }
+    static size_t random_index();
     static double s_cn(const unsigned int);
 
     void transpose(Haploid&);
@@ -54,6 +55,8 @@ class Haploid {
     static constexpr double TAU_ = 1.5;
     static double XI_;
     static double EXCISION_RATE_;
+    static std::uniform_int_distribution<size_t> SITES_DIST_;
+    static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::vector<std::shared_ptr<Transposon>> sites_;
 };
