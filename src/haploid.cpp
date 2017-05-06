@@ -62,12 +62,24 @@ void Haploid::recombine(Haploid& other) {
     std::poisson_distribution<size_t> poisson(c * NUM_SITES); // -1?
     const size_t num_chiasma = poisson(wtl::sfmt());
     if (num_chiasma == 0U) return;
-    std::vector<size_t> positions(num_chiasma);
+    std::vector<size_t> positions(num_chiasma + 1U);
     for (size_t i=0; i<num_chiasma; ++i) {
         positions[i] = random_index();
     }
+    positions[num_chiasma] = -1U;
     std::sort(positions.begin(), positions.end());
-    // TODO: make new haploid_t instances
+    bool flg = false;
+    for (size_t i=0, j=0; j<NUM_SITES; ++j) {
+        if (j == positions[i]) {
+            flg ^= flg;
+            ++i;
+        }
+        if (flg) {
+            auto tmp = sites_[j];
+            sites_[j] = other.sites_[j];
+            other.sites_[j] = tmp;
+        }
+    }
 }
 
 void Haploid::mutate() {
@@ -80,10 +92,16 @@ void Haploid::mutate() {
     for (auto& p: sites_) {
         if (!p) continue;
         const size_t num_mutations = poisson(wtl::sfmt());
+        const bool is_deactivating = bern_indel(wtl::sfmt());
+        if (num_mutations > 0 || is_deactivating) {
+            p = std::make_shared<Transposon>(*p);
+        }
         for (size_t i=0; i<num_mutations; ++i) {
             p->mutate();
         }
-        if (bern_indel(wtl::sfmt())) {p->indel();}
+        if (is_deactivating) {
+            p->indel();
+        }
     }
 }
 
