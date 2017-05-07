@@ -6,9 +6,9 @@
 #ifndef TEK_POPULATION_HPP_
 #define TEK_POPULATION_HPP_
 
-#include <vector>
-
 #include "haploid.hpp"
+
+#include <vector>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

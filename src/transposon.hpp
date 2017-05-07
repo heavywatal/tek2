@@ -9,6 +9,8 @@
 #include <iosfwd>
 #include <bitset>
 
+#include <boost/program_options.hpp>
+
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
@@ -26,6 +28,7 @@ class Transposon {
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
+    static boost::program_options::options_description options_desc();
     static void unit_test();
 
   private:

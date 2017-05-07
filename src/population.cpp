@@ -17,7 +17,7 @@ Population::Population(const size_t n)
     Haploid::set_parameters(n, THETA_, RHO_);
 }
 
-void Population::step() {HERE;
+void Population::step() {
     std::vector<Haploid> nextgen;
     nextgen.reserve(gametes_.size());
     std::uniform_int_distribution<size_t> unif(0, gametes_.size() - 1U);

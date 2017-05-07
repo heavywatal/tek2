@@ -8,9 +8,9 @@
 #include <iostream>
 #include <numeric>
 
-#include "wtl/debug.hpp"
-#include "wtl/iostr.hpp"
-#include "wtl/prandom.hpp"
+#include <wtl/debug.hpp>
+#include <wtl/iostr.hpp>
+#include <wtl/prandom.hpp>
 
 namespace tek {
 
@@ -23,6 +23,17 @@ std::poisson_distribution<> Haploid::NUM_CHIASMATA_DIST_(1.0);
 std::bernoulli_distribution Haploid::INDEL_DIST_(0.5);
 std::bernoulli_distribution Haploid::EXCISION_DIST_(0.5);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
+
+namespace po = boost::program_options;
+
+po::options_description Haploid::options_desc() {HERE;
+    po::options_description description("Haploid");
+    description.add_options()
+      ("xi", po::value(&XI_)->default_value(XI_))
+      ("nu", po::value(&EXCISION_RATE_)->default_value(EXCISION_RATE_))
+      ("lambda", po::value(&MEAN_SELECTION_COEF_)->default_value(MEAN_SELECTION_COEF_));
+    return description;
+}
 
 void Haploid::set_SELECTION_COEFS_GP() {
     std::bernoulli_distribution bernoulli(PROP_FUNCTIONAL_SITES_);

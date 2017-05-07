@@ -3,6 +3,9 @@
     @brief Inplementation of Program class
 */
 #include "program.hpp"
+#include "population.hpp"
+#include "haploid.hpp"
+#include "transposon.hpp"
 
 #include <csignal>
 #include <cstdlib>
@@ -14,8 +17,6 @@
 #include <wtl/iostr.hpp>
 #include <wtl/os.hpp>
 #include <wtl/getopt.hpp>
-
-#include "population.hpp"
 
 namespace tek {
 
@@ -33,7 +34,10 @@ inline po::options_description general_desc() {HERE;
 po::options_description Program::options_desc() {HERE;
     po::options_description description("Program");
     description.add_options()
-      ("popsize,n", po::value(&popsize_)->default_value(popsize_));
+      ("popsize,n", po::value(&popsize_)->default_value(popsize_))
+      ("generations,g", po::value(&num_generations_)->default_value(num_generations_));
+    description.add(Haploid::options_desc());
+    description.add(Transposon::options_desc());
     return description;
 }
 
@@ -96,7 +100,13 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 
 void Program::run() {HERE;
     try {
-        Population pop(4);
+        Population pop(popsize_);
+        for (size_t t=0; t<num_generations_; ++t) {
+            pop.step();
+            std::cerr << "." << std::flush;
+        }
+        std::cerr << std::endl;
+        std::cout << pop << std::endl;
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;
     }

@@ -6,14 +6,24 @@
 
 #include <iostream>
 
-#include "wtl/debug.hpp"
-#include "wtl/math.hpp"
-#include "wtl/prandom.hpp"
+#include <wtl/debug.hpp>
+#include <wtl/math.hpp>
+#include <wtl/prandom.hpp>
 
 namespace tek {
 
 double Transposon::ALPHA_ = 0.8;
 unsigned int Transposon::BETA_ = 24U;
+
+namespace po = boost::program_options;
+
+po::options_description Transposon::options_desc() {HERE;
+    po::options_description description("Transposon");
+    description.add_options()
+      ("alpha", po::value(&ALPHA_)->default_value(ALPHA_))
+      ("beta", po::value(&BETA_)->default_value(BETA_));
+    return description;
+}
 
 void Transposon::mutate() {
     std::uniform_int_distribution<unsigned int> dist(0U, SEQUENCE_LENGTH_ - 1U);

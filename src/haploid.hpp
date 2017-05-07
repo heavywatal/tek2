@@ -6,13 +6,15 @@
 #ifndef TEK_HAPLOID_HPP_
 #define TEK_HAPLOID_HPP_
 
+#include "transposon.hpp"
+
 #include <iosfwd>
 #include <vector>
 #include <valarray>
 #include <memory>
 #include <random>
 
-#include "transposon.hpp"
+#include <boost/program_options.hpp>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -36,6 +38,7 @@ class Haploid {
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
     static void set_parameters(const size_t popsize, const double theta, const double rho);
+    static boost::program_options::options_description options_desc();
     static void unit_test();
 
   private:
