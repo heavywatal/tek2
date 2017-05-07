@@ -45,7 +45,8 @@ class Haploid {
         return v;
     }
     static size_t random_index();
-    static double s_cn(const unsigned int);
+    static double selection_coef_cn(const unsigned int);
+    static void set_SELECTION_COEFS_GP();
 
     void transpose(Haploid&);
     std::vector<std::shared_ptr<Transposon>> transpose();
@@ -54,8 +55,11 @@ class Haploid {
 
     static constexpr double INDEL_RATIO_ = 0.2;
     static constexpr double TAU_ = 1.5;
+    static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
     static double XI_;
     static double EXCISION_RATE_;
+    static double MEAN_SELECTION_COEF_;
+    static std::valarray<double> SELECTION_COEFS_GP_;
     static std::uniform_int_distribution<size_t> SITES_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 

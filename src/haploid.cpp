@@ -16,8 +16,20 @@ namespace tek {
 
 double Haploid::XI_ = 1e-4;
 double Haploid::EXCISION_RATE_ = 1e-6;
+double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
+std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
 std::uniform_int_distribution<size_t> Haploid::SITES_DIST_(0, Haploid::NUM_SITES - 1U);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
+
+void Haploid::set_SELECTION_COEFS_GP() {
+    std::bernoulli_distribution bernoulli(PROP_FUNCTIONAL_SITES_);
+    std::exponential_distribution<double> expo_dist(MEAN_SELECTION_COEF_);
+    for (size_t i=0; i<NUM_SITES; ++i) {
+        if (bernoulli(wtl::sfmt())) {
+            SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
+        }
+    }
+}
 
 size_t Haploid::random_index() {
     return SITES_DIST_(wtl::sfmt());
@@ -27,17 +39,16 @@ Haploid::Haploid(): sites_(NUM_SITES) {
     sites_[random_index()] = ORIGINAL_TE_;
 }
 
-double Haploid::s_cn(const unsigned int n) {
+double Haploid::selection_coef_cn(const unsigned int n) {
     return std::pow(XI_ * n, TAU_);
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    std::valarray<double> s_gpj(NUM_SITES);  // TODO: class variable
     const auto z = valarray() + other.valarray();
-    const std::valarray<double> v = 1.0 - z * s_gpj;
+    const std::valarray<double> v = 1.0 - z * SELECTION_COEFS_GP_;
     double s_gp = 1.0;
     s_gp -= std::accumulate(std::begin(v), std::end(v), 1.0, std::multiplies<double>());
-    return (1.0 - s_gp) * (1.0 - s_cn(z.sum()));
+    return (1.0 - s_gp) * (1.0 - selection_coef_cn(z.sum()));
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
