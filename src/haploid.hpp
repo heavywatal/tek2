@@ -10,6 +10,7 @@
 #include <vector>
 #include <valarray>
 #include <memory>
+#include <random>
 
 #include "transposon.hpp"
 
@@ -34,6 +35,7 @@ class Haploid {
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
+    static void set_parameters(const size_t popsize, const double theta, const double rho);
     static void unit_test();
 
   private:
@@ -60,7 +62,10 @@ class Haploid {
     static double EXCISION_RATE_;
     static double MEAN_SELECTION_COEF_;
     static std::valarray<double> SELECTION_COEFS_GP_;
-    static std::uniform_int_distribution<size_t> SITES_DIST_;
+    static std::bernoulli_distribution EXCISION_DIST_;
+    static std::poisson_distribution<> NUM_CHIASMATA_DIST_;
+    static std::poisson_distribution<> NUM_MUTATIONS_DIST_;
+    static std::bernoulli_distribution INDEL_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::vector<std::shared_ptr<Transposon>> sites_;

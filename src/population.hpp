@@ -26,6 +26,9 @@ class Population {
     static void unit_test();
   private:
     std::vector<Haploid> gametes_;
+
+    static constexpr double THETA_ = 0.01;
+    static constexpr double RHO_ = 200;
 };
 
 } // namespace tek

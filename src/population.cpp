@@ -14,6 +14,7 @@ namespace tek {
 
 Population::Population(const size_t n)
 : gametes_(2 * n, Haploid()) {HERE;
+    Haploid::set_parameters(n, THETA_, RHO_);
 }
 
 void Population::step() {HERE;

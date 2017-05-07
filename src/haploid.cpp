@@ -18,7 +18,10 @@ double Haploid::XI_ = 1e-4;
 double Haploid::EXCISION_RATE_ = 1e-6;
 double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
-std::uniform_int_distribution<size_t> Haploid::SITES_DIST_(0, Haploid::NUM_SITES - 1U);
+std::poisson_distribution<> Haploid::NUM_MUTATIONS_DIST_(1.0);
+std::poisson_distribution<> Haploid::NUM_CHIASMATA_DIST_(1.0);
+std::bernoulli_distribution Haploid::INDEL_DIST_(0.5);
+std::bernoulli_distribution Haploid::EXCISION_DIST_(0.5);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
 void Haploid::set_SELECTION_COEFS_GP() {
@@ -31,8 +34,19 @@ void Haploid::set_SELECTION_COEFS_GP() {
     }
 }
 
+void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {
+    const double mu = theta / popsize / 4.0;  // per TE site?
+    const double c = rho / popsize / 4.0;
+    EXCISION_DIST_.param(decltype(EXCISION_DIST_)::param_type(EXCISION_RATE_));
+    NUM_CHIASMATA_DIST_.param(decltype(NUM_CHIASMATA_DIST_)::param_type(c * NUM_SITES)); // -1?
+    NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
+    INDEL_DIST_.param(decltype(INDEL_DIST_)::param_type(mu * INDEL_RATIO_));
+    set_SELECTION_COEFS_GP();
+}
+
 size_t Haploid::random_index() {
-    return SITES_DIST_(wtl::sfmt());
+    static std::uniform_int_distribution<size_t> SITES_DIST(0, Haploid::NUM_SITES - 1U);
+    return SITES_DIST(wtl::sfmt());
 }
 
 Haploid::Haploid(): sites_(NUM_SITES) {
@@ -52,7 +66,6 @@ double Haploid::fitness(const Haploid& other) const {
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
-    std::bernoulli_distribution bern_excision(EXCISION_RATE_);
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto& p: sites_) {
         if (!p) continue;
@@ -60,12 +73,13 @@ std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
         if (bern(wtl::sfmt())) {
             copying_transposons.push_back(p);
         }
-        if (bern_excision(wtl::sfmt())) {p.reset();}
+        if (EXCISION_DIST_(wtl::sfmt())) {p.reset();}
     }
     return copying_transposons;
 }
 
 void Haploid::transpose(Haploid& other) {
+    static std::bernoulli_distribution COIN_DIST(0.5);
     auto copying_transposons = this->transpose();
     {
         auto tmp = other.transpose();
@@ -73,9 +87,8 @@ void Haploid::transpose(Haploid& other) {
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
     }
-    std::bernoulli_distribution coin_dist(0.5);
     for (auto& p: copying_transposons) {
-        if (coin_dist(wtl::sfmt())) {
+        if (COIN_DIST(wtl::sfmt())) {
             auto& dest = this->sites_[random_index()];
             if (dest) continue;
             dest = std::move(p);
@@ -89,18 +102,13 @@ void Haploid::transpose(Haploid& other) {
 }
 
 void Haploid::recombine(Haploid& other) {
-    // TODO: population parameters
-    constexpr double rho = 200;
-    constexpr size_t popsize = 1000;
-    const double c = rho / popsize / 4.0;
-    std::poisson_distribution<size_t> poisson(c * NUM_SITES); // -1?
-    const size_t num_chiasma = poisson(wtl::sfmt());
-    if (num_chiasma == 0U) return;
-    std::vector<size_t> positions(num_chiasma + 1U);
-    for (size_t i=0; i<num_chiasma; ++i) {
+    const size_t num_chiasmata = NUM_CHIASMATA_DIST_(wtl::sfmt());
+    if (num_chiasmata == 0U) return;
+    std::vector<size_t> positions(num_chiasmata + 1U);
+    for (size_t i=0; i<num_chiasmata; ++i) {
         positions[i] = random_index();
     }
-    positions[num_chiasma] = -1U;
+    positions[num_chiasmata] = -1U;
     std::sort(positions.begin(), positions.end());
     bool flg = false;
     for (size_t i=0, j=0; j<NUM_SITES; ++j) {
@@ -117,20 +125,14 @@ void Haploid::recombine(Haploid& other) {
 }
 
 void Haploid::mutate() {
-    // TODO: population parameters
-    constexpr double theta = 0.01;
-    constexpr size_t popsize = 1000;
-    const double mu = theta / popsize / 4.0;  // per TE site?
-    std::poisson_distribution<size_t> poisson(mu);
-    std::bernoulli_distribution bern_indel(mu * INDEL_RATIO_);
     for (auto& p: sites_) {
         if (!p) continue;
-        const size_t num_mutations = poisson(wtl::sfmt());
-        const bool is_deactivating = bern_indel(wtl::sfmt());
+        const int num_mutations = NUM_MUTATIONS_DIST_(wtl::sfmt());
+        const bool is_deactivating = INDEL_DIST_(wtl::sfmt());
         if (num_mutations > 0 || is_deactivating) {
             p = std::make_shared<Transposon>(*p);
         }
-        for (size_t i=0; i<num_mutations; ++i) {
+        for (int i=0; i<num_mutations; ++i) {
             p->mutate();
         }
         if (is_deactivating) {
