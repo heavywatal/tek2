@@ -28,6 +28,7 @@ class Transposon {
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
+    static void set_parameters();
     static boost::program_options::options_description options_desc();
     static void unit_test();
 
@@ -38,6 +39,7 @@ class Transposon {
     static constexpr unsigned int SEQUENCE_LENGTH_ = 200;
     static constexpr double OVER_L_ = 1.0 / SEQUENCE_LENGTH_;
     static double ALPHA_;
+    static double THRESHOLD_;
     static unsigned int BETA_;
 
     std::bitset<SEQUENCE_LENGTH_> sequence_;

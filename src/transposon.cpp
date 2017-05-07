@@ -13,6 +13,7 @@
 namespace tek {
 
 double Transposon::ALPHA_ = 0.8;
+double Transposon::THRESHOLD_ = 1.0 - Transposon::ALPHA_;
 unsigned int Transposon::BETA_ = 24U;
 
 namespace po = boost::program_options;
@@ -25,17 +26,20 @@ po::options_description Transposon::options_desc() {HERE;
     return description;
 }
 
+void Transposon::set_parameters() {HERE;
+    THRESHOLD_ = 1.0 - ALPHA_;
+}
+
 void Transposon::mutate() {
-    std::uniform_int_distribution<unsigned int> dist(0U, SEQUENCE_LENGTH_ - 1U);
-    sequence_.flip(dist(wtl::sfmt()));
+    static std::uniform_int_distribution<size_t> POS_DIST(0U, SEQUENCE_LENGTH_ - 1U);
+    sequence_.flip(POS_DIST(wtl::sfmt()));
 }
 
 double Transposon::activity() const {
     if (has_indel_) return 0.0;
     const double diff = sequence_.count() * OVER_L_;
-    const double threshold = 1.0 - ALPHA_;  // TODO: class variable
-    if (diff >= threshold) return 0.0;
-    return wtl::pow((threshold - diff) / threshold, BETA_);
+    if (diff >= THRESHOLD_) return 0.0;
+    return wtl::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
 std::ostream& Transposon::write(std::ostream& ost) const {

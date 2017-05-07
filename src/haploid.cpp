@@ -35,17 +35,18 @@ po::options_description Haploid::options_desc() {HERE;
     return description;
 }
 
-void Haploid::set_SELECTION_COEFS_GP() {
+void Haploid::set_SELECTION_COEFS_GP() {HERE;
     std::bernoulli_distribution bernoulli(PROP_FUNCTIONAL_SITES_);
-    std::exponential_distribution<double> expo_dist(MEAN_SELECTION_COEF_);
+    std::exponential_distribution<double> expo_dist(1.0 / MEAN_SELECTION_COEF_);
     for (size_t i=0; i<NUM_SITES; ++i) {
         if (bernoulli(wtl::sfmt())) {
             SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
         }
     }
+    std::cerr << SELECTION_COEFS_GP_ << std::endl;
 }
 
-void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {
+void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
     const double mu = theta / popsize / 4.0;  // per TE site?
     const double c = rho / popsize / 4.0;
     EXCISION_DIST_.param(decltype(EXCISION_DIST_)::param_type(EXCISION_RATE_));

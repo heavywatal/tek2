@@ -90,6 +90,8 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
               positional(positional).run(), vm);
     if (vm["help"].as<bool>()) {help_and_exit();}
     po::notify(vm);
+    Transposon::set_parameters();
+    Haploid::set_parameters(popsize_, Population::THETA, Population::RHO);
 
     if (vm["verbose"].as<bool>()) {
         std::cerr << wtl::iso8601datetime() << std::endl;
