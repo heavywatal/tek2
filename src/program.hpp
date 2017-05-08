@@ -9,13 +9,9 @@
 #include <vector>
 #include <string>
 
-#include <wtl/exception.hpp>
+#include <boost/program_options.hpp>
 
-namespace boost {
-    namespace program_options {
-        class options_description;
-    }
-}
+#include <wtl/exception.hpp>
 
 namespace tek {
 

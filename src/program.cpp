@@ -1,17 +1,13 @@
 // -*- mode: c++; coding: utf-8 -*-
 /*! @file program.cpp
-    @brief Inplementation of Program class
+    @brief Implementation of Program class
 */
 #include "program.hpp"
 #include "population.hpp"
 #include "haploid.hpp"
 #include "transposon.hpp"
 
-#include <csignal>
-#include <cstdlib>
 #include <iostream>
-#include <memory>
-#include <regex>
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
