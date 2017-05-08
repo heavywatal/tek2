@@ -24,8 +24,9 @@ class Haploid {
   public:
     static constexpr unsigned int NUM_SITES = 2000;
 
-    Haploid();
+    Haploid(): sites_(NUM_SITES) {}
 
+    void init_founder();
     double fitness(const Haploid&) const;
     void mutate(Haploid& other) {
         transpose(other);

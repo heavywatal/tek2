@@ -12,8 +12,14 @@
 
 namespace tek {
 
-Population::Population(const size_t n)
-: gametes_(2 * n, Haploid()) {HERE;
+Population::Population(const size_t size, const size_t num_founders) {HERE;
+    Haploid founder;
+    gametes_.reserve(size * 2U);
+    founder.init_founder();
+    for (size_t i=0; i<num_founders; ++i) {
+        gametes_.push_back(founder);
+    }
+    gametes_.resize(size * 2U);
 }
 
 void Population::step() {

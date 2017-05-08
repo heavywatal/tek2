@@ -19,7 +19,7 @@ class Population {
     static constexpr double THETA = 0.01;
     static constexpr double RHO = 200;
 
-    Population(const size_t n);
+    Population(const size_t size, const size_t num_founders=1);
 
     void step();
 

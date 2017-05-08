@@ -61,7 +61,8 @@ size_t Haploid::random_index() {
     return SITES_DIST(wtl::sfmt());
 }
 
-Haploid::Haploid(): sites_(NUM_SITES) {
+void Haploid::init_founder() {
+    // TODO: avoid functional site?
     sites_[random_index()] = ORIGINAL_TE_;
 }
 

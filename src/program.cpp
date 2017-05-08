@@ -35,6 +35,7 @@ po::options_description Program::options_desc() {HERE;
     po::options_description description("Program");
     description.add_options()
       ("popsize,n", po::value(&popsize_)->default_value(popsize_))
+      ("initial,q", po::value(&initial_freq_)->default_value(initial_freq_))
       ("generations,g", po::value(&num_generations_)->default_value(num_generations_));
     description.add(Haploid::options_desc());
     description.add(Transposon::options_desc());
@@ -102,7 +103,7 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 
 void Program::run() {HERE;
     try {
-        Population pop(popsize_);
+        Population pop(popsize_, initial_freq_);
         for (size_t t=0; t<num_generations_; ++t) {
             pop.step();
             std::cerr << "." << std::flush;

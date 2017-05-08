@@ -36,6 +36,7 @@ class Program {
     void help_and_exit();
 
     size_t popsize_ = 500;
+    size_t initial_freq_ = 50;
     size_t num_generations_ = 50;
     size_t num_repeats_ = 1;
 };
