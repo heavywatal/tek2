@@ -34,6 +34,7 @@ class Haploid {
         mutate();
         other.mutate();
     }
+    std::vector<double> activities() const;
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);

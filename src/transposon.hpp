@@ -23,6 +23,7 @@ class Transposon {
 
     void mutate();
     void indel() {has_indel_ = true;}
+    double activity() const;
     double transposition_rate() const {
         return MAX_TRANSPOSITION_RATE_ * activity();
     }
@@ -35,7 +36,6 @@ class Transposon {
     static void unit_test();
 
   private:
-    double activity() const;
 
     static constexpr double MAX_TRANSPOSITION_RATE_ = 0.01;
     static constexpr size_t NUM_NONSYNONYMOUS_SITES_ = LENGTH * 2 / 3;

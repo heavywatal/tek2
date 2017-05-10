@@ -154,16 +154,18 @@ void Haploid::mutate() {
     }
 }
 
-std::ostream& Haploid::write(std::ostream& ost) const {
-    size_t occupied = 0;
-    size_t active = 0;
+std::vector<double> Haploid::activities() const {
+    std::vector<double> output;
     for (const auto& p: sites_) {
         if (p) {
-            ++occupied;
-            if (p->transposition_rate() > 0.0) ++active;
+            output.push_back(p->activity());
         }
     }
-    return ost << "(" << active << "/" << occupied << ")";
+    return output;
+}
+
+std::ostream& Haploid::write(std::ostream& ost) const {
+    return ost << activities();
 }
 
 std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
