@@ -31,19 +31,24 @@ void Transposon::set_parameters() {HERE;
 }
 
 void Transposon::mutate() {
-    static std::uniform_int_distribution<size_t> POS_DIST(0U, SEQUENCE_LENGTH_ - 1U);
-    sequence_.flip(POS_DIST(wtl::sfmt()));
+    static std::uniform_int_distribution<size_t> POS_DIST(0U, LENGTH_ - 1U);
+    size_t pos = POS_DIST(wtl::sfmt());
+    if (pos >= NUM_NONSYNONYMOUS_SITES_) {
+        synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES_);
+    } else {
+        nonsynonymous_sites_.flip(pos);
+    }
 }
 
 double Transposon::activity() const {
     if (has_indel_) return 0.0;
-    const double diff = sequence_.count() * OVER_L_;
+    const double diff = nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES_;
     if (diff >= THRESHOLD_) return 0.0;
     return wtl::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
 std::ostream& Transposon::write(std::ostream& ost) const {
-    return ost << has_indel_ << sequence_;
+    return ost << has_indel_ << nonsynonymous_sites_ << synonymous_sites_;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
