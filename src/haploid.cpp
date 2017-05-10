@@ -47,7 +47,7 @@ void Haploid::set_SELECTION_COEFS_GP() {HERE;
 }
 
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
-    const double mu = theta / popsize / 4.0;  // per TE site?
+    const double mu = Transposon::LENGTH * theta / popsize / 4.0;
     const double c = rho / popsize / 4.0;
     EXCISION_DIST_.param(decltype(EXCISION_DIST_)::param_type(EXCISION_RATE_));
     NUM_CHIASMATA_DIST_.param(decltype(NUM_CHIASMATA_DIST_)::param_type(c * NUM_SITES)); // -1?

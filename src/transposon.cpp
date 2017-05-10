@@ -31,7 +31,7 @@ void Transposon::set_parameters() {HERE;
 }
 
 void Transposon::mutate() {
-    static std::uniform_int_distribution<size_t> POS_DIST(0U, LENGTH_ - 1U);
+    static std::uniform_int_distribution<size_t> POS_DIST(0U, LENGTH - 1U);
     size_t pos = POS_DIST(wtl::sfmt());
     if (pos >= NUM_NONSYNONYMOUS_SITES_) {
         synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES_);

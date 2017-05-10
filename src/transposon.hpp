@@ -17,6 +17,8 @@ namespace tek {
 
 class Transposon {
   public:
+    static constexpr size_t LENGTH = 300;
+
     Transposon() = default;
 
     void mutate();
@@ -36,15 +38,14 @@ class Transposon {
     double activity() const;
 
     static constexpr double MAX_TRANSPOSITION_RATE_ = 0.01;
-    static constexpr size_t LENGTH_ = 300;
-    static constexpr size_t NUM_NONSYNONYMOUS_SITES_ = LENGTH_ * 2 / 3;
+    static constexpr size_t NUM_NONSYNONYMOUS_SITES_ = LENGTH * 2 / 3;
     static constexpr double OVER_NONSYNONYMOUS_SITES_ = 1.0 / NUM_NONSYNONYMOUS_SITES_;
     static double ALPHA_;
     static double THRESHOLD_;
     static unsigned int BETA_;
 
     std::bitset<NUM_NONSYNONYMOUS_SITES_> nonsynonymous_sites_;
-    std::bitset<LENGTH_ - NUM_NONSYNONYMOUS_SITES_> synonymous_sites_;
+    std::bitset<LENGTH - NUM_NONSYNONYMOUS_SITES_> synonymous_sites_;
     bool has_indel_ = false;
 };
 
