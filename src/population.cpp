@@ -38,6 +38,13 @@ void Population::step() {
     gametes_.swap(nextgen);
 }
 
+bool Population::is_extinct() const {
+    for (const auto& x: gametes_) {
+        if (x.has_transposon()) return false;
+    }
+    return true;
+}
+
 std::ostream& Population::write(std::ostream& ost) const {HERE;
     return ost << gametes_ << std::endl;
 }

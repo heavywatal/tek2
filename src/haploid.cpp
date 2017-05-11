@@ -78,6 +78,13 @@ double Haploid::fitness(const Haploid& other) const {
     return (1.0 - s_gp) * (1.0 - selection_coef_cn(z.sum()));
 }
 
+bool Haploid::has_transposon() const {
+    for (const auto& p: sites_) {
+        if (p) return true;
+    }
+    return false;
+}
+
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto& p: sites_) {

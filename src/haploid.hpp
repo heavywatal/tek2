@@ -27,7 +27,7 @@ class Haploid {
     Haploid(): sites_(NUM_SITES) {}
 
     void init_founder();
-    double fitness(const Haploid&) const;
+
     void mutate(Haploid& other) {
         transpose(other);
         recombine(other);
@@ -35,6 +35,9 @@ class Haploid {
         other.mutate();
     }
     std::vector<double> activities() const;
+
+    double fitness(const Haploid&) const;
+    bool has_transposon() const;
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);

@@ -23,6 +23,8 @@ class Population {
 
     void step();
 
+    bool is_extinct() const;
+
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 

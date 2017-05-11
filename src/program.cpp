@@ -103,6 +103,10 @@ void Program::run() {HERE;
         for (size_t t=0; t<num_generations_; ++t) {
             pop.step();
             std::cerr << "." << std::flush;
+            if (pop.is_extinct()) {
+                std::cerr << "TE extinction!" << std::endl;
+                break;
+            }
         }
         std::cerr << std::endl;
         std::cout << pop << std::endl;
