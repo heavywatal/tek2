@@ -34,6 +34,7 @@ class Haploid {
         mutate();
         other.mutate();
     }
+    void push_back_activities(std::vector<double>*) const;
     std::vector<double> activities() const;
 
     double fitness(const Haploid&) const;

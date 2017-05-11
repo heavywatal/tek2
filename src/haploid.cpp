@@ -161,13 +161,17 @@ void Haploid::mutate() {
     }
 }
 
-std::vector<double> Haploid::activities() const {
-    std::vector<double> output;
+void Haploid::push_back_activities(std::vector<double>* array) const {
     for (const auto& p: sites_) {
         if (p) {
-            output.push_back(p->activity());
+            array->push_back(p->activity());
         }
     }
+}
+
+std::vector<double> Haploid::activities() const {
+    std::vector<double> output;
+    push_back_activities(&output);
     return output;
 }
 

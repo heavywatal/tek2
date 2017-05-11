@@ -20,16 +20,17 @@ class Population {
     static constexpr double RHO = 200;
 
     Population(const size_t size, const size_t num_founders=1);
-
-    void step();
-
-    bool is_extinct() const;
+    bool evolve(const size_t max_generations);
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 
     static void unit_test();
   private:
+    std::vector<double> step(const bool is_recording=true);
+
+    bool is_extinct() const;
+
     std::vector<Haploid> gametes_;
 };
 
