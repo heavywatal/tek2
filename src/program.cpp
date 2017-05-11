@@ -97,19 +97,24 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
     test(vm["test"].as<int>());
 }
 
+bool Program::run_impl() const {
+    Population pop(popsize_, initial_freq_);
+    for (size_t t=0; t<num_generations_; ++t) {
+        pop.step();
+        std::cerr << "." << std::flush;
+        if (pop.is_extinct()) {
+            std::cerr << "Extinction!" << std::endl;
+            return false;
+        }
+    }
+    std::cerr << std::endl;
+    std::cout << pop << std::endl;
+    return true;
+}
+
 void Program::run() {HERE;
     try {
-        Population pop(popsize_, initial_freq_);
-        for (size_t t=0; t<num_generations_; ++t) {
-            pop.step();
-            std::cerr << "." << std::flush;
-            if (pop.is_extinct()) {
-                std::cerr << "TE extinction!" << std::endl;
-                break;
-            }
-        }
-        std::cerr << std::endl;
-        std::cout << pop << std::endl;
+        while (!run_impl()) {;}
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;
     }

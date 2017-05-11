@@ -31,6 +31,8 @@ class Program {
     boost::program_options::options_description positional_desc();
     void help_and_exit();
 
+    bool run_impl() const;
+
     size_t popsize_ = 500;
     size_t initial_freq_ = 1;
     size_t num_generations_ = 50;
