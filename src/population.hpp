@@ -27,7 +27,7 @@ class Population {
 
     static void unit_test();
   private:
-    std::vector<double> step(const bool is_recording=true);
+    std::map<double, unsigned int> step(const bool is_recording=true);
 
     bool is_extinct() const;
 

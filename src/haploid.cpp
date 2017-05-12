@@ -43,7 +43,6 @@ void Haploid::set_SELECTION_COEFS_GP() {HERE;
             SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
         }
     }
-    std::cerr << SELECTION_COEFS_GP_ << std::endl;
 }
 
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
@@ -161,22 +160,19 @@ void Haploid::mutate() {
     }
 }
 
-void Haploid::push_back_activities(std::vector<double>* array) const {
+void Haploid::count_activities(std::map<double, unsigned int>* const counter) const {
     for (const auto& p: sites_) {
         if (p) {
-            array->push_back(p->activity());
+            ++counter->operator[](p->activity());
         }
     }
 }
 
-std::vector<double> Haploid::activities() const {
-    std::vector<double> output;
-    push_back_activities(&output);
-    return output;
-}
-
 std::ostream& Haploid::write(std::ostream& ost) const {
-    return ost << activities();
+    for (const auto& p: sites_) {
+        if (p) ost << *p;
+    }
+    return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Haploid& x) {

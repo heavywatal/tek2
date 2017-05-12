@@ -25,13 +25,14 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
 
 bool Population::evolve(const size_t max_generations) {HERE;
     auto oss = wtl::make_oss();
-    oss << "time\tactivities\n";
+    oss << "time\tactivity\tcopies\n";
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % 5U) == 0U);
-        const auto activities = step(is_recording);
+        const auto counter = step(is_recording);
         if (is_recording) {
-            oss << t << "\t"
-                << wtl::join(activities, ",") << "\n";
+            for (const auto& p: counter) {
+                oss << t << "\t" << p.first << "\t" << p.second << "\n";
+            }
         }
         std::cerr << "." << std::flush;
         if (is_extinct()) {
@@ -44,12 +45,11 @@ bool Population::evolve(const size_t max_generations) {HERE;
     return true;
 }
 
-std::vector<double> Population::step(const bool is_recording) {
+std::map<double, unsigned int> Population::step(const bool is_recording) {
     std::vector<Haploid> nextgen;
     nextgen.reserve(gametes_.size());
     std::uniform_int_distribution<size_t> unif(0, gametes_.size() - 1U);
-    std::vector<double> activities;
-    if (is_recording) activities.reserve(gametes_.size());
+    std::map<double, unsigned int> counter;
     while (nextgen.size() < gametes_.size()) {
         auto egg = gametes_[unif(wtl::sfmt())];
         auto sperm = gametes_[unif(wtl::sfmt())];
@@ -57,14 +57,14 @@ std::vector<double> Population::step(const bool is_recording) {
         if (!bernoulli(wtl::sfmt())) continue;
         egg.mutate(sperm);
         if (is_recording) {
-            egg.push_back_activities(&activities);
-            sperm.push_back_activities(&activities);
+            egg.count_activities(&counter);
+            sperm.count_activities(&counter);
         }
         nextgen.push_back(egg);
         nextgen.push_back(sperm);
     }
     gametes_.swap(nextgen);
-    return activities;
+    return counter;
 }
 
 bool Population::is_extinct() const {

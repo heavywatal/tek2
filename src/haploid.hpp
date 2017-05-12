@@ -11,6 +11,7 @@
 #include <iosfwd>
 #include <vector>
 #include <valarray>
+#include <map>
 #include <memory>
 #include <random>
 
@@ -34,8 +35,7 @@ class Haploid {
         mutate();
         other.mutate();
     }
-    void push_back_activities(std::vector<double>*) const;
-    std::vector<double> activities() const;
+    void count_activities(std::map<double, unsigned int>* const) const;
 
     double fitness(const Haploid&) const;
     bool has_transposon() const;

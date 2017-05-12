@@ -48,7 +48,9 @@ double Transposon::activity() const {
 }
 
 std::ostream& Transposon::write(std::ostream& ost) const {
-    return ost << has_indel_ << nonsynonymous_sites_ << synonymous_sites_;
+    return ost << "(" << has_indel_ << ":"
+               << nonsynonymous_sites_.count() << ":"
+               << synonymous_sites_.count() << ")";
 }
 
 std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
