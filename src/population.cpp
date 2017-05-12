@@ -9,6 +9,7 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/prandom.hpp>
+#include <wtl/zfstream.hpp>
 
 namespace tek {
 
@@ -23,15 +24,22 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
 }
 
 bool Population::evolve(const size_t max_generations) {HERE;
-    for (size_t t=0; t<max_generations; ++t) {
-        bool is_recording = (t % 5U > 0U);
+    auto oss = wtl::make_oss();
+    oss << "time\tactivities\n";
+    for (size_t t=1; t<=max_generations; ++t) {
+        bool is_recording = ((t % 5U) == 0U);
         const auto activities = step(is_recording);
+        if (is_recording) {
+            oss << t << "\t"
+                << wtl::join(activities, ",") << "\n";
+        }
         std::cerr << "." << std::flush;
         if (is_extinct()) {
             std::cerr << "Extinction!" << std::endl;
             return false;
         }
     }
+    wtl::ozfstream("activities.tsv") << oss.str();
     std::cerr << *this << std::endl;
     return true;
 }
