@@ -28,6 +28,10 @@ class Transposon {
         return MAX_TRANSPOSITION_RATE_ * activity();
     }
 
+    double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES_;}
+    double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES_;}
+
+    std::ostream& write_summary(std::ostream&) const;
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
@@ -38,7 +42,9 @@ class Transposon {
   private:
 
     static constexpr double MAX_TRANSPOSITION_RATE_ = 0.01;
-    static constexpr size_t NUM_NONSYNONYMOUS_SITES_ = LENGTH * 2 / 3;
+    static constexpr size_t NUM_SYNONYMOUS_SITES_ = LENGTH / 3;
+    static constexpr size_t NUM_NONSYNONYMOUS_SITES_ = LENGTH - NUM_SYNONYMOUS_SITES_;
+    static constexpr double OVER_SYNONYMOUS_SITES_ = 1.0 / NUM_SYNONYMOUS_SITES_;
     static constexpr double OVER_NONSYNONYMOUS_SITES_ = 1.0 / NUM_NONSYNONYMOUS_SITES_;
     static double ALPHA_;
     static double THRESHOLD_;

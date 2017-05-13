@@ -168,9 +168,18 @@ void Haploid::count_activities(std::map<double, unsigned int>* const counter) co
     }
 }
 
+std::ostream& Haploid::write_sample(std::ostream& ost) const {
+    for (const auto& p: sites_) {
+        if (p) {
+            ost << *p << "\t" << p->ds() << "\t" << p->dn() << "\n";
+        }
+    }
+    return ost;
+}
+
 std::ostream& Haploid::write(std::ostream& ost) const {
     for (const auto& p: sites_) {
-        if (p) ost << *p;
+        if (p) p->write_summary(ost);
     }
     return ost;
 }
@@ -181,7 +190,9 @@ std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
 
 void Haploid::unit_test() {HERE;
     Haploid x;
+    x.init_founder();
     std::cout << x << std::endl;
+    x.write_sample(std::cout);
 }
 
 } // namespace tek

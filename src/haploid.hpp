@@ -40,6 +40,7 @@ class Haploid {
     double fitness(const Haploid&) const;
     bool has_transposon() const;
 
+    std::ostream& write_sample(std::ostream&) const;
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 

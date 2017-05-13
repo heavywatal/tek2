@@ -5,6 +5,7 @@
 #include "population.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
@@ -74,6 +75,15 @@ bool Population::is_extinct() const {
     return true;
 }
 
+void Population::sample() const {
+    const size_t sample_size = std::max(gametes_.size() / 100UL, 2UL);
+    std::ostringstream oss;
+    for (size_t i=0; i<sample_size; ++i) {
+        gametes_[i].write_sample(oss);
+    }
+    std::cerr << oss.str();
+}
+
 std::ostream& Population::write(std::ostream& ost) const {HERE;
     return ost << gametes_ << std::endl;
 }
@@ -83,10 +93,11 @@ std::ostream& operator<<(std::ostream& ost, const Population& pop) {
 }
 
 void Population::unit_test() {HERE;
-    Population pop(6);
-    std::cout << pop << std::endl;
+    Population pop(6, 6);
+    std::cout << pop;
     std::cout << pop.step() << std::endl;
-    std::cout << pop << std::endl;
+    std::cout << pop;
+    pop.sample();
 }
 
 } // namespace tek

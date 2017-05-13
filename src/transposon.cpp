@@ -47,10 +47,14 @@ double Transposon::activity() const {
     return wtl::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
-std::ostream& Transposon::write(std::ostream& ost) const {
+std::ostream& Transposon::write_summary(std::ostream& ost) const {
     return ost << "(" << has_indel_ << ":"
                << nonsynonymous_sites_.count() << ":"
                << synonymous_sites_.count() << ")";
+}
+
+std::ostream& Transposon::write(std::ostream& ost) const {
+    return ost << nonsynonymous_sites_ << synonymous_sites_;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
@@ -62,9 +66,10 @@ void Transposon::unit_test() {HERE;
     te.mutate();
     te.mutate();
     std::cout << te << std::endl;
+    te.write_summary(std::cout) << std::endl;
     std::cout << te.activity() << std::endl;
     te.indel();
-    std::cout << te << std::endl;
+    te.write_summary(std::cout) << std::endl;
     std::cout << te.activity() << std::endl;
 }
 

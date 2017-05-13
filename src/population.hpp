@@ -21,6 +21,7 @@ class Population {
 
     Population(const size_t size, const size_t num_founders=1);
     bool evolve(const size_t max_generations);
+    void sample() const;
 
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
