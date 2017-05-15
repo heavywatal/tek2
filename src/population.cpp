@@ -25,10 +25,11 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
 }
 
 bool Population::evolve(const size_t max_generations) {HERE;
+    const size_t record_interval = gametes_.size() * 10U;
     auto oss = wtl::make_oss();
     oss << "time\tactivity\tcopies\n";
     for (size_t t=1; t<=max_generations; ++t) {
-        bool is_recording = ((t % 5U) == 0U);
+        bool is_recording = ((t % record_interval) == 0U);
         const auto counter = step(is_recording);
         if (is_recording) {
             for (const auto& p: counter) {
