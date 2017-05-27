@@ -7,12 +7,13 @@
 #include "haploid.hpp"
 #include "transposon.hpp"
 
-#include <iostream>
-
+#include <wtl/exception.hpp>
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/os.hpp>
 #include <wtl/getopt.hpp>
+
+#include <iostream>
 
 namespace tek {
 

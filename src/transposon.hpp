@@ -6,10 +6,10 @@
 #ifndef TEK_TRANSPOSON_HPP_
 #define TEK_TRANSPOSON_HPP_
 
+#include <boost/program_options.hpp>
+
 #include <iosfwd>
 #include <bitset>
-
-#include <boost/program_options.hpp>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

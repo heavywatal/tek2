@@ -11,8 +11,6 @@
 
 #include <boost/program_options.hpp>
 
-#include <wtl/exception.hpp>
-
 namespace tek {
 
 /*! @brief Represents single run
@@ -21,6 +19,8 @@ class Program {
   public:
     //! Parse command arguments
     Program(const std::vector<std::string>& args);
+    Program(int argc, char* argv[])
+    : Program(std::vector<std::string>(argv, argv + argc)) {}
 
     //! Top level function that should be called once from main()
     void run();

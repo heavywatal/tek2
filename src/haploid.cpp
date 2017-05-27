@@ -3,14 +3,15 @@
     @brief Implementation of Haploid class
 */
 #include "haploid.hpp"
-
-#include <cmath>
-#include <iostream>
-#include <numeric>
+#include "transposon.hpp"
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/prandom.hpp>
+
+#include <cmath>
+#include <iostream>
+#include <numeric>
 
 namespace tek {
 

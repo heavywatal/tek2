@@ -2,16 +2,16 @@
 /*! @file main.cpp
     @brief Only defines tiny main()
 */
-#include <iostream>
 #include "src/program.hpp"
+#include <iostream>
+#include <stdexcept>
 
 //! Just instantiate and run Program
 int main(int argc, char* argv[]) {
-    std::vector<std::string> arguments(argv, argv + argc);
     try {
-        tek::Program program(arguments);
+        tek::Program program(argc, argv);
         program.run();
-    } catch (const wtl::ExitSuccess& e) {
+    } catch (const std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
     }
     return 0;

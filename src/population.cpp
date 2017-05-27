@@ -3,14 +3,15 @@
     @brief Implementation of Population class
 */
 #include "population.hpp"
-
-#include <iostream>
-#include <algorithm>
+#include "haploid.hpp"
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/prandom.hpp>
 #include <wtl/zfstream.hpp>
+
+#include <iostream>
+#include <algorithm>
 
 namespace tek {
 
@@ -25,7 +26,7 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
 }
 
 bool Population::evolve(const size_t max_generations) {HERE;
-    const size_t record_interval = gametes_.size() * 10U;
+    const size_t record_interval = gametes_.size() / 10U;
     auto oss = wtl::make_oss();
     oss << "time\tactivity\tcopies\n";
     for (size_t t=1; t<=max_generations; ++t) {

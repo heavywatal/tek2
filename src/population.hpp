@@ -6,13 +6,15 @@
 #ifndef TEK_POPULATION_HPP_
 #define TEK_POPULATION_HPP_
 
-#include "haploid.hpp"
-
+#include <iosfwd>
 #include <vector>
+#include <map>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
+
+class Haploid;
 
 class Population {
   public:

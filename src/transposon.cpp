@@ -4,11 +4,11 @@
 */
 #include "transposon.hpp"
 
-#include <iostream>
-
 #include <wtl/debug.hpp>
 #include <wtl/math.hpp>
 #include <wtl/prandom.hpp>
+
+#include <iostream>
 
 namespace tek {
 

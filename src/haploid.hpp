@@ -6,7 +6,7 @@
 #ifndef TEK_HAPLOID_HPP_
 #define TEK_HAPLOID_HPP_
 
-#include "transposon.hpp"
+#include <boost/program_options.hpp>
 
 #include <iosfwd>
 #include <vector>
@@ -15,11 +15,11 @@
 #include <memory>
 #include <random>
 
-#include <boost/program_options.hpp>
-
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
+
+class Transposon;
 
 class Haploid {
   public:
