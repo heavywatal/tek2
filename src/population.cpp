@@ -33,18 +33,20 @@ bool Population::evolve(const size_t max_generations) {HERE;
         bool is_recording = ((t % record_interval) == 0U);
         const auto counter = step(is_recording);
         if (is_recording) {
+            std::cerr << "*" << std::flush;
             for (const auto& p: counter) {
                 oss << t << "\t" << p.first << "\t" << p.second << "\n";
             }
+        } else {
+            std::cerr << "." << std::flush;
         }
-        std::cerr << "." << std::flush;
         if (is_extinct()) {
             std::cerr << "Extinction!" << std::endl;
             return false;
         }
     }
     wtl::ozfstream("activities.tsv") << oss.str();
-    wtl::ozfstream("individuals.tsv") << *this;
+    wtl::ozfstream("individuals.tsv.gz") << *this;
     return true;
 }
 
