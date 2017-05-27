@@ -71,7 +71,7 @@ double Haploid::selection_coef_cn(const unsigned int n) {
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    const auto z = valarray() + other.valarray();
+    const std::valarray<double> z = valarray() + other.valarray();
     const std::valarray<double> v = 1.0 - z * SELECTION_COEFS_GP_;
     double s_gp = 1.0;
     s_gp -= std::accumulate(std::begin(v), std::end(v), 1.0, std::multiplies<double>());
