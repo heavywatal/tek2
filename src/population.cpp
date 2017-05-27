@@ -26,7 +26,7 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
 }
 
 bool Population::evolve(const size_t max_generations) {HERE;
-    const size_t record_interval = gametes_.size() / 10U;
+    const size_t record_interval = gametes_.size() / 20U;
     auto oss = wtl::make_oss();
     oss << "time\tactivity\tcopies\n";
     for (size_t t=1; t<=max_generations; ++t) {
@@ -44,7 +44,7 @@ bool Population::evolve(const size_t max_generations) {HERE;
         }
     }
     wtl::ozfstream("activities.tsv") << oss.str();
-    std::cerr << *this << std::endl;
+    wtl::ozfstream("individuals.tsv") << *this;
     return true;
 }
 
