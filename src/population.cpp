@@ -58,7 +58,8 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
     while (nextgen.size() < gametes_.size()) {
         auto egg = gametes_[unif(wtl::sfmt())];
         auto sperm = gametes_[unif(wtl::sfmt())];
-        std::bernoulli_distribution bernoulli(egg.fitness(sperm));
+        const double fitness = egg.fitness(sperm);
+        std::bernoulli_distribution bernoulli(fitness);
         if (!bernoulli(wtl::sfmt())) continue;
         egg.mutate(sperm);
         if (is_recording) {

@@ -67,15 +67,17 @@ void Haploid::init_founder() {
 }
 
 double Haploid::selection_coef_cn(const unsigned int n) {
-    return std::pow(XI_ * n, TAU_);
+    return XI_ * std::pow(n, TAU_);
 }
 
 double Haploid::fitness(const Haploid& other) const {
     const std::valarray<double> z = valarray() + other.valarray();
+    const double s_cn = selection_coef_cn(z.sum());
+    if (s_cn >= 1.0) return 0.0;
     const std::valarray<double> v = 1.0 - z * SELECTION_COEFS_GP_;
     double s_gp = 1.0;
     s_gp -= std::accumulate(std::begin(v), std::end(v), 1.0, std::multiplies<double>());
-    return (1.0 - s_gp) * (1.0 - selection_coef_cn(z.sum()));
+    return (1.0 - s_gp) * (1.0 - s_cn);
 }
 
 bool Haploid::has_transposon() const {
