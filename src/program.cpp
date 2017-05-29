@@ -33,7 +33,8 @@ po::options_description Program::options_desc() {HERE;
     description.add_options()
       ("popsize,n", po::value(&popsize_)->default_value(popsize_))
       ("initial,q", po::value(&initial_freq_)->default_value(initial_freq_))
-      ("generations,g", po::value(&num_generations_)->default_value(num_generations_));
+      ("generations,g", po::value(&num_generations_)->default_value(num_generations_))
+      ("outdir,o", po::value(&outdir_)->default_value(outdir_));
     description.add(Haploid::options_desc());
     description.add(Transposon::options_desc());
     return description;
@@ -99,6 +100,8 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 }
 
 void Program::run() {HERE;
+    if (!outdir_.empty()) wtl::mkdir(outdir_);
+    wtl::Pushd cd(outdir_);
     try {
         while (true) {
             Population pop(popsize_, initial_freq_);

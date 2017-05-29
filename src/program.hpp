@@ -35,6 +35,7 @@ class Program {
     size_t initial_freq_ = 1;
     size_t num_generations_ = 50;
     size_t num_repeats_ = 1;
+    std::string outdir_ = "";
 };
 
 } // namespace tek
