@@ -49,13 +49,6 @@ class Haploid {
     static void unit_test();
 
   private:
-    std::valarray<double> valarray() const {
-        std::valarray<double> v(NUM_SITES);
-        for (size_t j=0; j<NUM_SITES; ++j) {
-            if (sites_[j]) ++v[j];
-        }
-        return v;
-    }
     static size_t random_index();
     static double selection_coef_cn(const unsigned int);
     static void set_SELECTION_COEFS_GP();
