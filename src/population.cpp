@@ -16,11 +16,9 @@
 namespace tek {
 
 Population::Population(const size_t size, const size_t num_founders) {HERE;
-    Haploid founder;
     gametes_.reserve(size * 2U);
-    founder.init_founder();
     for (size_t i=0; i<num_founders; ++i) {
-        gametes_.push_back(founder);
+        gametes_.push_back(Haploid::copy_founder());
     }
     gametes_.resize(size * 2U);
 }
@@ -56,18 +54,18 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
     std::uniform_int_distribution<size_t> unif(0, gametes_.size() - 1U);
     std::map<double, unsigned int> counter;
     while (nextgen.size() < gametes_.size()) {
-        auto egg = gametes_[unif(wtl::sfmt())];
-        auto sperm = gametes_[unif(wtl::sfmt())];
+        const auto& egg = gametes_[unif(wtl::sfmt())];
+        const auto& sperm = gametes_[unif(wtl::sfmt())];
         const double fitness = egg.fitness(sperm);
         std::bernoulli_distribution bernoulli(fitness);
         if (!bernoulli(wtl::sfmt())) continue;
-        egg.mutate(sperm);
+        auto gametes = egg.gametogenesis(sperm);
         if (is_recording) {
-            egg.count_activities(&counter);
-            sperm.count_activities(&counter);
+            gametes.first.count_activities(&counter);
+            gametes.second.count_activities(&counter);
         }
-        nextgen.push_back(egg);
-        nextgen.push_back(sperm);
+        nextgen.push_back(std::move(gametes.first));
+        nextgen.push_back(std::move(gametes.second));
     }
     gametes_.swap(nextgen);
     return counter;

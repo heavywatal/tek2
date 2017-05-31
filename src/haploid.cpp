@@ -61,9 +61,12 @@ size_t Haploid::random_index() {
     return SITES_DIST(wtl::sfmt());
 }
 
-void Haploid::init_founder() {
+Haploid Haploid::copy_founder() {
     // TODO: avoid functional site?
-    sites_[random_index()] = ORIGINAL_TE_;
+    static auto idx = random_index();
+    Haploid founder;
+    founder.sites_[idx] = ORIGINAL_TE_;
+    return founder;
 }
 
 double Haploid::selection_coef_cn(const unsigned int n) {
@@ -199,8 +202,7 @@ std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
 }
 
 void Haploid::unit_test() {HERE;
-    Haploid x;
-    x.init_founder();
+    Haploid x = Haploid::copy_founder();
     std::cout << x << std::endl;
     x.write_sample(std::cout);
 }
