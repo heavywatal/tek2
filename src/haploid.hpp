@@ -57,7 +57,6 @@ class Haploid {
     Haploid& operator=(const Haploid&) = default;
 
     static size_t random_index();
-    static double selection_coef_cn(const unsigned int);
     static void set_SELECTION_COEFS_GP();
 
     void transpose(Haploid&);

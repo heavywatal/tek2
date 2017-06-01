@@ -69,10 +69,6 @@ Haploid Haploid::copy_founder() {
     return founder;
 }
 
-double Haploid::selection_coef_cn(const unsigned int n) {
-    return XI_ * std::pow(n, TAU_);
-}
-
 double Haploid::fitness(const Haploid& other) const {
     unsigned int copy_number = 0;
     double prod_1_zs = 1.0;
@@ -85,7 +81,7 @@ double Haploid::fitness(const Haploid& other) const {
         if (zs_gpj > 1.0) return 0.0;
         prod_1_zs *= (1.0 - zs_gpj);
     }
-    const double s_cn = selection_coef_cn(copy_number);
+    const double s_cn = XI_ * std::pow(copy_number, TAU_);
     if (s_cn > 1.0) return 0.0;
     return prod_1_zs * (1.0 - s_cn);
 }
