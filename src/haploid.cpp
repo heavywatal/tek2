@@ -141,9 +141,7 @@ void Haploid::recombine(Haploid& other) {
             ++i;
         }
         if (flg) {
-            auto tmp = sites_[j];
-            sites_[j] = other.sites_[j];
-            other.sites_[j] = tmp;
+            sites_[j].swap(other.sites_[j]);
         }
     }
 }
