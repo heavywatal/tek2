@@ -111,18 +111,17 @@ void Haploid::transpose(Haploid& other) {
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
     }
+    constexpr unsigned int tolerance = 100;
     for (auto& p: copying_transposons) {
-        if (COIN_DIST(wtl::sfmt())) {
-            auto& dest = this->sites_[random_index()];
-            if (dest) continue;
-            dest = std::move(p);
-        } else {
-            auto& dest = other.sites_[random_index()];
-            if (dest) continue;
-            dest = std::move(p);
+        auto& sites = this->sites_;
+        if (COIN_DIST(wtl::sfmt())) {sites = other.sites_;}
+        auto& dest = sites[random_index()];
+        for (unsigned int i=0; dest; ++i) {
+            dest = sites[random_index()];
+            if (i > tolerance) {break;}
         }
+        dest = std::move(p);
     }
-    // TODO: should we choose targets from empty sites?
 }
 
 void Haploid::recombine(Haploid& other) {
