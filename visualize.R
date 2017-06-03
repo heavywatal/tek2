@@ -9,7 +9,7 @@ if (length(.indirs) < 1L) {
 .infiles = file.path(.indirs, 'activities.tsv') %>%
     purrr::keep(file.exists)
 
-extract_params = function(filename, params=c('lambda', 'xi', 'nu')) {
+extract_params = function(filename, params=c('alpha', 'beta', 'lambda', 'xi', 'nu')) {
     patterns = sprintf('_%s([^_]+)_', params)
     str_match(paste0('_', filename), patterns)[,2] %>%
     parse_double() %>%
@@ -28,7 +28,7 @@ extract_params(.infiles[1])
     dplyr::mutate(copies= copies / 500) %>%
     ggplot(aes(time, copies, group=activity))+
     geom_area(aes(fill=activity))+
-    facet_grid(desc(nu) ~ desc(xi) + lambda, labeller=label_both)+
+    facet_grid(alpha + desc(nu) ~ desc(xi) + lambda, labeller=label_both)+
     # wtl::scale_fill_gradientb('Spectral', reverse=TRUE)+
     scale_fill_gradientn(colours=rev(head(rainbow(15L), 12L)), breaks=c(0, 0.5, 1))+
     wtl::theme_wtl()+
