@@ -59,8 +59,8 @@ class Haploid {
     static size_t random_index();
     static void set_SELECTION_COEFS_GP();
 
-    void transpose(Haploid&);
     std::vector<std::shared_ptr<Transposon>> transpose();
+    void transpose(Haploid&);
     void recombine(Haploid&);
     void mutate();
 
@@ -72,7 +72,7 @@ class Haploid {
     static double MEAN_SELECTION_COEF_;
     static std::valarray<double> SELECTION_COEFS_GP_;
     static std::bernoulli_distribution EXCISION_DIST_;
-    static std::poisson_distribution<> NUM_CHIASMATA_DIST_;
+    static std::bernoulli_distribution CHIASMA_DIST_;
     static std::poisson_distribution<> NUM_MUTATIONS_DIST_;
     static std::bernoulli_distribution INDEL_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;

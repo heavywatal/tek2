@@ -20,7 +20,7 @@ double Haploid::EXCISION_RATE_ = 1e-6;
 double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
 std::poisson_distribution<> Haploid::NUM_MUTATIONS_DIST_(1.0);
-std::poisson_distribution<> Haploid::NUM_CHIASMATA_DIST_(1.0);
+std::bernoulli_distribution Haploid::CHIASMA_DIST_(0.5);
 std::bernoulli_distribution Haploid::INDEL_DIST_(0.5);
 std::bernoulli_distribution Haploid::EXCISION_DIST_(0.5);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
@@ -50,7 +50,7 @@ void Haploid::set_parameters(const size_t popsize, const double theta, const dou
     const double mu = Transposon::LENGTH * theta / popsize / 4.0;
     const double c = rho / popsize / 4.0;
     EXCISION_DIST_.param(decltype(EXCISION_DIST_)::param_type(EXCISION_RATE_));
-    NUM_CHIASMATA_DIST_.param(decltype(NUM_CHIASMATA_DIST_)::param_type(c * NUM_SITES)); // -1?
+    CHIASMA_DIST_.param(decltype(CHIASMA_DIST_)::param_type(c));
     NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
     INDEL_DIST_.param(decltype(INDEL_DIST_)::param_type(mu * INDEL_RATIO_));
     set_SELECTION_COEFS_GP();
@@ -125,19 +125,10 @@ void Haploid::transpose(Haploid& other) {
 }
 
 void Haploid::recombine(Haploid& other) {
-    const size_t num_chiasmata = NUM_CHIASMATA_DIST_(wtl::sfmt());
-    if (num_chiasmata == 0U) return;
-    std::vector<size_t> positions(num_chiasmata + 1U);
-    for (size_t i=0; i<num_chiasmata; ++i) {
-        positions[i] = random_index();
-    }
-    positions[num_chiasmata] = -1U;
-    std::sort(positions.begin(), positions.end());
     bool flg = false;
-    for (size_t i=0, j=0; j<NUM_SITES; ++j) {
-        if (j == positions[i]) {
-            flg ^= flg;
-            ++i;
+    for (size_t j=1; j<NUM_SITES; ++j) {
+        if (CHIASMA_DIST_(wtl::sfmt())) {
+            flg = !flg;
         }
         if (flg) {
             sites_[j].swap(other.sites_[j]);
