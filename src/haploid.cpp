@@ -82,6 +82,14 @@ double Haploid::fitness(const Haploid& other) const {
     return std::max(prod_1_zs * (1.0 - s_cn), 0.0);
 }
 
+unsigned int Haploid::count_transposons() const {
+    unsigned int cnt = 0;
+    for (const auto& p: sites_) {
+        if (p) ++cnt;
+    }
+    return cnt;
+}
+
 bool Haploid::has_transposon() const {
     for (const auto& p: sites_) {
         if (p) return true;

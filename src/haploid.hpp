@@ -41,6 +41,7 @@ class Haploid {
     void count_activities(std::map<double, unsigned int>* const) const;
 
     double fitness(const Haploid&) const;
+    unsigned int count_transposons() const;
     bool has_transposon() const;
 
     std::ostream& write_sample(std::ostream&) const;
