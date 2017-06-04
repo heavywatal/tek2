@@ -10,6 +10,7 @@
 
 #include <iosfwd>
 #include <bitset>
+#include <array>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -18,18 +19,26 @@ namespace tek {
 class Transposon {
   public:
     static constexpr size_t LENGTH = 300;
+    static constexpr size_t NUM_SYNONYMOUS_SITES = LENGTH / 3;
+    static constexpr size_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
+    static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
+    static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
+    static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
 
     Transposon() = default;
 
     void mutate();
     void indel() {has_indel_ = true;}
-    double activity() const;
+    double activity() const {
+        if (has_indel_) return 0.0;
+        return ACTIVITY_[nonsynonymous_sites_.count()];
+    }
     double transposition_rate() const {
-        return MAX_TRANSPOSITION_RATE_ * activity();
+        return MAX_TRANSPOSITION_RATE * activity();
     }
 
-    double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES_;}
-    double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES_;}
+    double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
+    double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
     std::ostream& write_summary(std::ostream&) const;
     std::ostream& write(std::ostream&) const;
@@ -41,17 +50,14 @@ class Transposon {
 
   private:
 
-    static constexpr double MAX_TRANSPOSITION_RATE_ = 0.01;
-    static constexpr size_t NUM_SYNONYMOUS_SITES_ = LENGTH / 3;
-    static constexpr size_t NUM_NONSYNONYMOUS_SITES_ = LENGTH - NUM_SYNONYMOUS_SITES_;
-    static constexpr double OVER_SYNONYMOUS_SITES_ = 1.0 / NUM_SYNONYMOUS_SITES_;
-    static constexpr double OVER_NONSYNONYMOUS_SITES_ = 1.0 / NUM_NONSYNONYMOUS_SITES_;
+    static double calc_activity(const size_t);
     static double ALPHA_;
     static double THRESHOLD_;
     static unsigned int BETA_;
+    static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
 
-    std::bitset<NUM_NONSYNONYMOUS_SITES_> nonsynonymous_sites_;
-    std::bitset<LENGTH - NUM_NONSYNONYMOUS_SITES_> synonymous_sites_;
+    std::bitset<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
+    std::bitset<LENGTH - NUM_NONSYNONYMOUS_SITES> synonymous_sites_;
     bool has_indel_ = false;
 };
 

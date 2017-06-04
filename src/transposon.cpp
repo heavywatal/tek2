@@ -15,6 +15,7 @@ namespace tek {
 double Transposon::ALPHA_ = 0.8;
 double Transposon::THRESHOLD_ = 1.0 - Transposon::ALPHA_;
 unsigned int Transposon::BETA_ = 24U;
+std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 
 namespace po = boost::program_options;
 
@@ -28,23 +29,25 @@ po::options_description Transposon::options_desc() {HERE;
 
 void Transposon::set_parameters() {HERE;
     THRESHOLD_ = 1.0 - ALPHA_;
+    for (size_t i=0; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+        ACTIVITY_[i] = calc_activity(i);
+    }
+}
+
+double Transposon::calc_activity(const size_t n) {
+    const double diff = n * OVER_NONSYNONYMOUS_SITES;
+    if (diff >= THRESHOLD_) return 0.0;
+    return wtl::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
 void Transposon::mutate() {
     static std::uniform_int_distribution<size_t> POS_DIST(0U, LENGTH - 1U);
     size_t pos = POS_DIST(wtl::sfmt());
-    if (pos >= NUM_NONSYNONYMOUS_SITES_) {
-        synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES_);
+    if (pos >= NUM_NONSYNONYMOUS_SITES) {
+        synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES);
     } else {
         nonsynonymous_sites_.flip(pos);
     }
-}
-
-double Transposon::activity() const {
-    if (has_indel_) return 0.0;
-    const double diff = nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES_;
-    if (diff >= THRESHOLD_) return 0.0;
-    return wtl::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
 std::ostream& Transposon::write_summary(std::ostream& ost) const {
