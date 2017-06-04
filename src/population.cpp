@@ -57,8 +57,7 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
         const auto& egg = gametes_[unif(wtl::sfmt())];
         const auto& sperm = gametes_[unif(wtl::sfmt())];
         const double fitness = egg.fitness(sperm);
-        std::bernoulli_distribution bernoulli(fitness);
-        if (!bernoulli(wtl::sfmt())) continue;
+        if (fitness < wtl::sfmt().canonical()) continue;
         auto gametes = egg.gametogenesis(sperm);
         if (is_recording) {
             gametes.first.count_activities(&counter);

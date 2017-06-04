@@ -18,11 +18,11 @@ namespace tek {
 double Haploid::XI_ = 1e-4;
 double Haploid::EXCISION_RATE_ = 1e-6;
 double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
+
+double Haploid::RECOMBINATION_RATE_ = 0.0;
+double Haploid::INDEL_RATE_ = 0.0;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
-std::poisson_distribution<> Haploid::NUM_MUTATIONS_DIST_(1.0);
-std::bernoulli_distribution Haploid::CHIASMA_DIST_(0.5);
-std::bernoulli_distribution Haploid::INDEL_DIST_(0.5);
-std::bernoulli_distribution Haploid::EXCISION_DIST_(0.5);
+std::poisson_distribution<> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
 namespace po = boost::program_options;
@@ -37,22 +37,20 @@ po::options_description Haploid::options_desc() {HERE;
 }
 
 void Haploid::set_SELECTION_COEFS_GP() {HERE;
-    std::bernoulli_distribution bernoulli(PROP_FUNCTIONAL_SITES_);
     std::exponential_distribution<double> expo_dist(1.0 / MEAN_SELECTION_COEF_);
     for (size_t i=0; i<NUM_SITES; ++i) {
-        if (bernoulli(wtl::sfmt())) {
+        if (wtl::sfmt().canonical() < PROP_FUNCTIONAL_SITES_) {
             SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
         }
     }
 }
 
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
-    const double mu = Transposon::LENGTH * theta / popsize / 4.0;
-    const double c = rho / popsize / 4.0;
-    EXCISION_DIST_.param(decltype(EXCISION_DIST_)::param_type(EXCISION_RATE_));
-    CHIASMA_DIST_.param(decltype(CHIASMA_DIST_)::param_type(c));
+    const double four_n = 4.0 * popsize;
+    RECOMBINATION_RATE_ = rho / four_n;
+    const double mu = Transposon::LENGTH * theta / four_n;
+    INDEL_RATE_ = mu * INDEL_RATIO_;
     NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
-    INDEL_DIST_.param(decltype(INDEL_DIST_)::param_type(mu * INDEL_RATIO_));
     set_SELECTION_COEFS_GP();
 }
 
@@ -101,17 +99,17 @@ std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto& p: sites_) {
         if (!p) continue;
-        std::bernoulli_distribution bern(p->transposition_rate());
-        if (bern(wtl::sfmt())) {
+        if (wtl::sfmt().canonical() < p->transposition_rate()) {
             copying_transposons.push_back(p);
         }
-        if (EXCISION_DIST_(wtl::sfmt())) {p.reset();}
+        if (wtl::sfmt().canonical() < EXCISION_RATE_) {
+            p.reset();
+        }
     }
     return copying_transposons;
 }
 
 void Haploid::transpose(Haploid& other) {
-    static std::bernoulli_distribution COIN_DIST(0.5);
     auto copying_transposons = this->transpose();
     {
         auto tmp = other.transpose();
@@ -122,7 +120,7 @@ void Haploid::transpose(Haploid& other) {
     constexpr unsigned int tolerance = 100;
     for (auto& p: copying_transposons) {
         auto& sites = this->sites_;
-        if (COIN_DIST(wtl::sfmt())) {sites = other.sites_;}
+        if (wtl::sfmt().canonical() < 0.5) {sites = other.sites_;}
         auto& dest = sites[random_index()];
         for (unsigned int i=0; dest; ++i) {
             dest = sites[random_index()];
@@ -135,7 +133,7 @@ void Haploid::transpose(Haploid& other) {
 void Haploid::recombine(Haploid& other) {
     bool flg = false;
     for (size_t j=1; j<NUM_SITES; ++j) {
-        if (CHIASMA_DIST_(wtl::sfmt())) {
+        if (wtl::sfmt().canonical() < RECOMBINATION_RATE_) {
             flg = !flg;
         }
         if (flg) {
@@ -148,7 +146,7 @@ void Haploid::mutate() {
     for (auto& p: sites_) {
         if (!p) continue;
         const int num_mutations = NUM_MUTATIONS_DIST_(wtl::sfmt());
-        const bool is_deactivating = INDEL_DIST_(wtl::sfmt());
+        const bool is_deactivating = wtl::sfmt().canonical() < INDEL_RATE_;
         if (num_mutations > 0 || is_deactivating) {
             p = std::make_shared<Transposon>(*p);
         }

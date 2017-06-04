@@ -71,11 +71,11 @@ class Haploid {
     static double XI_;
     static double EXCISION_RATE_;
     static double MEAN_SELECTION_COEF_;
+
+    static double RECOMBINATION_RATE_;
+    static double INDEL_RATE_;
     static std::valarray<double> SELECTION_COEFS_GP_;
-    static std::bernoulli_distribution EXCISION_DIST_;
-    static std::bernoulli_distribution CHIASMA_DIST_;
     static std::poisson_distribution<> NUM_MUTATIONS_DIST_;
-    static std::bernoulli_distribution INDEL_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::vector<std::shared_ptr<Transposon>> sites_;
