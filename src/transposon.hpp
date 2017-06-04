@@ -37,7 +37,7 @@ class Transposon {
 
     static void set_parameters();
     static boost::program_options::options_description options_desc();
-    static void unit_test();
+    static void test();
 
   private:
 

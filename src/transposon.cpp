@@ -61,7 +61,7 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
     return x.write(ost);
 }
 
-void Transposon::unit_test() {HERE;
+void Transposon::test() {HERE;
     Transposon te;
     te.mutate();
     te.mutate();

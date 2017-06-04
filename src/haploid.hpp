@@ -51,7 +51,7 @@ class Haploid {
     static Haploid copy_founder();
     static void set_parameters(const size_t popsize, const double theta, const double rho);
     static boost::program_options::options_description options_desc();
-    static void unit_test();
+    static void test();
 
   private:
     Haploid(const Haploid&) = default;

@@ -28,7 +28,7 @@ class Population {
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 
-    static void unit_test();
+    static void test();
   private:
     std::map<double, unsigned int> step(const bool is_recording=true);
 

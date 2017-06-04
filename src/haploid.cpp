@@ -189,7 +189,7 @@ std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
     return x.write(ost);
 }
 
-void Haploid::unit_test() {HERE;
+void Haploid::test() {HERE;
     Haploid x = Haploid::copy_founder();
     std::cout << x << std::endl;
     x.write_sample(std::cout);

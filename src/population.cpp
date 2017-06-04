@@ -95,7 +95,7 @@ std::ostream& operator<<(std::ostream& ost, const Population& pop) {
     return pop.write(ost);
 }
 
-void Population::unit_test() {HERE;
+void Population::test() {HERE;
     Population pop(6, 6);
     std::cout << pop;
     std::cout << pop.step() << std::endl;
