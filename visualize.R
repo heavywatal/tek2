@@ -1,5 +1,6 @@
 library(tidyverse)
 library(wtl)
+loadNamespace('cowplot')
 
 .indirs = wtl::command_args()$args
 if (length(.indirs) < 1L) {
@@ -24,12 +25,20 @@ extract_params(.infiles[1])
     dplyr::mutate(data= purrr::map(infile, read_tsv)) %>%
     tidyr::unnest() %>% print()
 
-.data %>%
-    dplyr::mutate(copies= copies / 500) %>%
-    ggplot(aes(time, copies, group=activity))+
+plot_copynumber_time = function(.data, .title='') {
+    ggplot(.data, aes(time, copies, group=activity))+
     geom_area(aes(fill=activity))+
-    facet_grid(alpha + desc(nu) ~ desc(xi) + lambda, labeller=label_both)+
+    facet_grid(alpha + desc(nu) ~ lambda, labeller=label_both)+
     # wtl::scale_fill_gradientb('Spectral', reverse=TRUE)+
     scale_fill_gradientn(colours=rev(head(rainbow(15L), 12L)), breaks=c(0, 0.5, 1))+
+    labs(title=.title)+
     wtl::theme_wtl()+
     theme(legend.position='bottom')
+}
+
+.nested = .data %>%
+    dplyr::mutate(copies= copies / 500) %>%
+    tidyr::nest(-xi) %>%
+    dplyr::mutate(plt= purrr::map2(data, paste0('xi = ', xi), plot_copynumber_time))
+
+cowplot::plot_grid(plotlist=.nested$plt, nrow=1)
