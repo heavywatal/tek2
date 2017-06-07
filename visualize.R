@@ -41,4 +41,7 @@ plot_copynumber_time = function(.data, .title='') {
     tidyr::nest(-xi) %>%
     dplyr::mutate(plt= purrr::map2(data, paste0('xi = ', xi), plot_copynumber_time))
 
-cowplot::plot_grid(plotlist=.nested$plt, nrow=1)
+.p = cowplot::plot_grid(plotlist=.nested$plt, nrow=1)
+.p
+
+ggsave('fig-s2.png', .p, width=15, height=12)
