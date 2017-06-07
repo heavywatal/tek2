@@ -122,9 +122,9 @@ void Haploid::transpose(Haploid& other) {
         auto& sites = this->sites_;
         if (wtl::sfmt().canonical() < 0.5) {sites = other.sites_;}
         auto& dest = sites[random_index()];
-        for (unsigned int i=0; dest; ++i) {
+        for (unsigned int i=0; i<tolerance; ++i) {
+            if (!dest) break;
             dest = sites[random_index()];
-            if (i > tolerance) {break;}
         }
         dest = std::move(p);
     }
