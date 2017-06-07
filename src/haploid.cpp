@@ -22,7 +22,7 @@ double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
-std::poisson_distribution<> Haploid::NUM_MUTATIONS_DIST_(0.0);
+std::poisson_distribution<unsigned int> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
 namespace po = boost::program_options;
@@ -143,14 +143,15 @@ void Haploid::recombine(Haploid& other) {
 }
 
 void Haploid::mutate() {
+    using cnt_t = decltype(NUM_MUTATIONS_DIST_)::result_type;
     for (auto& p: sites_) {
         if (!p) continue;
-        const int num_mutations = NUM_MUTATIONS_DIST_(wtl::sfmt());
+        const cnt_t num_mutations = NUM_MUTATIONS_DIST_(wtl::sfmt());
         const bool is_deactivating = wtl::sfmt().canonical() < INDEL_RATE_;
         if (num_mutations > 0 || is_deactivating) {
             p = std::make_shared<Transposon>(*p);
         }
-        for (int i=0; i<num_mutations; ++i) {
+        for (cnt_t i=0; i<num_mutations; ++i) {
             p->mutate();
         }
         if (is_deactivating) {

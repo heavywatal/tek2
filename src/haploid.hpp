@@ -75,7 +75,7 @@ class Haploid {
     static double RECOMBINATION_RATE_;
     static double INDEL_RATE_;
     static std::valarray<double> SELECTION_COEFS_GP_;
-    static std::poisson_distribution<> NUM_MUTATIONS_DIST_;
+    static std::poisson_distribution<unsigned int> NUM_MUTATIONS_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::vector<std::shared_ptr<Transposon>> sites_;
