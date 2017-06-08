@@ -5,10 +5,11 @@
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
-#include <wtl/math.hpp>
 #include <wtl/prandom.hpp>
 
+#include <cmath>
 #include <iostream>
+#include <fstream>
 
 namespace tek {
 
@@ -37,7 +38,7 @@ void Transposon::set_parameters() {HERE;
 double Transposon::calc_activity(const size_t n) {
     const double diff = n * OVER_NONSYNONYMOUS_SITES;
     if (diff >= THRESHOLD_) return 0.0;
-    return wtl::pow(1.0 - diff / THRESHOLD_, BETA_);
+    return std::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
 void Transposon::mutate() {
@@ -74,6 +75,16 @@ void Transposon::test() {HERE;
     te.indel();
     te.write_summary(std::cout) << std::endl;
     std::cout << te.activity() << std::endl;
+    {
+        std::ofstream ost("activity.tsv");
+        ost << "identity\tactivity\n";
+        for (size_t i=0; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+            double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
+            if (identity < 0.7) continue;
+            ost << identity << "\t" << ACTIVITY_[i] << "\n";
+        }
+        // read_tsv('activity.tsv') %>% ggplot(aes(identity, activity)) + geom_line()
+    }
 }
 
 } // namespace tek
