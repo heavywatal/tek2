@@ -75,15 +75,32 @@ void Transposon::test() {HERE;
     te.indel();
     te.write_summary(std::cout) << std::endl;
     std::cout << te.activity() << std::endl;
-    {
-        std::ofstream ost("activity.tsv");
-        ost << "identity\tactivity\n";
-        for (size_t i=0; i<NUM_NONSYNONYMOUS_SITES; ++i) {
-            double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
-            if (identity < 0.7) continue;
-            ost << identity << "\t" << ACTIVITY_[i] << "\n";
-        }
-        // read_tsv('activity.tsv') %>% ggplot(aes(identity, activity)) + geom_line()
+    test_activity();
+}
+
+void Transposon::test_activity() {HERE;
+    std::ofstream ost("activity.tsv");
+    ost << "alpha\tbeta\tidentity\tactivity\n";
+    test_activity(ost, 0.70,  6);
+    test_activity(ost, 0.75, 12);
+    test_activity(ost, 0.80, 24);
+    test_activity(ost, 0.85, 48);
+    /* R
+    read_tsv('activity.tsv') %>%
+    {ggplot(., aes(identity, activity, group=alpha, colour=alpha)) + geom_line()} %>%
+    {ggsave('fig1.pdf', ., width=5, height=3)}
+    */
+}
+
+void Transposon::test_activity(std::ostream& ost, const double alpha, const unsigned int beta) {
+    ALPHA_ = alpha;
+    BETA_ = beta;
+    set_parameters();
+    for (size_t i=0; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+        double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
+        if (identity < 0.7) continue;
+        ost << alpha << "\t" << beta << "\t"
+            << identity << "\t" << ACTIVITY_[i] << "\n";
     }
 }
 

@@ -51,6 +51,9 @@ class Transposon {
   private:
 
     static double calc_activity(const size_t);
+    static void test_activity();
+    static void test_activity(std::ostream&, const double alpha, const unsigned int beta);
+
     static double ALPHA_;
     static double THRESHOLD_;
     static unsigned int BETA_;
