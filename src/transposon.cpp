@@ -5,7 +5,6 @@
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
-#include <wtl/prandom.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -41,16 +40,6 @@ double Transposon::calc_activity(const size_t num_mutations) {
     return std::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
 
-void Transposon::mutate() {
-    static std::uniform_int_distribution<size_t> POS_DIST(0U, LENGTH - 1U);
-    size_t pos = POS_DIST(wtl::sfmt());
-    if (pos >= NUM_NONSYNONYMOUS_SITES) {
-        synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES);
-    } else {
-        nonsynonymous_sites_.flip(pos);
-    }
-}
-
 std::ostream& Transposon::write_summary(std::ostream& ost) const {
     return ost << "(" << has_indel_ << ":"
                << nonsynonymous_sites_.count() << ":"
@@ -67,8 +56,9 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
 
 void Transposon::test() {HERE;
     Transposon te;
-    te.mutate();
-    te.mutate();
+    std::mt19937 mt(std::random_device{}());
+    te.mutate(mt);
+    te.mutate(mt);
     std::cout << te << std::endl;
     te.write_summary(std::cout) << std::endl;
     std::cout << te.activity() << std::endl;

@@ -152,7 +152,7 @@ void Haploid::mutate() {
             p = std::make_shared<Transposon>(*p);
         }
         for (cnt_t i=0; i<num_mutations; ++i) {
-            p->mutate();
+            p->mutate(wtl::sfmt());
         }
         if (is_deactivating) {
             p->indel();

@@ -11,6 +11,7 @@
 #include <iosfwd>
 #include <bitset>
 #include <array>
+#include <random>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -27,7 +28,17 @@ class Transposon {
 
     Transposon() = default;
 
-    void mutate();
+    template <class URNG> inline
+    void mutate(URNG& generator) {
+        static std::uniform_int_distribution<size_t> UNIF_LEN(0U, LENGTH - 1U);
+        size_t pos = UNIF_LEN(generator);
+        if (pos >= NUM_NONSYNONYMOUS_SITES) {
+            synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES);
+        } else {
+            nonsynonymous_sites_.flip(pos);
+        }
+    }
+
     void indel() {has_indel_ = true;}
     double activity() const {
         if (has_indel_) return 0.0;
