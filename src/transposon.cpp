@@ -35,8 +35,8 @@ void Transposon::set_parameters() {HERE;
     }
 }
 
-double Transposon::calc_activity(const size_t n) {
-    const double diff = n * OVER_NONSYNONYMOUS_SITES;
+double Transposon::calc_activity(const size_t num_mutations) {
+    const double diff = num_mutations * OVER_NONSYNONYMOUS_SITES;
     if (diff >= THRESHOLD_) return 0.0;
     return std::pow(1.0 - diff / THRESHOLD_, BETA_);
 }
