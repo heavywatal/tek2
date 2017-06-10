@@ -22,6 +22,7 @@ double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
+std::uniform_int_distribution<size_t> Haploid::UNIFORM_SITES_(0, Haploid::NUM_SITES - 1U);
 std::poisson_distribution<unsigned int> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
@@ -54,14 +55,9 @@ void Haploid::set_parameters(const size_t popsize, const double theta, const dou
     set_SELECTION_COEFS_GP();
 }
 
-size_t Haploid::random_index() {
-    static std::uniform_int_distribution<size_t> SITES_DIST(0, Haploid::NUM_SITES - 1U);
-    return SITES_DIST(wtl::sfmt());
-}
-
 Haploid Haploid::copy_founder() {
     // TODO: avoid functional site?
-    static auto idx = random_index();
+    static auto idx = UNIFORM_SITES_(wtl::sfmt());
     Haploid founder;
     founder.sites_[idx] = ORIGINAL_TE_;
     return founder;
@@ -95,24 +91,24 @@ bool Haploid::has_transposon() const {
     return false;
 }
 
-std::vector<std::shared_ptr<Transposon>> Haploid::transpose() {
+std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto& p: sites_) {
         if (!p) continue;
-        if (wtl::sfmt().canonical() < p->transposition_rate()) {
+        if (rng.canonical() < p->transposition_rate()) {
             copying_transposons.push_back(p);
         }
-        if (wtl::sfmt().canonical() < EXCISION_RATE_) {
+        if (rng.canonical() < EXCISION_RATE_) {
             p.reset();
         }
     }
     return copying_transposons;
 }
 
-void Haploid::transpose(Haploid& other) {
-    auto copying_transposons = this->transpose();
+void Haploid::transpose(Haploid& other, URNG& rng) {
+    auto copying_transposons = this->transpose(rng);
     {
-        auto tmp = other.transpose();
+        auto tmp = other.transpose(rng);
         copying_transposons.insert(copying_transposons.end(),
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
@@ -120,20 +116,20 @@ void Haploid::transpose(Haploid& other) {
     constexpr unsigned int tolerance = 100;
     for (auto& p: copying_transposons) {
         auto& sites = this->sites_;
-        if (wtl::sfmt().canonical() < 0.5) {sites = other.sites_;}
-        auto& dest = sites[random_index()];
+        if (rng.canonical() < 0.5) {sites = other.sites_;}
+        auto& dest = sites[UNIFORM_SITES_(rng)];
         for (unsigned int i=0; i<tolerance; ++i) {
             if (!dest) break;
-            dest = sites[random_index()];
+            dest = sites[UNIFORM_SITES_(rng)];
         }
         dest = std::move(p);
     }
 }
 
-void Haploid::recombine(Haploid& other) {
+void Haploid::recombine(Haploid& other, URNG& rng) {
     bool flg = false;
     for (size_t j=1; j<NUM_SITES; ++j) {
-        if (wtl::sfmt().canonical() < RECOMBINATION_RATE_) {
+        if (rng.canonical() < RECOMBINATION_RATE_) {
             flg = !flg;
         }
         if (flg) {
@@ -142,17 +138,17 @@ void Haploid::recombine(Haploid& other) {
     }
 }
 
-void Haploid::mutate() {
+void Haploid::mutate(URNG& rng) {
     using cnt_t = decltype(NUM_MUTATIONS_DIST_)::result_type;
     for (auto& p: sites_) {
         if (!p) continue;
-        const cnt_t num_mutations = NUM_MUTATIONS_DIST_(wtl::sfmt());
-        const bool is_deactivating = wtl::sfmt().canonical() < INDEL_RATE_;
+        const cnt_t num_mutations = NUM_MUTATIONS_DIST_(rng);
+        const bool is_deactivating = rng.canonical() < INDEL_RATE_;
         if (num_mutations > 0 || is_deactivating) {
             p = std::make_shared<Transposon>(*p);
         }
         for (cnt_t i=0; i<num_mutations; ++i) {
-            p->mutate(wtl::sfmt());
+            p->mutate(rng);
         }
         if (is_deactivating) {
             p->indel();

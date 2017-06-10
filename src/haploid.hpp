@@ -17,24 +17,28 @@
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
+namespace wtl {
+    class sfmt19937;
+}
+
 namespace tek {
 
 class Transposon;
 
 class Haploid {
   public:
-    static constexpr unsigned int NUM_SITES = 2000;
+    using URNG = wtl::sfmt19937;
 
     Haploid(): sites_(NUM_SITES) {}
     Haploid(Haploid&& other) = default;
     Haploid& operator=(Haploid&&) = default;
 
-    std::pair<Haploid, Haploid> gametogenesis(const Haploid& other) const {
+    std::pair<Haploid, Haploid> gametogenesis(const Haploid& other, URNG& rng) const {
         Haploid lhalf(*this), rhalf(other);
-        lhalf.transpose(rhalf);
-        lhalf.recombine(rhalf);
-        lhalf.mutate();
-        rhalf.mutate();
+        lhalf.transpose(rhalf, rng);
+        lhalf.recombine(rhalf, rng);
+        lhalf.mutate(rng);
+        rhalf.mutate(rng);
         return std::make_pair(std::move(lhalf), std::move(rhalf));
     }
 
@@ -57,14 +61,14 @@ class Haploid {
     Haploid(const Haploid&) = default;
     Haploid& operator=(const Haploid&) = default;
 
-    static size_t random_index();
     static void set_SELECTION_COEFS_GP();
 
-    std::vector<std::shared_ptr<Transposon>> transpose();
-    void transpose(Haploid&);
-    void recombine(Haploid&);
-    void mutate();
+    std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
+    void transpose(Haploid&, URNG&);
+    void recombine(Haploid&, URNG&);
+    void mutate(URNG&);
 
+    static constexpr size_t NUM_SITES = 2000;
     static constexpr double INDEL_RATIO_ = 0.2;
     static constexpr double TAU_ = 1.5;
     static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
@@ -75,6 +79,7 @@ class Haploid {
     static double RECOMBINATION_RATE_;
     static double INDEL_RATE_;
     static std::valarray<double> SELECTION_COEFS_GP_;
+    static std::uniform_int_distribution<size_t> UNIFORM_SITES_;
     static std::poisson_distribution<unsigned int> NUM_MUTATIONS_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
