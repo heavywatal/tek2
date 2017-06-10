@@ -20,8 +20,8 @@ def iter_values(rest):
             yield wopt.OrderedDict(**di, **dj)
 
 
-def iter_args(rest, repeat):
-    const = [program] + rest
+def iter_args(rest, concurrency, repeat):
+    const = [program, '-j{}'.format(concurrency)] + rest
     suffix = '_{}_{}'.format(wopt.now(), wopt.getpid())
     for i, v in enumerate(wopt.cycle(iter_values(rest), repeat)):
         args = wopt.make_args(v)
@@ -37,8 +37,8 @@ def main():
     parser.add_argument('-r', '--repeat', type=int, default=1)
     (args, rest) = parser.parse_known_args()
 
-    wopt.map_async(iter_args(rest, args.repeat),
-                   args.jobs, args.dry_run)
+    wopt.map_async(iter_args(rest, args.jobs, args.repeat),
+                   1, args.dry_run)
     print('End of ' + __file__)
 
 
