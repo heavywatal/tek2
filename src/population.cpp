@@ -17,7 +17,8 @@
 
 namespace tek {
 
-Population::Population(const size_t size, const size_t num_founders) {HERE;
+Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
+: concurrency_(concurrency) {HERE;
     gametes_.reserve(size * 2U);
     for (size_t i=0; i<num_founders; ++i) {
         gametes_.push_back(Haploid::copy_founder());
@@ -75,10 +76,9 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
             nextgen.push_back(std::move(gametes.second));
         }
     };
-    constexpr size_t concurrency = 4;
     std::vector<std::future<void>> futures;
-    futures.reserve(concurrency);
-    for (size_t i=0; i<concurrency; ++i) {
+    futures.reserve(concurrency_);
+    for (size_t i=0; i<concurrency_; ++i) {
         futures.push_back(std::async(std::launch::async, task, wtl::sfmt()()));
     }
     for (auto& f: futures) f.wait();

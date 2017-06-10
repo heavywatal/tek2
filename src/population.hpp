@@ -21,7 +21,7 @@ class Population {
     static constexpr double THETA = 0.01;
     static constexpr double RHO = 200;
 
-    Population(const size_t size, const size_t num_founders=1);
+    Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
     bool evolve(const size_t max_generations);
     void sample() const;
 
@@ -35,6 +35,7 @@ class Population {
     bool is_extinct() const;
 
     std::vector<Haploid> gametes_;
+    const unsigned int concurrency_;
 };
 
 } // namespace tek
