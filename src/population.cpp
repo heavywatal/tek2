@@ -12,6 +12,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <mutex>
+#include <future>
 
 namespace tek {
 
@@ -49,23 +51,37 @@ bool Population::evolve(const size_t max_generations) {HERE;
 }
 
 std::map<double, unsigned int> Population::step(const bool is_recording) {
+    const size_t num_gametes = gametes_.size();
     std::vector<Haploid> nextgen;
-    nextgen.reserve(gametes_.size());
-    std::uniform_int_distribution<size_t> unif(0, gametes_.size() - 1U);
+    nextgen.reserve(num_gametes);
     std::map<double, unsigned int> counter;
-    while (nextgen.size() < gametes_.size()) {
-        const auto& egg = gametes_[unif(wtl::sfmt())];
-        const auto& sperm = gametes_[unif(wtl::sfmt())];
-        const double fitness = egg.fitness(sperm);
-        if (fitness < wtl::sfmt().canonical()) continue;
-        auto gametes = egg.gametogenesis(sperm, wtl::sfmt());
-        if (is_recording) {
-            gametes.first.count_activities(&counter);
-            gametes.second.count_activities(&counter);
+    std::mutex mtx;
+    auto task = [&,this](const size_t seed) {
+        wtl::sfmt19937 rng(seed);
+        std::uniform_int_distribution<size_t> unif(0, num_gametes - 1U);
+        while (true) {
+            const auto& egg = gametes_[unif(rng)];
+            const auto& sperm = gametes_[unif(rng)];
+            const double fitness = egg.fitness(sperm);
+            if (fitness < rng.canonical()) continue;
+            auto gametes = egg.gametogenesis(sperm, rng);
+            std::lock_guard<std::mutex> lock(mtx);
+            if (is_recording) {
+                gametes.first.count_activities(&counter);
+                gametes.second.count_activities(&counter);
+            }
+            if (nextgen.size() >= num_gametes) break;
+            nextgen.push_back(std::move(gametes.first));
+            nextgen.push_back(std::move(gametes.second));
         }
-        nextgen.push_back(std::move(gametes.first));
-        nextgen.push_back(std::move(gametes.second));
+    };
+    constexpr size_t concurrency = 4;
+    std::vector<std::future<void>> futures;
+    futures.reserve(concurrency);
+    for (size_t i=0; i<concurrency; ++i) {
+        futures.push_back(std::async(std::launch::async, task, wtl::sfmt()()));
     }
+    for (auto& f: futures) f.wait();
     gametes_.swap(nextgen);
     return counter;
 }
