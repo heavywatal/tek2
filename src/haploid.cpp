@@ -7,7 +7,7 @@
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
-#include <wtl/prandom.hpp>
+#include <sfmt.hpp>
 
 #include <cmath>
 #include <iostream>

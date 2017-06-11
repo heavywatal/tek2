@@ -7,8 +7,8 @@
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
-#include <wtl/prandom.hpp>
 #include <wtl/zfstream.hpp>
+#include <sfmt.hpp>
 
 #include <iostream>
 #include <algorithm>
