@@ -7,6 +7,7 @@
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
+#include <wtl/prandom.hpp>
 #include <sfmt.hpp>
 
 #include <cmath>
@@ -38,11 +39,13 @@ po::options_description Haploid::options_desc() {HERE;
 }
 
 void Haploid::set_SELECTION_COEFS_GP() {HERE;
+    std::vector<size_t> sites(NUM_SITES);
+    std::iota(sites.begin(), sites.end(), 0);
+    const size_t n = NUM_SITES * PROP_FUNCTIONAL_SITES_;
+    const auto functional_sites = wtl::sample(sites, n, wtl::sfmt());
     std::exponential_distribution<double> expo_dist(1.0 / MEAN_SELECTION_COEF_);
-    for (size_t i=0; i<NUM_SITES; ++i) {
-        if (wtl::sfmt().canonical() < PROP_FUNCTIONAL_SITES_) {
-            SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
-        }
+    for (const auto i: functional_sites) {
+        SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
     }
 }
 
