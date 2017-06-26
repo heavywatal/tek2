@@ -33,20 +33,11 @@ class Haploid {
     Haploid(Haploid&& other) = default;
     Haploid& operator=(Haploid&&) = default;
 
-    std::pair<Haploid, Haploid> gametogenesis(const Haploid& other, URNG& rng) const {
-        Haploid lhalf(*this), rhalf(other);
-        lhalf.transpose(rhalf, rng);
-        lhalf.recombine(rhalf, rng);
-        lhalf.mutate(rng);
-        rhalf.mutate(rng);
-        return std::make_pair(std::move(lhalf), std::move(rhalf));
-    }
-
-    void count_activities(std::map<double, unsigned int>* const) const;
-
+    std::pair<Haploid, Haploid> gametogenesis(const Haploid& other, URNG& rng) const;
     double fitness(const Haploid&) const;
-    unsigned int count_transposons() const;
-    bool has_transposon() const;
+
+    bool has_transposon() const {return copy_number_ > 0U;};
+    void count_activities(std::map<double, unsigned int>* const) const;
 
     std::ostream& write_sample(std::ostream&) const;
     std::ostream& write(std::ostream&) const;
@@ -67,6 +58,7 @@ class Haploid {
     void transpose(Haploid&, URNG&);
     void recombine(Haploid&, URNG&);
     void mutate(URNG&);
+    void evaluate_fitness();
 
     static constexpr size_t NUM_SITES = 2000;
     static constexpr double INDEL_RATIO_ = 0.2;
@@ -84,6 +76,8 @@ class Haploid {
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::vector<std::shared_ptr<Transposon>> sites_;
+    double prod_1_zs_ = 1.0;
+    size_t copy_number_ = 0;
 };
 
 } // namespace tek

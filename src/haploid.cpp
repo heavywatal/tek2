@@ -27,6 +27,9 @@ std::uniform_int_distribution<size_t> Haploid::UNIFORM_SITES_(0, Haploid::NUM_SI
 std::poisson_distribution<unsigned int> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
+/////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+// static functions
+
 namespace po = boost::program_options;
 
 po::options_description Haploid::options_desc() {HERE;
@@ -63,33 +66,21 @@ Haploid Haploid::copy_founder() {
     static auto idx = UNIFORM_SITES_(wtl::sfmt());
     Haploid founder;
     founder.sites_[idx] = ORIGINAL_TE_;
+    founder.evaluate_fitness();
     return founder;
 }
 
-double Haploid::fitness(const Haploid& other) const {
-    unsigned int copy_number = 0;
-    double prod_1_zs = 1.0;
-    for (size_t j=0; j<NUM_SITES; ++j) {
-        if (this->sites_[j]) {++copy_number; prod_1_zs *= (1.0 - SELECTION_COEFS_GP_[j]);}
-        if (other.sites_[j]) {++copy_number; prod_1_zs *= (1.0 - SELECTION_COEFS_GP_[j]);}
-    }
-    const double s_cn = XI_ * std::pow(copy_number, TAU_);
-    return std::max(prod_1_zs * (1.0 - s_cn), 0.0);
-}
+/////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
-unsigned int Haploid::count_transposons() const {
-    unsigned int cnt = 0;
-    for (const auto& p: sites_) {
-        if (p) ++cnt;
-    }
-    return cnt;
-}
-
-bool Haploid::has_transposon() const {
-    for (const auto& p: sites_) {
-        if (p) return true;
-    }
-    return false;
+std::pair<Haploid, Haploid> Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
+    Haploid lhalf(*this), rhalf(other);
+    lhalf.transpose(rhalf, rng);
+    lhalf.recombine(rhalf, rng);
+    lhalf.mutate(rng);
+    rhalf.mutate(rng);
+    lhalf.evaluate_fitness();
+    rhalf.evaluate_fitness();
+    return std::make_pair(std::move(lhalf), std::move(rhalf));
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
@@ -155,6 +146,22 @@ void Haploid::mutate(URNG& rng) {
             p->indel();
         }
     }
+}
+
+void Haploid::evaluate_fitness() {
+    copy_number_ = 0U;
+    prod_1_zs_ = 1.0;
+    for (size_t j=0; j<NUM_SITES; ++j) {
+        if (sites_[j]) {
+            ++copy_number_;
+            prod_1_zs_ *= (1.0 - SELECTION_COEFS_GP_[j]);
+        }
+    }
+}
+
+double Haploid::fitness(const Haploid& other) const {
+    const double s_cn = XI_ * std::pow(copy_number_ + other.copy_number_, TAU_);
+    return std::max(prod_1_zs_ * other.prod_1_zs_ * (1.0 - s_cn), 0.0);
 }
 
 void Haploid::count_activities(std::map<double, unsigned int>* const counter) const {
