@@ -70,10 +70,8 @@ double Haploid::fitness(const Haploid& other) const {
     unsigned int copy_number = 0;
     double prod_1_zs = 1.0;
     for (size_t j=0; j<NUM_SITES; ++j) {
-        double one_zs = 1.0;
-        if (this->sites_[j]) {++copy_number; one_zs -= SELECTION_COEFS_GP_[j];}
-        if (other.sites_[j]) {++copy_number; one_zs -= SELECTION_COEFS_GP_[j];}
-        prod_1_zs *= one_zs;
+        if (this->sites_[j]) {++copy_number; prod_1_zs *= (1.0 - SELECTION_COEFS_GP_[j]);}
+        if (other.sites_[j]) {++copy_number; prod_1_zs *= (1.0 - SELECTION_COEFS_GP_[j]);}
     }
     const double s_cn = XI_ * std::pow(copy_number, TAU_);
     return std::max(prod_1_zs * (1.0 - s_cn), 0.0);
