@@ -20,7 +20,7 @@ endif()
 
 set(Boost_NO_BOOST_CMAKE TRUE)
 set(BOOST_ROOT ~/local)
-find_package(Boost REQUIRED COMPONENTS program_options context iostreams)
+find_package(Boost REQUIRED COMPONENTS program_options context iostreams filesystem)
 message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
 

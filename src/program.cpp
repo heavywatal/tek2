@@ -10,13 +10,15 @@
 #include <wtl/exception.hpp>
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
-#include <wtl/os.hpp>
 #include <wtl/getopt.hpp>
+
+#include <boost/filesystem.hpp>
 
 #include <iostream>
 
 namespace tek {
 
+namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 inline po::options_description general_desc() {HERE;
@@ -101,8 +103,8 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 }
 
 void Program::run() {HERE;
-    if (!outdir_.empty()) wtl::mkdir(outdir_);
-    wtl::Pushd cd(outdir_);
+    if (!outdir_.empty()) fs::create_directory(outdir_);
+    fs::current_path(outdir_);
     try {
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
