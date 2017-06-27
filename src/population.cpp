@@ -8,6 +8,7 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/zfstream.hpp>
+#include <wtl/prandom.hpp>
 #include <sfmt.hpp>
 
 #include <iostream>
@@ -53,27 +54,34 @@ bool Population::evolve(const size_t max_generations) {HERE;
 
 std::map<double, unsigned int> Population::step(const bool is_recording) {
     const size_t num_gametes = gametes_.size();
+    std::vector<size_t> indices(num_gametes / 2U);
+    std::iota(indices.begin(), indices.end(), 0U);
     std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
     std::map<double, unsigned int> counter;
     std::mutex mtx;
     auto task = [&,this](const size_t seed) {
         wtl::sfmt19937 rng(seed);
-        std::uniform_int_distribution<size_t> unif(0, num_gametes - 1U);
         while (true) {
-            const auto& egg = gametes_[unif(rng)];
-            const auto& sperm = gametes_[unif(rng)];
+            const auto parents = wtl::sample(indices, 2U, rng);
+            const auto& mother_lchr = gametes_[2U * parents[0U]];
+            const auto& mother_rchr = gametes_[2U * parents[0U] + 1U];
+            const auto& father_lchr = gametes_[2U * parents[1U]];
+            const auto& father_rchr = gametes_[2U * parents[1U] + 1U];
+            auto egg = mother_lchr.gametogenesis(mother_rchr, rng).first;
+            auto sperm = father_lchr.gametogenesis(father_rchr, rng).first;
             const double fitness = egg.fitness(sperm);
             if (fitness < rng.canonical()) continue;
-            auto gametes = egg.gametogenesis(sperm, rng);
-            std::lock_guard<std::mutex> lock(mtx);
             if (is_recording) {
-                gametes.first.count_activities(&counter);
-                gametes.second.count_activities(&counter);
+                std::lock_guard<std::mutex> lock(mtx);
+                egg.count_activities(&counter);
+                sperm.count_activities(&counter);
             }
+            egg.transpose_mutate(sperm, rng);
+            std::lock_guard<std::mutex> lock(mtx);
             if (nextgen.size() >= num_gametes) break;
-            nextgen.push_back(std::move(gametes.first));
-            nextgen.push_back(std::move(gametes.second));
+            nextgen.push_back(std::move(egg));
+            nextgen.push_back(std::move(sperm));
         }
     };
     std::vector<std::future<void>> futures;

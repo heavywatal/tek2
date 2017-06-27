@@ -34,6 +34,7 @@ class Haploid {
     Haploid& operator=(Haploid&&) = default;
 
     std::pair<Haploid, Haploid> gametogenesis(const Haploid& other, URNG& rng) const;
+    void transpose_mutate(Haploid& other, URNG& rng);
     double fitness(const Haploid&) const;
 
     bool has_transposon() const {return copy_number_ > 0U;};
@@ -55,7 +56,6 @@ class Haploid {
     static void set_SELECTION_COEFS_GP();
 
     std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
-    void transpose(Haploid&, URNG&);
     void recombine(Haploid&, URNG&);
     void mutate(URNG&);
     void evaluate_fitness();
