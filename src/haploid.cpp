@@ -12,6 +12,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <numeric>
 
 namespace tek {
@@ -196,7 +197,12 @@ void Haploid::test() {HERE;
     Haploid x = Haploid::copy_founder();
     std::cout << x << std::endl;
     x.write_sample(std::cout);
-    std::cout << "max(s_gpj): " << *std::max_element(std::begin(SELECTION_COEFS_GP_), std::end(SELECTION_COEFS_GP_)) << std::endl;
+    std::ofstream("tek-selection_coefs_gp.tsv") << "coef\n" << wtl::str_join(SELECTION_COEFS_GP_, "\n");
+    /*R
+    read_tsv('tek-selection_coefs_gp.tsv') %>%
+    {ggplot(., aes(coef)) + geom_histogram(bins=30) + theme_bw()} %>%
+    {ggsave('selection_coefs_gp.pdf', ., width=4, height=4)}
+    */
 }
 
 } // namespace tek

@@ -69,16 +69,16 @@ void Transposon::test() {HERE;
 }
 
 void Transposon::test_activity() {HERE;
-    std::ofstream ost("activity.tsv");
+    std::ofstream ost("tek-activity_function.tsv");
     ost << "alpha\tbeta\tidentity\tactivity\n";
     test_activity(ost, 0.70,  6);
     test_activity(ost, 0.75, 12);
     test_activity(ost, 0.80, 24);
     test_activity(ost, 0.85, 48);
     /* R
-    read_tsv('activity.tsv') %>%
+    read_tsv('tek-activity_function.tsv') %>%
     {ggplot(., aes(identity, activity, group=alpha, colour=alpha)) + geom_line()} %>%
-    {ggsave('fig1.pdf', ., width=5, height=3)}
+    {ggsave('activity_function.pdf', ., width=5, height=3)}
     */
 }
 
