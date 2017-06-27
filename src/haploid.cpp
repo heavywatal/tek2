@@ -73,12 +73,16 @@ Haploid Haploid::copy_founder() {
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
-std::pair<Haploid, Haploid> Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
+Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
     Haploid lhalf(*this), rhalf(other);
     lhalf.recombine(rhalf, rng);
-    lhalf.evaluate_fitness();
-    rhalf.evaluate_fitness();
-    return std::make_pair(std::move(lhalf), std::move(rhalf));
+    if (rng.canonical() < 0.5) {
+        lhalf.evaluate_fitness();
+        return lhalf;
+    } else {
+        rhalf.evaluate_fitness();
+        return rhalf;
+    }
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {

@@ -68,8 +68,8 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
             const auto& mother_rchr = gametes_[2U * parents[0U] + 1U];
             const auto& father_lchr = gametes_[2U * parents[1U]];
             const auto& father_rchr = gametes_[2U * parents[1U] + 1U];
-            auto egg = mother_lchr.gametogenesis(mother_rchr, rng).first;
-            auto sperm = father_lchr.gametogenesis(father_rchr, rng).first;
+            auto egg   = mother_lchr.gametogenesis(mother_rchr, rng);
+            auto sperm = father_lchr.gametogenesis(father_rchr, rng);
             const double fitness = egg.fitness(sperm);
             if (fitness < rng.canonical()) continue;
             if (is_recording) {

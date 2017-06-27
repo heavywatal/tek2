@@ -33,7 +33,7 @@ class Haploid {
     Haploid(Haploid&& other) = default;
     Haploid& operator=(Haploid&&) = default;
 
-    std::pair<Haploid, Haploid> gametogenesis(const Haploid& other, URNG& rng) const;
+    Haploid gametogenesis(const Haploid& other, URNG& rng) const;
     void transpose_mutate(Haploid& other, URNG& rng);
     double fitness(const Haploid&) const;
 
