@@ -103,8 +103,10 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 }
 
 void Program::run() {HERE;
-    if (!outdir_.empty()) fs::create_directory(outdir_);
-    fs::current_path(outdir_);
+    if (!outdir_.empty()){
+        fs::create_directory(outdir_);
+        fs::current_path(outdir_);
+    }
     try {
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
