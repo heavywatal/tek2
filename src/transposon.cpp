@@ -12,9 +12,9 @@
 
 namespace tek {
 
-double Transposon::ALPHA_ = 0.8;
-double Transposon::THRESHOLD_ = 1.0 - Transposon::ALPHA_;
-unsigned int Transposon::BETA_ = 24U;
+double Transposon::ALPHA_ = 0.7;
+unsigned int Transposon::BETA_ = 6U;
+double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 
 namespace po = boost::program_options;

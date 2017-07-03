@@ -2,6 +2,7 @@ library(tidyverse)
 library(wtl)
 loadNamespace('cowplot')
 
+.indirs = '.'
 .indirs = wtl::command_args()$args
 if (length(.indirs) < 1L) {
     .indirs = list.dirs(full.names=FALSE, recursive=FALSE)
