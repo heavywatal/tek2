@@ -47,7 +47,12 @@ std::ostream& Transposon::write_summary(std::ostream& ost) const {
 }
 
 std::ostream& Transposon::write(std::ostream& ost) const {
-    return ost << nonsynonymous_sites_ << synonymous_sites_;
+    for (size_t in=0, is=0; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
+        ost << nonsynonymous_sites_[in];
+        ost << nonsynonymous_sites_[++in];
+        ost <<    synonymous_sites_[is];
+    }
+    return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
