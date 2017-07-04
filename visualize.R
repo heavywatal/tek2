@@ -46,3 +46,51 @@ plot_copynumber_time = function(.data, .title='') {
 .p
 
 ggsave('fig-s2.png', .p, width=15, height=12)
+
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+library(jsonlite)
+
+.jso = jsonlite::read_json('history.json.gz', simplifyVector=TRUE) #%>% print()
+
+.per_individual = .jso %>%
+    purrr::map(lengths) %>%
+    {tibble(generation=as.integer(names(.)), data=.)} %>%
+    dplyr::arrange(generation) %>%
+    dplyr::mutate(data= purrr::map(data, ~{
+        matrix(.x, ncol=2L) %>%
+        rowSums %>%
+        {tibble(copy_number=as.integer(.))} %>%
+        dplyr::count(copy_number)
+    })) %>%
+    unnest() %>%
+    print()
+
+.per_individual %>%
+    ggplot(aes(copy_number, n, group=generation))+
+    geom_line(aes(colour=generation))+
+    theme_bw()
+
+
+.names = c('site', 'indel', 'nonsynonymous', 'synonymous', 'activity')
+.activities = .jso %>% purrr::map(~{purrr::compact(.) %>% purrr::flatten_chr()}) %>%
+    {tibble(generation=as.integer(names(.)), data=.)} %>%
+    dplyr::arrange(generation) %>%
+    dplyr::mutate(data= purrr::map(data, ~{
+        tibble(x=.x) %>%
+        tidyr::separate(x, .names, sep=':', convert=FALSE) %>%
+        dplyr::select(activity)
+    })) %>%
+    tidyr::unnest() %>%
+    dplyr::mutate(activity= as.numeric(activity)) %>%
+    dplyr::count(generation, activity) %>%
+    dplyr::mutate(copy_number=n / 500) %>%
+    print()
+
+.activities %>%
+    ggplot(aes(generation, copy_number, group=activity))+
+    geom_area(aes(fill=activity))+
+    scale_fill_gradientn(colours=rev(head(rainbow(15L), 12L)), breaks=c(0, 0.5, 1))+
+    wtl::theme_wtl()+
+    theme(legend.position='bottom')
