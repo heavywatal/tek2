@@ -168,38 +168,35 @@ double Haploid::fitness(const Haploid& other) const {
     return std::max(prod_1_zs_ * other.prod_1_zs_ * (1.0 - s_cn), 0.0);
 }
 
-void Haploid::count_activities(std::map<double, unsigned int>* const counter) const {
-    for (const auto& p: sites_) {
-        if (p) {
-            ++counter->operator[](p->activity());
+std::vector<std::string> Haploid::summarize() const {
+    // "site:indel:nonsynonymous:synonymous:activity"
+    std::vector<std::string> v;
+    v.reserve(copy_number_);
+    for (size_t i=0; i<NUM_SITES; ++i) {
+        if (sites_[i]) {
+            std::ostringstream oss;
+            sites_[i]->write_summary(oss << i << ":");
+            v.push_back(oss.str());
         }
     }
+    return v;
 }
 
-std::ostream& Haploid::write_sample(std::ostream& ost) const {
+std::ostream& Haploid::write_fasta(std::ostream& ost) const {
     for (const auto& p: sites_) {
-        if (p) {
-            ost << *p << "\t" << p->ds() << "\t" << p->dn() << "\n";
-        }
-    }
-    return ost;
-}
-
-std::ostream& Haploid::write(std::ostream& ost) const {
-    for (const auto& p: sites_) {
-        if (p) p->write_summary(ost);
+        if (p) p->write_fasta(ost << ">" << this);
     }
     return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
-    return x.write(ost);
+    return ost << x.summarize();
 }
 
 void Haploid::test() {HERE;
     Haploid x = Haploid::copy_founder();
     std::cout << x << std::endl;
-    x.write_sample(std::cout);
+    x.write_fasta(std::cout);
     std::ofstream("tek-selection_coefs_gp.tsv") << "coef\n" << wtl::str_join(SELECTION_COEFS_GP_, "\n");
     /*R
     read_tsv('tek-selection_coefs_gp.tsv') %>%

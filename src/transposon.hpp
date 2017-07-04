@@ -52,7 +52,7 @@ class Transposon {
     double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
     std::ostream& write_summary(std::ostream&) const;
-    std::ostream& write(std::ostream&) const;
+    std::ostream& write_fasta(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
     static void set_parameters();

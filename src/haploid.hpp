@@ -9,6 +9,7 @@
 #include <boost/program_options.hpp>
 
 #include <iosfwd>
+#include <string>
 #include <vector>
 #include <valarray>
 #include <map>
@@ -38,10 +39,9 @@ class Haploid {
     double fitness(const Haploid&) const;
 
     bool has_transposon() const {return copy_number_ > 0U;};
-    void count_activities(std::map<double, unsigned int>* const) const;
 
-    std::ostream& write_sample(std::ostream&) const;
-    std::ostream& write(std::ostream&) const;
+    std::vector<std::string> summarize() const;
+    std::ostream& write_fasta(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
     static Haploid copy_founder();

@@ -30,7 +30,7 @@ class Population {
 
     static void test();
   private:
-    std::map<double, unsigned int> step(const bool is_recording=true);
+    void step();
 
     bool is_extinct() const;
 

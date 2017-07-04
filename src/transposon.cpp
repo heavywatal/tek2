@@ -41,22 +41,25 @@ double Transposon::calc_activity(const size_t num_mutations) {
 }
 
 std::ostream& Transposon::write_summary(std::ostream& ost) const {
-    return ost << "(" << has_indel_ << ":"
+    return ost << has_indel_ << ":"
                << nonsynonymous_sites_.count() << ":"
-               << synonymous_sites_.count() << ")";
+               << synonymous_sites_.count() << ":"
+               << activity();
 }
 
-std::ostream& Transposon::write(std::ostream& ost) const {
+std::ostream& Transposon::write_fasta(std::ostream& ost) const {
+    ost << ">" << this
+        << " indel=" << has_indel_ << " dn=" << dn() << " ds=" << ds() << "\n";
     for (size_t in=0, is=0; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
         ost << nonsynonymous_sites_[in];
         ost << nonsynonymous_sites_[++in];
         ost <<    synonymous_sites_[is];
     }
-    return ost;
+    return ost << "\n";
 }
 
 std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
-    return x.write(ost);
+    return x.write_summary(ost);
 }
 
 void Transposon::test() {HERE;
@@ -64,12 +67,10 @@ void Transposon::test() {HERE;
     std::mt19937 mt(std::random_device{}());
     te.mutate(mt);
     te.mutate(mt);
+    te.write_fasta(std::cout);
     std::cout << te << std::endl;
-    te.write_summary(std::cout) << std::endl;
-    std::cout << te.activity() << std::endl;
     te.indel();
-    te.write_summary(std::cout) << std::endl;
-    std::cout << te.activity() << std::endl;
+    std::cout << te << std::endl;
     test_activity();
 }
 

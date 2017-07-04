@@ -11,6 +11,8 @@
 #include <wtl/prandom.hpp>
 #include <sfmt.hpp>
 
+#include <json.hpp>
+
 #include <iostream>
 #include <algorithm>
 #include <mutex>
@@ -28,17 +30,18 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
 }
 
 bool Population::evolve(const size_t max_generations) {HERE;
-    const size_t record_interval = gametes_.size() / 20U;
-    auto oss = wtl::make_oss();
-    oss << "time\tactivity\tcopies\n";
+    const size_t record_interval = gametes_.size() / 100U;
+    nlohmann::json history;
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % record_interval) == 0U);
-        const auto counter = step(is_recording);
+        step();
         if (is_recording) {
             std::cerr << "*" << std::flush;
-            for (const auto& p: counter) {
-                oss << t << "\t" << p.first << "\t" << p.second << "\n";
+            nlohmann::json record;
+            for (const auto& x: gametes_) {
+                record.push_back(x.summarize());
             }
+            history[std::to_string(t)] = record;
         } else {
             std::cerr << "." << std::flush;
         }
@@ -47,18 +50,19 @@ bool Population::evolve(const size_t max_generations) {HERE;
             return false;
         }
     }
-    wtl::ozfstream("activities.tsv") << oss.str();
-    wtl::ozfstream("individuals.tsv.gz") << *this;
+    wtl::ozfstream("history.json.gz") << history;
+    wtl::ozfstream("binary.fa.gz") << *this;
     return true;
 }
 
-std::map<double, unsigned int> Population::step(const bool is_recording) {
+void Population::step() {
     const size_t num_gametes = gametes_.size();
     std::vector<size_t> indices(num_gametes / 2U);
     std::iota(indices.begin(), indices.end(), 0U);
     std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
-    std::map<double, unsigned int> counter;
+    std::vector<std::vector<std::string>> record;
+    record.reserve(num_gametes);
     std::mutex mtx;
     auto task = [&,this](const size_t seed) {
         wtl::sfmt19937 rng(seed);
@@ -72,11 +76,6 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
             auto sperm = father_lchr.gametogenesis(father_rchr, rng);
             const double fitness = egg.fitness(sperm);
             if (fitness < rng.canonical()) continue;
-            if (is_recording) {
-                std::lock_guard<std::mutex> lock(mtx);
-                egg.count_activities(&counter);
-                sperm.count_activities(&counter);
-            }
             egg.transpose_mutate(sperm, rng);
             std::lock_guard<std::mutex> lock(mtx);
             if (nextgen.size() >= num_gametes) break;
@@ -91,7 +90,6 @@ std::map<double, unsigned int> Population::step(const bool is_recording) {
     }
     for (auto& f: futures) f.wait();
     gametes_.swap(nextgen);
-    return counter;
 }
 
 bool Population::is_extinct() const {
@@ -105,13 +103,16 @@ void Population::sample() const {
     const size_t sample_size = std::max(gametes_.size() / 100UL, 2UL);
     std::ostringstream oss;
     for (size_t i=0; i<sample_size; ++i) {
-        gametes_[i].write_sample(oss);
+        gametes_[i].write_fasta(oss);
     }
     std::cerr << oss.str();
 }
 
 std::ostream& Population::write(std::ostream& ost) const {HERE;
-    return ost << gametes_ << std::endl;
+    for (const auto& x: gametes_) {
+        x.write_fasta(ost);
+    }
+    return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Population& pop) {
@@ -120,9 +121,9 @@ std::ostream& operator<<(std::ostream& ost, const Population& pop) {
 
 void Population::test() {HERE;
     Population pop(6, 6);
-    std::cout << pop;
-    std::cout << pop.step() << std::endl;
-    std::cout << pop;
+    std::cout << pop.gametes_ << std::endl;
+    pop.step();
+    std::cout << pop.gametes_ << std::endl;
     pop.sample();
 }
 
