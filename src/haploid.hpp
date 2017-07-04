@@ -58,7 +58,7 @@ class Haploid {
     std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
     void recombine(Haploid&, URNG&);
     void mutate(URNG&);
-    void evaluate_fitness();
+    void evaluate_sites();
 
     static constexpr size_t NUM_SITES = 2000;
     static constexpr double INDEL_RATIO_ = 0.2;

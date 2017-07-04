@@ -67,7 +67,7 @@ Haploid Haploid::copy_founder() {
     static auto idx = UNIFORM_SITES_(wtl::sfmt());
     Haploid founder;
     founder.sites_[idx] = ORIGINAL_TE_;
-    founder.evaluate_fitness();
+    founder.evaluate_sites();
     return founder;
 }
 
@@ -77,10 +77,10 @@ Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
     Haploid lhalf(*this), rhalf(other);
     lhalf.recombine(rhalf, rng);
     if (rng.canonical() < 0.5) {
-        lhalf.evaluate_fitness();
+        lhalf.evaluate_sites();
         return lhalf;
     } else {
-        rhalf.evaluate_fitness();
+        rhalf.evaluate_sites();
         return rhalf;
     }
 }
@@ -152,7 +152,7 @@ void Haploid::mutate(URNG& rng) {
     }
 }
 
-void Haploid::evaluate_fitness() {
+void Haploid::evaluate_sites() {
     copy_number_ = 0U;
     prod_1_zs_ = 1.0;
     for (size_t j=0; j<NUM_SITES; ++j) {
