@@ -36,6 +36,7 @@ po::options_description Program::options_desc() {HERE;
       ("popsize,n", po::value(&popsize_)->default_value(popsize_))
       ("initial,q", po::value(&initial_freq_)->default_value(initial_freq_))
       ("generations,g", po::value(&num_generations_)->default_value(num_generations_))
+      ("interval,i", po::value(&record_interval_)->default_value(record_interval_))
       ("parallel,j", po::value(&concurrency_)->default_value(concurrency_))
       ("outdir,o", po::value(&outdir_)->default_value(outdir_));
     description.add(Haploid::options_desc());
@@ -110,7 +111,7 @@ void Program::run() {HERE;
     try {
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
-            if (pop.evolve(num_generations_)) break;
+            if (pop.evolve(num_generations_, record_interval_)) break;
         }
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;

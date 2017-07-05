@@ -29,8 +29,7 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
     gametes_.resize(size * 2U);
 }
 
-bool Population::evolve(const size_t max_generations) {HERE;
-    const size_t record_interval = gametes_.size() / 100U;
+bool Population::evolve(const size_t max_generations, const size_t record_interval) {HERE;
     nlohmann::json history;
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % record_interval) == 0U);

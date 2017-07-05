@@ -22,7 +22,7 @@ class Population {
     static constexpr double RHO = 200;
 
     Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
-    bool evolve(const size_t max_generations);
+    bool evolve(const size_t max_generations, const size_t record_interval);
     void sample() const;
 
     std::ostream& write(std::ostream&) const;
