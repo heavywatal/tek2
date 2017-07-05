@@ -30,7 +30,8 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
 }
 
 bool Population::evolve(const size_t max_generations, const size_t record_interval) {HERE;
-    nlohmann::json history;
+    wtl::ozfstream history_file("history.json.gz");
+    history_file << "{\n'0':[]";
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % record_interval) == 0U);
         step();
@@ -40,7 +41,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             for (const auto& x: gametes_) {
                 record.push_back(x.summarize());
             }
-            history[std::to_string(t)] = record;
+            history_file << ",\n'" << t << "':" << record;
         } else {
             std::cerr << "." << std::flush;
         }
@@ -49,7 +50,8 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             return false;
         }
     }
-    wtl::ozfstream("history.json.gz") << history;
+    std::cerr << std::endl;
+    history_file << "\n}\n";
     wtl::ozfstream("binary.fa.gz") << *this;
     return true;
 }
