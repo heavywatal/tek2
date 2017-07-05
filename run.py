@@ -34,11 +34,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--dry-run', action='store_true')
     parser.add_argument('-j', '--jobs', type=int, default=wopt.cpu_count())
+    parser.add_argument('-o', '--outdir', default='.stdout')
     parser.add_argument('-r', '--repeat', type=int, default=1)
     (args, rest) = parser.parse_known_args()
 
     wopt.map_async(iter_args(rest, args.jobs, args.repeat),
-                   1, args.dry_run)
+                   1, args.dry_run, outdir=args.outdir)
     print('End of ' + __file__)
 
 
