@@ -203,6 +203,24 @@ void Haploid::test() {HERE;
     {ggplot(., aes(coef)) + geom_histogram(bins=30) + theme_bw()} %>%
     {ggsave('selection_coefs_gp.pdf', ., width=4, height=4)}
     */
+    std::ofstream ost("tek-selection_coefs_cn.tsv");
+    ost << "xi\tcopy_number\ts_cn\n";
+    const size_t n = 2 * NUM_SITES;
+    for (const double xi: {1e-5, 1e-4, 1e-3}) {
+        for (size_t i=0; i<n; ++i) {
+            const double s_cn = xi * std::pow(i, TAU_);
+            if (s_cn > 1.0) break;
+            ost << xi << "\t" << i << "\t" << s_cn << "\n";
+        }
+    }
+    /*R
+    read_tsv('tek-selection_coefs_cn.tsv') %>%
+    mutate(xi= sprintf('%.0e', xi)) %>% {
+      ggplot(., aes(copy_number, s_cn, group=xi, colour=xi))+
+      geom_line()+
+      theme_bw()+theme(legend.position='top')
+    } %>% {ggsave('selection_coefs_cn.pdf', ., width=4, height=4)}
+    */
 }
 
 } // namespace tek
