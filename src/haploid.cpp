@@ -56,7 +56,6 @@ void Haploid::set_SELECTION_COEFS_GP() {HERE;
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
     const double four_n = 4.0 * popsize;
     RECOMBINATION_RATE_ = rho / four_n;
-    std::cerr << "RECOMBINATION_RATE_ = " << RECOMBINATION_RATE_ << std::endl;
     const double mu = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = mu * INDEL_RATIO_;
     NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
