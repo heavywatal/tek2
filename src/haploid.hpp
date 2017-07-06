@@ -41,6 +41,7 @@ class Haploid {
     bool has_transposon() const {return copy_number_ > 0U;};
 
     std::vector<std::string> summarize() const;
+    std::ostream& write_binary(std::ostream&) const;
     std::ostream& write_fasta(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
@@ -59,6 +60,10 @@ class Haploid {
     void recombine(Haploid&, URNG&);
     void mutate(URNG&);
     void evaluate_sites();
+
+    static void test_selection_coefs_cn();
+    static void test_selection_coefs_gp();
+    static void test_recombination();
 
     static constexpr size_t NUM_SITES = 2000;
     static constexpr double INDEL_RATIO_ = 0.2;

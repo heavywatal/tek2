@@ -56,6 +56,7 @@ void Haploid::set_SELECTION_COEFS_GP() {HERE;
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
     const double four_n = 4.0 * popsize;
     RECOMBINATION_RATE_ = rho / four_n;
+    std::cerr << "RECOMBINATION_RATE_ = " << RECOMBINATION_RATE_ << std::endl;
     const double mu = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = mu * INDEL_RATIO_;
     NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
@@ -182,6 +183,14 @@ std::vector<std::string> Haploid::summarize() const {
     return v;
 }
 
+std::ostream& Haploid::write_binary(std::ostream& ost) const {
+    for (const auto& p: sites_) {
+        if (p) {ost << '1';}
+        else   {ost << '0';}
+    }
+    return ost;
+}
+
 std::ostream& Haploid::write_fasta(std::ostream& ost) const {
     for (const auto& p: sites_) {
         if (p) p->write_fasta(ost << ">" << this);
@@ -197,12 +206,26 @@ void Haploid::test() {HERE;
     Haploid x = Haploid::copy_founder();
     std::cout << x << std::endl;
     x.write_fasta(std::cout);
-    std::ofstream("tek-selection_coefs_gp.tsv") << "coef\n" << wtl::str_join(SELECTION_COEFS_GP_, "\n");
+    test_selection_coefs_gp();
+    test_selection_coefs_cn();
+    test_recombination();
+}
+
+void Haploid::test_selection_coefs_gp() {
+    std::ofstream("tek-selection_coefs_gp.tsv")
+        << "s_gp\n"
+        << wtl::str_join(SELECTION_COEFS_GP_, "\n");
     /*R
-    read_tsv('tek-selection_coefs_gp.tsv') %>%
-    {ggplot(., aes(coef)) + geom_histogram(bins=30) + theme_bw()} %>%
-    {ggsave('selection_coefs_gp.pdf', ., width=4, height=4)}
+    read_tsv('tek-selection_coefs_gp.tsv') %>% {
+      ggplot(., aes(s_gp))+
+      geom_histogram(bins=30)+
+      geom_vline(xintercept=mean(.$s_gp), colour='tomato')+
+      theme_bw()
+    } %>% {ggsave('selection_coefs_gp.pdf', ., width=4, height=4)}
     */
+}
+
+void Haploid::test_selection_coefs_cn() {
     std::ofstream ost("tek-selection_coefs_cn.tsv");
     ost << "xi\tcopy_number\ts_cn\n";
     const size_t n = 2 * NUM_SITES;
@@ -220,6 +243,26 @@ void Haploid::test() {HERE;
       geom_line()+
       theme_bw()+theme(legend.position='top')
     } %>% {ggsave('selection_coefs_cn.pdf', ., width=4, height=4)}
+    */
+}
+
+void Haploid::test_recombination() {
+    Haploid zero;
+    Haploid one;
+    for (auto& p: one.sites_) {p = ORIGINAL_TE_;}
+    zero.recombine(one, wtl::sfmt());
+    std::ofstream ost("tek-recombination.txt");
+    zero.write_binary(ost) << std::endl;
+    /*R
+    read_lines('tek-recombination.txt') %>%
+    str_match_all(c('0+', '1+')) %>%
+    flatten_chr() %>%
+    {tibble(length=nchar(.))} %>% {
+      ggplot(., aes(length))+
+      geom_bar()+
+      geom_vline(xintercept=mean(.$length), colour='tomato')+
+      theme_bw()
+    } %>% {ggsave('tract_length.pdf', ., width=4, height=4)}
     */
 }
 
