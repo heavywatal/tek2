@@ -30,12 +30,17 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
 }
 
 bool Population::evolve(const size_t max_generations, const size_t record_interval) {HERE;
+    constexpr double margin = 0.1;
+    double max_fitness = 1.0;
     wtl::ozfstream history_file("history.json.gz");
     history_file << "{\n\"0\":[]";
-    double max_fitness = 1.0;
+    wtl::ozfstream fitness_file("fitness.tsv.gz");
+    fitness_file << "generation\tfitness\n";
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % record_interval) == 0U);
-        max_fitness = step(max_fitness);
+        const auto fitness_record = step(max_fitness);
+        max_fitness = *std::max_element(fitness_record.begin(), fitness_record.end());
+        max_fitness = std::min(max_fitness + margin, 1.0);
         if (is_recording) {
             std::cerr << "*" << std::flush;
             nlohmann::json record;
@@ -43,6 +48,10 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 record.push_back(x.summarize());
             }
             history_file << ",\n\"" << t << "\":" << record;
+            for (const double w: fitness_record) {
+                fitness_file << t << "\t" << w << "\n";
+            }
+            fitness_file << std::flush;
         } else {
             std::cerr << "." << std::flush;
         }
@@ -57,16 +66,15 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
     return true;
 }
 
-double Population::step(const double previous_max_fitness) {
+std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
     std::vector<size_t> indices(num_gametes / 2U);
     std::iota(indices.begin(), indices.end(), 0U);
     std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
-    std::vector<std::vector<std::string>> record;
-    record.reserve(num_gametes);
+    std::vector<double> fitness_record;
+    fitness_record.reserve(num_gametes);
     std::mutex mtx;
-    double current_max_fitness = 0.0;
     auto task = [&,this](const size_t seed) {
         wtl::sfmt19937 rng(seed);
         while (true) {
@@ -82,7 +90,7 @@ double Population::step(const double previous_max_fitness) {
             egg.transpose_mutate(sperm, rng);
             std::lock_guard<std::mutex> lock(mtx);
             if (nextgen.size() >= num_gametes) break;
-            if (fitness > current_max_fitness) current_max_fitness = fitness;
+            fitness_record.push_back(fitness);
             nextgen.push_back(std::move(egg));
             nextgen.push_back(std::move(sperm));
         }
@@ -94,7 +102,7 @@ double Population::step(const double previous_max_fitness) {
     }
     for (auto& f: futures) f.wait();
     gametes_.swap(nextgen);
-    return current_max_fitness;
+    return fitness_record;
 }
 
 bool Population::is_extinct() const {

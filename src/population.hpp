@@ -30,7 +30,7 @@ class Population {
 
     static void test();
   private:
-    double step(const double previous_max_fitness=1.0);
+    std::vector<double> step(const double previous_max_fitness=1.0);
 
     bool is_extinct() const;
 
