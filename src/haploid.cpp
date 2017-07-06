@@ -111,13 +111,13 @@ void Haploid::transpose_mutate(Haploid& other, URNG& rng) {
     constexpr unsigned int tolerance = 100;
     for (auto& p: copying_transposons) {
         for (unsigned int i=0; i<tolerance; ++i) {
-            auto* sites = &this->sites_;
+            auto target_haploid = this;
             if (rng.canonical() < 0.5) {
-                sites = &other.sites_;
+                target_haploid = &other;
             }
-            const size_t new_pos = UNIFORM_SITES_(rng);
-            if (sites->at(new_pos)) continue;
-            sites->at(new_pos) = std::move(p);
+            auto& target_site = target_haploid->sites_[UNIFORM_SITES_(rng)];
+            if (target_site) continue;
+            target_site = std::move(p);
             break;
         }
     }
