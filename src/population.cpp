@@ -32,9 +32,10 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
 bool Population::evolve(const size_t max_generations, const size_t record_interval) {HERE;
     wtl::ozfstream history_file("history.json.gz");
     history_file << "{\n\"0\":[]";
+    double max_fitness = 1.0;
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % record_interval) == 0U);
-        step();
+        max_fitness = step(max_fitness);
         if (is_recording) {
             std::cerr << "*" << std::flush;
             nlohmann::json record;
@@ -56,7 +57,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
     return true;
 }
 
-void Population::step() {
+double Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
     std::vector<size_t> indices(num_gametes / 2U);
     std::iota(indices.begin(), indices.end(), 0U);
@@ -65,6 +66,7 @@ void Population::step() {
     std::vector<std::vector<std::string>> record;
     record.reserve(num_gametes);
     std::mutex mtx;
+    double current_max_fitness = 0.0;
     auto task = [&,this](const size_t seed) {
         wtl::sfmt19937 rng(seed);
         while (true) {
@@ -76,10 +78,11 @@ void Population::step() {
             auto egg   = mother_lchr.gametogenesis(mother_rchr, rng);
             auto sperm = father_lchr.gametogenesis(father_rchr, rng);
             const double fitness = egg.fitness(sperm);
-            if (fitness < rng.canonical()) continue;
+            if (fitness < rng.canonical() * previous_max_fitness) continue;
             egg.transpose_mutate(sperm, rng);
             std::lock_guard<std::mutex> lock(mtx);
             if (nextgen.size() >= num_gametes) break;
+            if (fitness > current_max_fitness) current_max_fitness = fitness;
             nextgen.push_back(std::move(egg));
             nextgen.push_back(std::move(sperm));
         }
@@ -91,6 +94,7 @@ void Population::step() {
     }
     for (auto& f: futures) f.wait();
     gametes_.swap(nextgen);
+    return current_max_fitness;
 }
 
 bool Population::is_extinct() const {
