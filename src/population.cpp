@@ -32,8 +32,8 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
 bool Population::evolve(const size_t max_generations, const size_t record_interval) {HERE;
     constexpr double margin = 0.1;
     double max_fitness = 1.0;
-    wtl::ozfstream history_file("history.json.gz");
-    history_file << "{\n\"0\":[]";
+    wtl::ozfstream activity_file("activity.tsv.gz");
+    activity_file << "generation\tindividual\tactivity\tcopy_number\n";
     wtl::ozfstream fitness_file("fitness.tsv.gz");
     fitness_file << "generation\tfitness\n";
     for (size_t t=1; t<=max_generations; ++t) {
@@ -43,11 +43,12 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         max_fitness = std::min(max_fitness + margin, 1.0);
         if (is_recording) {
             std::cerr << "*" << std::flush;
-            nlohmann::json record;
-            for (const auto& x: gametes_) {
-                record.push_back(x.summarize());
+            for (size_t i=0; i<gametes_.size(); ++i) {
+                for (const auto& p: gametes_[i].count_activity()) {
+                    activity_file << t << "\t" << i << "\t"
+                                  << p.first << "\t" << p.second << "\n";
+                }
             }
-            history_file << ",\n\"" << t << "\":" << record;
             for (const double w: fitness_record) {
                 fitness_file << t << "\t" << w << "\n";
             }
@@ -61,7 +62,11 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         }
     }
     std::cerr << std::endl;
-    history_file << "\n}\n";
+    nlohmann::json record;
+    for (const auto& x: gametes_) {
+        record.push_back(x.summarize());
+    }
+    wtl::ozfstream("summary.json.gz") << record;
     wtl::ozfstream("binary.fa.gz") << *this;
     return true;
 }

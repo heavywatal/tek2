@@ -39,6 +39,7 @@ class Haploid {
     double fitness(const Haploid&) const;
 
     bool has_transposon() const {return copy_number_ > 0U;};
+    std::map<double, unsigned int> count_activity() const;
 
     std::vector<std::string> summarize() const;
     std::ostream& write_binary(std::ostream&) const;

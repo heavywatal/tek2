@@ -184,6 +184,14 @@ std::vector<std::string> Haploid::summarize() const {
     return v;
 }
 
+std::map<double, unsigned int> Haploid::count_activity() const {
+    std::map<double, unsigned int> counter;
+    for (const auto& p: sites_) {
+        if (p) ++counter[p->activity()];
+    }
+    return counter;
+}
+
 std::ostream& Haploid::write_binary(std::ostream& ost) const {
     for (const auto& p: sites_) {
         if (p) {ost << '1';}
