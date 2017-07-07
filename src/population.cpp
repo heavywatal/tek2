@@ -4,6 +4,7 @@
 */
 #include "population.hpp"
 #include "haploid.hpp"
+#include "transposon.hpp"
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
@@ -13,6 +14,7 @@
 
 #include <json.hpp>
 
+#include <unordered_map>
 #include <iostream>
 #include <algorithm>
 #include <mutex>
@@ -67,7 +69,16 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         record.push_back(x.summarize());
     }
     wtl::ozfstream("summary.json.gz") << record;
-    wtl::ozfstream("binary.fa.gz") << *this;
+    std::unordered_map<Transposon*, unsigned int> counter;
+    for (const auto& chr: gametes_) {
+        for (const auto& p: chr) {
+            if (p) ++counter[p.get()];
+        }
+    }
+    wtl::ozfstream fasta("sequence.fa.gz");
+    for (const auto& p: counter) {
+        p.first->write_fasta(fasta, p.second);
+    }
     return true;
 }
 

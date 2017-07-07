@@ -48,11 +48,13 @@ class Transposon {
         return MAX_TRANSPOSITION_RATE * activity();
     }
 
+    bool has_indel() const {return has_indel_;}
     double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
     double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
     std::ostream& write_summary(std::ostream&) const;
-    std::ostream& write_fasta(std::ostream&) const;
+    std::ostream& write_fasta(std::ostream&, const unsigned int copy_number=0) const;
+    std::ostream& write_sequence(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
     static void set_parameters();

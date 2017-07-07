@@ -46,6 +46,9 @@ class Haploid {
     std::ostream& write_fasta(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
+    std::vector<std::shared_ptr<Transposon>>::const_iterator begin() const {return sites_.begin();}
+    std::vector<std::shared_ptr<Transposon>>::const_iterator end() const {return sites_.end();}
+
     static Haploid copy_founder();
     static void set_parameters(const size_t popsize, const double theta, const double rho);
     static boost::program_options::options_description options_desc();
