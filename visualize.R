@@ -96,3 +96,42 @@ ggsave('fig-s2.png', .p, width=15, height=12)
     ggplot(aes(copy_number, n, group=generation))+
     geom_line(aes(colour=generation))+
     theme_bw()
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+.cols = c('position', 'indel', 'nonsynonymous', 'synonymous', 'activity')
+.nsam = 100L
+.gametes = 'summary.json.gz' %>% fromJSON()
+
+.summary = .gametes %>% sample(.nsam) %>% flatten_chr() %>%
+    {tibble(x=.)} %>%
+    tidyr::separate(x, .cols, ':') %>%
+    dplyr::mutate_all(as.numeric) %>%
+    dplyr::mutate(dn= nonsynonymous / 200, ds= synonymous / 100) %>%
+    dplyr::mutate(dn_ds= dn / ds, distance= (nonsynonymous + synonymous) / 300) %>%
+    print()
+
+.summary %>%
+    ggplot(aes(dn_ds, group=activity))+
+    geom_histogram(aes(fill=activity), binwidth=0.1, center=0)+
+    scale_fill_gradientn(colours=rev(head(rainbow(15L), 12L)), breaks=c(0, 0.5, 1))+
+    labs(x= 'dN/dS', y= 'Copy number')+
+    theme_bw()
+
+.summary %>%
+    ggplot(aes(distance, dn_ds))+
+    geom_jitter(aes(colour= activity), alpha=0.3)+
+    scale_colour_gradientn(colours=rev(head(rainbow(15L), 12L)), breaks=c(0, 0.5, 1))+
+    geom_hline(aes(yintercept= 1.0), linetype='dashed')+
+    coord_cartesian(xlim=c(0, 1))+
+    labs(x= 'Distance from original sequence', y= 'dN/dS')+
+    theme_bw()
+
+.summary %>%
+    dplyr::count(position) %>%
+    dplyr::mutate(freq = n / .nsam) %>%
+    ggplot(aes(freq))+
+    geom_histogram(binwidth=0.1, center=0)+
+    coord_cartesian(xlim=c(0, 1))+
+    labs(x= 'TE frequency', y= 'Site number')+
+    theme_bw()
