@@ -6,6 +6,7 @@
 #include "population.hpp"
 #include "haploid.hpp"
 #include "transposon.hpp"
+#include "dna.hpp"
 
 #include <wtl/exception.hpp>
 #include <wtl/debug.hpp>
@@ -69,6 +70,7 @@ inline void test(const int flg) {HERE;
         Transposon::test();
         Haploid::test();
         Population::test();
+        DNA<30>::test();
         throw wtl::ExitSuccess();
       default:
         throw std::runtime_error("Unknown argument for --test");
