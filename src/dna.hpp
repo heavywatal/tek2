@@ -34,8 +34,12 @@ class DNA {
         sequence_[i] ^= (generator() & 0b00000011);
     }
 
-    int_fast8_t operator[](const size_t i) const {
+    uint_fast8_t operator[](const size_t i) const {
         return sequence_[i];
+    }
+
+    char& nucleotide(const size_t i) const {
+        return NUCLEOTIDE[sequence_[i]];
     }
 
     std::ostream& write(std::ostream& ost) const {
