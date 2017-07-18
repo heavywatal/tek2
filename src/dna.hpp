@@ -6,8 +6,6 @@
 #ifndef TEK_DNA_HPP_
 #define TEK_DNA_HPP_
 
-#include <sfmt.hpp>
-
 #include <cstdint>
 #include <array>
 #include <string>
@@ -51,11 +49,12 @@ class DNA {
         return x.write(ost);
     }
 
-    static void test() {
+    template <class URNG> inline
+    static void test(URNG& generator) {
         DNA<N> dna;
         std::cerr << dna << std::endl;
         for (size_t i=0; i<N; ++i) {
-            dna.flip(i, wtl::sfmt());
+            dna.flip(i, generator);
         }
         std::cerr << dna << std::endl;
     }

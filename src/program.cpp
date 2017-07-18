@@ -8,6 +8,7 @@
 #include "transposon.hpp"
 #include "dna.hpp"
 
+#include <sfmt.hpp>
 #include <wtl/exception.hpp>
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
@@ -70,7 +71,7 @@ inline void test(const int flg) {HERE;
         Transposon::test();
         Haploid::test();
         Population::test();
-        DNA<30>::test();
+        DNA<30>::test(wtl::sfmt());
         throw wtl::ExitSuccess();
       default:
         throw std::runtime_error("Unknown argument for --test");
