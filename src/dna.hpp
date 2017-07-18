@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <array>
+#include <string>
 #include <iostream>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
@@ -18,6 +19,8 @@ namespace tek {
 
 template <size_t N>
 class DNA {
+    static const std::string NUCLEOTIDE;
+
   public:
     size_t count() const {
         size_t cnt = 0;
@@ -39,7 +42,7 @@ class DNA {
 
     std::ostream& write(std::ostream& ost) const {
         for (const auto x: sequence_) {
-            ost << static_cast<int_fast16_t>(x);
+            ost << NUCLEOTIDE[x];
         }
         return ost;
     }
@@ -51,15 +54,18 @@ class DNA {
     static void test() {
         DNA<N> dna;
         std::cerr << dna << std::endl;
-        dna.flip(0, wtl::sfmt());
-        dna.flip(2, wtl::sfmt());
-        dna.flip(4, wtl::sfmt());
+        for (size_t i=0; i<N; ++i) {
+            dna.flip(i, wtl::sfmt());
+        }
         std::cerr << dna << std::endl;
     }
 
   private:
-    std::array<int_fast8_t, N> sequence_ = {};
+    std::array<uint_fast8_t, N> sequence_ = {};
 };
+
+template <size_t N>
+const std::string DNA<N>::NUCLEOTIDE = "ACGT";
 
 } // namespace tek
 
