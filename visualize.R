@@ -16,6 +16,7 @@ extract_params = function(filename, params=c('alpha', 'beta', 'lambda', 'xi', 'n
 # .infiles[1] %>% extract_params()
 
 read_history_json = function(path) {
+    message(path)
     jsonlite::read_json(path, simplifyVector=TRUE) %>%
     {tibble(generation= as.integer(names(.)), data =.)} %>%
     dplyr::arrange(generation)
@@ -54,9 +55,9 @@ plot_copynumber_generation = function(data) {
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-.indirs = '.'
 .indirs = list.dirs(full.names=FALSE, recursive=FALSE)
 .indirs = wtl::command_args()$args
+.indirs = '.'
 
 .infiles = file.path(.indirs, 'history.json.gz') %>%
     purrr::keep(file.exists) %>%
@@ -83,6 +84,7 @@ plot_copynumber_generation = function(data) {
 
 .p = cowplot::plot_grid(plotlist=.nested$plt, nrow=1)
 .p
+.nested$plt[[1]] + coord_cartesian(ylim=c(0, 370))
 
 ggsave('fig-s2.png', .p, width=15, height=12)
 
@@ -92,10 +94,55 @@ ggsave('fig-s2.png', .p, width=15, height=12)
     unnest() %>%
     print()
 
-.per_individual %>%
+.p = .per_individual %>%
+    dplyr::filter(0L <= generation, generation <= 2000L) %>%
     ggplot(aes(copy_number, n, group=generation))+
-    geom_line(aes(colour=generation))+
+    geom_line(aes(colour=generation), size=1, alpha=0.8)+
+    wtl::scale_colour_gradientb('Spectral', 4L)+
+    theme_bw()+theme(legend.position='bottom')
+.p
+ggsave('copies_per_individual.pdf', .p, width=5, height=5)
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+.tbl_fitness = read_tsv('fitness.tsv.gz') %>% print()
+.p = .tbl_fitness %>%
+    dplyr::filter(generation >= 400L) %>%
+    {
+      .max = . %>% group_by(generation) %>% summarise(fitness=max(fitness))
+      ggplot(., aes(fitness, group=generation, colour=generation))+
+      geom_line(aes(y=..count..), stat='bin', binwidth=0.02, size=1, alpha=0.5)+
+      geom_point(data=.max, y=-10, size=2, alpha=0.5)+
+      wtl::scale_colour_gradientb('Spectral', 4L)+
+      coord_cartesian(xlim=c(0, 1), ylim=c(0, 500))+
+      labs(title=getwd() %>% basename())+
+      theme_bw()+theme(legend.position='bottom')
+    }
+.p
+ggsave('fitness_history.pdf', .p, width=5, height=5)
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+w = c(0.04, 0.16)
+n = 500L
+r = 5000L
+
+.fast = map_int(seq_len(r), ~{
+    v = sample(w,  2L * n, replace=TRUE)
+    v[v > max(w) * runif(2L * n)] %>% head(n) %>% table() %>% head(1)
+}) %>% {tibble(p= . / n, method='fast')}
+.honest = map_int(seq_len(r), ~{
+    v = sample(w, 12L * n, replace=TRUE)
+    v[v > runif(12L * n)] %>% head(n) %>% table() %>% head(1)
+}) %>% {tibble(p= . / n, method='honest')}
+
+.p = bind_rows(.fast, .honest) %>% {
+    ggplot(., aes(p, group=method, fill=method))+
+    geom_density(alpha=0.5)+
     theme_bw()
+}
+.p
+ggsave('selection_methods.pdf', .p, width=4, height=4)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
