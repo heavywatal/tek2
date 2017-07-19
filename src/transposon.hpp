@@ -6,10 +6,11 @@
 #ifndef TEK_TRANSPOSON_HPP_
 #define TEK_TRANSPOSON_HPP_
 
+#include "dna.hpp"
+
 #include <boost/program_options.hpp>
 
 #include <iosfwd>
-#include <bitset>
 #include <array>
 #include <random>
 
@@ -33,9 +34,9 @@ class Transposon {
         static std::uniform_int_distribution<size_t> UNIF_LEN(0U, LENGTH - 1U);
         size_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
-            synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES);
+            synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
         } else {
-            nonsynonymous_sites_.flip(pos);
+            nonsynonymous_sites_.flip(pos, generator);
         }
     }
 
@@ -72,8 +73,8 @@ class Transposon {
     static unsigned int BETA_;
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
 
-    std::bitset<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
-    std::bitset<LENGTH - NUM_NONSYNONYMOUS_SITES> synonymous_sites_;
+    DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
+    DNA<LENGTH - NUM_NONSYNONYMOUS_SITES> synonymous_sites_;
     bool has_indel_ = false;
 };
 

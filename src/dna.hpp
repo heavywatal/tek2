@@ -35,11 +35,7 @@ class DNA {
         sequence_[i] ^= x;
     }
 
-    uint_fast8_t operator[](const size_t i) const {
-        return sequence_[i];
-    }
-
-    char& nucleotide(const size_t i) const {
+    const char& operator[](const size_t i) const {
         return NUCLEOTIDE[sequence_[i]];
     }
 
