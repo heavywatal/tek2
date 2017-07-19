@@ -30,9 +30,13 @@ class DNA {
 
     template <class URNG> inline
     void flip(const size_t i, URNG& generator) {
-        uint_fast8_t x = 0U;
-        while ((x = (generator() & 0b00000011)) < 1U) {;}
-        sequence_[i] ^= x;
+        typename URNG::result_type random_bits = 0U;
+        while ((random_bits = generator()) < 1U) {;}
+        uint_fast8_t two_bits = 0U;
+        while ((two_bits = random_bits & 0b00000011) < 1U) {
+            random_bits >>= 2;
+        }
+        sequence_[i] ^= two_bits;
     }
 
     const char& operator[](const size_t i) const {
