@@ -71,7 +71,7 @@ inline void test(const int flg) {HERE;
         Transposon::test();
         Haploid::test();
         Population::test();
-        DNA<30>::test(wtl::sfmt());
+        DNA_test(wtl::sfmt());
         throw wtl::ExitSuccess();
       default:
         throw std::runtime_error("Unknown argument for --test");

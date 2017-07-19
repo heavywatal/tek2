@@ -54,22 +54,23 @@ class DNA {
         return x.write(ost);
     }
 
-    template <class URNG> inline
-    static void test(URNG& generator) {
-        DNA<N> dna;
-        std::cerr << dna << std::endl;
-        for (size_t i=0; i<N; ++i) {
-            dna.flip(i, generator);
-        }
-        std::cerr << dna << std::endl;
-    }
-
   private:
     std::array<uint_fast8_t, N> sequence_ = {};
 };
 
 template <size_t N>
 const std::string DNA<N>::NUCLEOTIDE = "ACGT";
+
+template <class URNG> inline
+void DNA_test(URNG& generator) {
+    constexpr size_t N = 30;
+    DNA<N> dna;
+    std::cerr << dna << std::endl;
+    for (size_t i=0; i<N; ++i) {
+        dna.flip(i, generator);
+    }
+    std::cerr << dna << std::endl;
+}
 
 } // namespace tek
 
