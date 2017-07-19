@@ -30,8 +30,9 @@ class DNA {
 
     template <class URNG> inline
     void flip(const size_t i, URNG& generator) {
-        // NOTE: mutation rate is reduced by 1/4
-        sequence_[i] ^= (generator() & 0b00000011);
+        uint_fast8_t x = 0U;
+        while ((x = (generator() & 0b00000011)) < 1U) {;}
+        sequence_[i] ^= x;
     }
 
     uint_fast8_t operator[](const size_t i) const {
