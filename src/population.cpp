@@ -35,7 +35,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
     constexpr double margin = 0.1;
     double max_fitness = 1.0;
     wtl::ozfstream activity_file("activity.tsv.gz");
-    activity_file << "generation\tindividual\tactivity\tcopy_number\n";
+    activity_file << "generation\tgamete\tactivity\tcopy_number\n";
     wtl::ozfstream fitness_file("fitness.tsv.gz");
     fitness_file << "generation\tfitness\n";
     for (size_t t=1; t<=max_generations; ++t) {
