@@ -72,7 +72,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
     std::unordered_map<Transposon*, unsigned int> counter;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {
-            if (p) ++counter[p.get()];
+            ++counter[p.second.get()];
         }
     }
     wtl::ozfstream fasta("sequence.fa.gz");
