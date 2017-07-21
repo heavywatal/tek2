@@ -20,9 +20,9 @@ namespace tek {
 
 class Transposon {
   public:
-    static constexpr size_t LENGTH = 300;
-    static constexpr size_t NUM_SYNONYMOUS_SITES = LENGTH / 3;
-    static constexpr size_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
+    static constexpr uint_fast32_t LENGTH = 300;
+    static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3;
+    static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
     static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
@@ -31,8 +31,8 @@ class Transposon {
 
     template <class URNG> inline
     void mutate(URNG& generator) {
-        static std::uniform_int_distribution<size_t> UNIF_LEN(0U, LENGTH - 1U);
-        size_t pos = UNIF_LEN(generator);
+        static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0U, LENGTH - 1U);
+        uint_fast32_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
         } else {
@@ -54,7 +54,7 @@ class Transposon {
     double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
     std::ostream& write_summary(std::ostream&) const;
-    std::ostream& write_fasta(std::ostream&, const unsigned int copy_number=0) const;
+    std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0) const;
     std::ostream& write_sequence(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
@@ -64,7 +64,7 @@ class Transposon {
 
   private:
 
-    static double calc_activity(const size_t num_mutations);
+    static double calc_activity(const uint_fast32_t num_mutations);
     static void test_activity();
     static void test_activity(std::ostream&, const double alpha, const unsigned int beta);
 

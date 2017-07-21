@@ -40,7 +40,7 @@ class Haploid {
     double fitness(const Haploid&) const;
 
     bool has_transposon() const {return copy_number_ > 0U;};
-    std::map<double, unsigned int> count_activity() const;
+    std::map<double, uint_fast32_t> count_activity() const;
 
     std::vector<std::string> summarize() const;
     std::ostream& write_positions(std::ostream&) const;
@@ -82,7 +82,7 @@ class Haploid {
     static double INDEL_RATE_;
     static std::valarray<double> SELECTION_COEFS_GP_;
     static std::uniform_int_distribution<uint_fast32_t> UNIFORM_SITES_;
-    static std::poisson_distribution<unsigned int> NUM_MUTATIONS_DIST_;
+    static std::poisson_distribution<uint_fast32_t> NUM_MUTATIONS_DIST_;
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::map<uint_fast32_t, std::shared_ptr<Transposon>> sites_;

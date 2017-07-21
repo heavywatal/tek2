@@ -25,7 +25,7 @@ double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
 std::uniform_int_distribution<uint_fast32_t> Haploid::UNIFORM_SITES_(0, Haploid::NUM_SITES - 1U);
-std::poisson_distribution<unsigned int> Haploid::NUM_MUTATIONS_DIST_(0.0);
+std::poisson_distribution<uint_fast32_t> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
@@ -106,9 +106,9 @@ void Haploid::transpose_mutate(Haploid& other, URNG& rng) {
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
     }
-    constexpr unsigned int tolerance = 100;
+    constexpr uint_fast32_t tolerance = 100;
     for (auto& p: copying_transposons) {
-        for (unsigned int i=0; i<tolerance; ++i) {
+        for (uint_fast32_t i=0; i<tolerance; ++i) {
             auto target_haploid = this;
             if (rng.canonical() < 0.5) {
                 target_haploid = &other;
@@ -136,7 +136,7 @@ void Haploid::recombine(Haploid& other, URNG& rng) {
             std::numeric_limits<uint_fast32_t>::max():
             other_it->first;
         const uint_fast32_t here = std::min(this_pos, other_pos);
-        std::poisson_distribution<unsigned int> poisson((here - prev) * RECOMBINATION_RATE_);
+        std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
         flg ^= (poisson(rng) % 2U);
         prev = here;
         if (this_pos < other_pos) {
@@ -207,8 +207,8 @@ std::vector<std::string> Haploid::summarize() const {
     return v;
 }
 
-std::map<double, unsigned int> Haploid::count_activity() const {
-    std::map<double, unsigned int> counter;
+std::map<double, uint_fast32_t> Haploid::count_activity() const {
+    std::map<double, uint_fast32_t> counter;
     for (const auto& p: sites_) {
         ++counter[p.second->activity()];
     }
@@ -277,7 +277,7 @@ void Haploid::test_selection_coefs_cn() {HERE;
 void Haploid::test_recombination() {HERE;
     Haploid zero;
     Haploid one;
-    for (size_t x=0U; x<60U; ++x) {
+    for (uint_fast32_t x=0U; x<60U; ++x) {
         one.sites_[x] = ORIGINAL_TE_;
     }
     zero.recombine(one, wtl::sfmt());

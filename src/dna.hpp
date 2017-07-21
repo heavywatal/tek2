@@ -15,13 +15,13 @@
 
 namespace tek {
 
-template <size_t N>
+template <uint_fast32_t N>
 class DNA {
     static const std::string NUCLEOTIDE;
 
   public:
-    size_t count() const {
-        size_t cnt = 0;
+    uint_fast32_t count() const {
+        uint_fast32_t cnt = 0;
         for (const auto x: sequence_) {
             if (x > 0U) ++cnt;
         }
@@ -29,7 +29,7 @@ class DNA {
     }
 
     template <class URNG> inline
-    void flip(const size_t i, URNG& generator) {
+    void flip(const uint_fast32_t i, URNG& generator) {
         typename URNG::result_type random_bits = 0U;
         while ((random_bits = generator()) < 1U) {;}
         uint_fast8_t two_bits = 0U;
@@ -39,7 +39,7 @@ class DNA {
         sequence_[i] ^= two_bits;
     }
 
-    const char& operator[](const size_t i) const {
+    const char& operator[](const uint_fast32_t i) const {
         return NUCLEOTIDE[sequence_[i]];
     }
 
@@ -66,15 +66,15 @@ class DNA {
     std::array<uint_fast8_t, N> sequence_ = {};
 };
 
-template <size_t N>
+template <uint_fast32_t N>
 const std::string DNA<N>::NUCLEOTIDE = "ACGT";
 
 template <class URNG> inline
 void DNA_test(URNG& generator) {
-    constexpr size_t N = 30;
+    constexpr uint_fast32_t N = 30;
     DNA<N> x, y;
     std::cerr << x << std::endl;
-    for (size_t i=0; i<N; ++i) {
+    for (uint_fast32_t i=0; i<N; ++i) {
         x.flip(i, generator);
     }
     std::cerr << x << std::endl;
