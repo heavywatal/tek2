@@ -14,6 +14,21 @@
 
 namespace tek {
 
+enum class Recording: int {
+    none     = 0b00000000,
+    activity = 0b00000001,
+    fitness  = 0b00000010,
+    sequence = 0b00000100,
+};
+
+constexpr Recording operator&(Recording x, Recording y) {
+    return static_cast<Recording>(static_cast<int>(x) & static_cast<int>(y));
+}
+
+constexpr Recording operator|(Recording x, Recording y) {
+    return static_cast<Recording>(static_cast<int>(x) | static_cast<int>(y));
+}
+
 class Haploid;
 
 class Population {
@@ -22,7 +37,8 @@ class Population {
     static constexpr double RHO = 200;
 
     Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
-    bool evolve(const size_t max_generations, const size_t record_interval);
+    bool evolve(const size_t max_generations, const size_t record_interval,
+                const Recording flags=Recording::activity | Recording::fitness);
 
     std::ostream& write_summary(std::ostream&) const;
     std::ostream& write_fasta(std::ostream&) const;

@@ -31,13 +31,9 @@ Population::Population(const size_t size, const size_t num_founders, const unsig
     gametes_.resize(size * 2U);
 }
 
-bool Population::evolve(const size_t max_generations, const size_t record_interval) {HERE;
+bool Population::evolve(const size_t max_generations, const size_t record_interval, const Recording flags) {HERE;
     constexpr double margin = 0.1;
     double max_fitness = 1.0;
-    wtl::ozfstream activity_file("activity.tsv.gz");
-    activity_file << "generation\tgamete\tactivity\tcopy_number\n";
-    wtl::ozfstream fitness_file("fitness.tsv.gz");
-    fitness_file << "generation\tfitness\n";
     for (size_t t=1; t<=max_generations; ++t) {
         bool is_recording = ((t % record_interval) == 0U);
         const auto fitness_record = step(max_fitness);
@@ -45,16 +41,30 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         max_fitness = std::min(max_fitness + margin, 1.0);
         if (is_recording) {
             std::cerr << "*" << std::flush;
-            for (size_t i=0; i<gametes_.size(); ++i) {
-                for (const auto& p: gametes_[i].count_activity()) {
-                    activity_file << t << "\t" << i << "\t"
-                                  << p.first << "\t" << p.second << "\n";
+            if (static_cast<bool>(flags & Recording::activity)) {
+                auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
+                wtl::ozfstream activity_file("activity.tsv.gz", ioflag);
+                if (t == record_interval) {
+                    activity_file << "generation\tgamete\tactivity\tcopy_number\n";
+                }
+                for (size_t i=0; i<gametes_.size(); ++i) {
+                    for (const auto& p: gametes_[i].count_activity()) {
+                        activity_file << t << "\t" << i << "\t"
+                                      << p.first << "\t" << p.second << "\n";
+                    }
                 }
             }
-            for (const double w: fitness_record) {
-                fitness_file << t << "\t" << w << "\n";
+            if (static_cast<bool>(flags & Recording::fitness)) {
+                auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
+                wtl::ozfstream fitness_file("fitness.tsv.gz", ioflag);
+                if (t == record_interval) {
+                    fitness_file << "generation\tfitness\n";
+                }
+                for (const double w: fitness_record) {
+                    fitness_file << t << "\t" << w << "\n";
+                }
+                fitness_file << std::flush;
             }
-            fitness_file << std::flush;
         } else {
             std::cerr << "." << std::flush;
         }
