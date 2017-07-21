@@ -54,6 +54,14 @@ class DNA {
         return x.write(ost);
     }
 
+    uint_fast32_t operator-(const DNA<N>& other) const {
+        uint_fast32_t diff = 0;
+        for (uint_fast32_t i=0; i<N; ++i) {
+            if (this->sequence_[i] != other.sequence_[i]) ++diff;
+        }
+        return diff;
+    }
+
   private:
     std::array<uint_fast8_t, N> sequence_ = {};
 };
@@ -64,12 +72,13 @@ const std::string DNA<N>::NUCLEOTIDE = "ACGT";
 template <class URNG> inline
 void DNA_test(URNG& generator) {
     constexpr size_t N = 30;
-    DNA<N> dna;
-    std::cerr << dna << std::endl;
+    DNA<N> x, y;
+    std::cerr << x << std::endl;
     for (size_t i=0; i<N; ++i) {
-        dna.flip(i, generator);
+        x.flip(i, generator);
     }
-    std::cerr << dna << std::endl;
+    std::cerr << x << std::endl;
+    std::cerr << x - y << std::endl;
 }
 
 } // namespace tek
