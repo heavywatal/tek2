@@ -113,15 +113,6 @@ bool Population::is_extinct() const {
     return true;
 }
 
-void Population::sample() const {
-    const size_t sample_size = std::max(gametes_.size() / 100UL, 2UL);
-    std::ostringstream oss;
-    for (size_t i=0; i<sample_size; ++i) {
-        gametes_[i].write_fasta(oss);
-    }
-    std::cerr << oss.str();
-}
-
 std::ostream& Population::write_summary(std::ostream& ost) const {HERE;
     nlohmann::json record;
     for (const auto& x: gametes_) {
@@ -143,6 +134,15 @@ std::ostream& Population::write_fasta(std::ostream& ost) const {HERE;
     return ost;
 }
 
+std::ostream& Population::write_individual(std::ostream& ost, const size_t i) const {HERE;
+    for (const size_t x: {2U * i, 2U * i + 1U}) {
+        for (const auto& p: gametes_.at(x)) {
+            p.second->write_fasta(ost);
+        }
+    }
+    return ost;
+}
+
 std::ostream& Population::write(std::ostream& ost) const {HERE;
     for (const auto& x: gametes_) {
         x.write_fasta(ost);
@@ -159,7 +159,7 @@ void Population::test() {HERE;
     std::cout << pop.gametes_ << std::endl;
     pop.step();
     std::cout << pop.gametes_ << std::endl;
-    pop.sample();
+    pop.write_individual(std::cout, 2);
 }
 
 } // namespace tek

@@ -23,10 +23,10 @@ class Population {
 
     Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
     bool evolve(const size_t max_generations, const size_t record_interval);
-    void sample() const;
 
     std::ostream& write_summary(std::ostream&) const;
     std::ostream& write_fasta(std::ostream&) const;
+    std::ostream& write_individual(std::ostream&, const size_t i=0) const;
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 
