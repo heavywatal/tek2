@@ -43,27 +43,26 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             std::cerr << "*" << std::flush;
             if (static_cast<bool>(flags & Recording::activity)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
-                wtl::ozfstream activity_file("activity.tsv.gz", ioflag);
+                wtl::ozfstream ozf("activity.tsv.gz", ioflag);
                 if (t == record_interval) {
-                    activity_file << "generation\tgamete\tactivity\tcopy_number\n";
+                    ozf << "generation\tgamete\tactivity\tcopy_number\n";
                 }
                 for (size_t i=0; i<gametes_.size(); ++i) {
                     for (const auto& p: gametes_[i].count_activity()) {
-                        activity_file << t << "\t" << i << "\t"
+                        ozf << t << "\t" << i << "\t"
                                       << p.first << "\t" << p.second << "\n";
                     }
                 }
             }
             if (static_cast<bool>(flags & Recording::fitness)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
-                wtl::ozfstream fitness_file("fitness.tsv.gz", ioflag);
+                wtl::ozfstream ozf("fitness.tsv.gz", ioflag);
                 if (t == record_interval) {
-                    fitness_file << "generation\tfitness\n";
+                    ozf << "generation\tfitness\n";
                 }
                 for (const double w: fitness_record) {
-                    fitness_file << t << "\t" << w << "\n";
+                    ozf << t << "\t" << w << "\n";
                 }
-                fitness_file << std::flush;
             }
         } else {
             std::cerr << "." << std::flush;
