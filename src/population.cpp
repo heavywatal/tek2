@@ -64,21 +64,6 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         }
     }
     std::cerr << std::endl;
-    nlohmann::json record;
-    for (const auto& x: gametes_) {
-        record.push_back(x.summarize());
-    }
-    wtl::ozfstream("summary.json.gz") << record;
-    std::unordered_map<Transposon*, unsigned int> counter;
-    for (const auto& chr: gametes_) {
-        for (const auto& p: chr) {
-            ++counter[p.second.get()];
-        }
-    }
-    wtl::ozfstream fasta("sequence.fa.gz");
-    for (const auto& p: counter) {
-        p.first->write_fasta(fasta, p.second);
-    }
     return true;
 }
 
@@ -135,6 +120,27 @@ void Population::sample() const {
         gametes_[i].write_fasta(oss);
     }
     std::cerr << oss.str();
+}
+
+std::ostream& Population::write_summary(std::ostream& ost) const {HERE;
+    nlohmann::json record;
+    for (const auto& x: gametes_) {
+        record.push_back(x.summarize());
+    }
+    return ost << record;
+}
+
+std::ostream& Population::write_fasta(std::ostream& ost) const {HERE;
+    std::unordered_map<Transposon*, unsigned int> counter;
+    for (const auto& chr: gametes_) {
+        for (const auto& p: chr) {
+            ++counter[p.second.get()];
+        }
+    }
+    for (const auto& p: counter) {
+        p.first->write_fasta(ost, p.second);
+    }
+    return ost;
 }
 
 std::ostream& Population::write(std::ostream& ost) const {HERE;

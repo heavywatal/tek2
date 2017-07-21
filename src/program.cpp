@@ -12,6 +12,7 @@
 #include <wtl/exception.hpp>
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
+#include <wtl/zfstream.hpp>
 #include <wtl/getopt.hpp>
 
 #include <boost/filesystem.hpp>
@@ -114,7 +115,13 @@ void Program::run() {HERE;
     try {
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
-            if (pop.evolve(num_generations_, record_interval_)) break;
+            if (pop.evolve(num_generations_, record_interval_)) {
+                wtl::ozfstream json("summary.json.gz");
+                pop.write_summary(json);
+                wtl::ozfstream fasta("sequence.fa.gz");
+                pop.write_fasta(fasta);
+                break;
+            }
         }
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;

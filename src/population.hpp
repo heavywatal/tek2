@@ -25,6 +25,8 @@ class Population {
     bool evolve(const size_t max_generations, const size_t record_interval);
     void sample() const;
 
+    std::ostream& write_summary(std::ostream&) const;
+    std::ostream& write_fasta(std::ostream&) const;
     std::ostream& write(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 
