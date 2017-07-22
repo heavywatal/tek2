@@ -40,6 +40,7 @@ po::options_description Program::options_desc() {HERE;
       ("initial,q", po::value(&initial_freq_)->default_value(initial_freq_))
       ("generations,g", po::value(&num_generations_)->default_value(num_generations_))
       ("interval,i", po::value(&record_interval_)->default_value(record_interval_))
+      ("record,r", po::value(&record_flags_)->default_value(record_flags_))
       ("parallel,j", po::value(&concurrency_)->default_value(concurrency_))
       ("outdir,o", po::value(&outdir_)->default_value(outdir_));
     description.add(Haploid::options_desc());
@@ -115,7 +116,7 @@ void Program::run() {HERE;
     try {
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
-            if (pop.evolve(num_generations_, record_interval_)) {
+            if (pop.evolve(num_generations_, record_interval_, static_cast<Recording>(record_flags_))) {
                 wtl::ozfstream json("summary.json.gz");
                 pop.write_summary(json);
                 wtl::ozfstream fasta("sequence.fa.gz");

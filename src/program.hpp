@@ -35,6 +35,7 @@ class Program {
     size_t initial_freq_ = 1;
     size_t num_generations_ = 1000;
     size_t record_interval_ = 10;
+    int record_flags_ = 3;
     unsigned int concurrency_ = 1;
     size_t num_repeats_ = 1;
     std::string outdir_ = "";
