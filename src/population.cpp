@@ -14,6 +14,8 @@
 
 #include <json.hpp>
 
+#include <boost/filesystem.hpp>
+
 #include <unordered_map>
 #include <iostream>
 #include <algorithm>
@@ -21,6 +23,8 @@
 #include <future>
 
 namespace tek {
+
+namespace fs = boost::filesystem;
 
 Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
 : concurrency_(concurrency) {HERE;
@@ -63,6 +67,19 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 for (const double w: fitness_record) {
                     ozf << t << "\t" << w << "\n";
                 }
+            }
+            if (static_cast<bool>(flags & Recording::sequence)) {
+                std::ostringstream outdir;
+                outdir << "generation_" << t;
+                fs::create_directory(outdir.str());
+                fs::current_path(outdir.str());
+                for (size_t i=0; i<10U; ++i) {
+                    std::ostringstream outfile;
+                    outfile << "individual_" << i << ".fa.gz";
+                    wtl::ozfstream ozf(outfile.str());
+                    write_individual(ozf, i);
+                }
+                fs::current_path("..");
             }
         } else {
             std::cerr << "." << std::flush;
@@ -143,7 +160,7 @@ std::ostream& Population::write_fasta(std::ostream& ost) const {HERE;
     return ost;
 }
 
-std::ostream& Population::write_individual(std::ostream& ost, const size_t i) const {HERE;
+std::ostream& Population::write_individual(std::ostream& ost, const size_t i) const {
     for (const size_t x: {2U * i, 2U * i + 1U}) {
         for (const auto& p: gametes_.at(x)) {
             p.second->write_fasta(ost);
