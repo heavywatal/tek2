@@ -39,6 +39,7 @@ po::options_description Program::options_desc() {HERE;
       ("popsize,n", po::value(&popsize_)->default_value(popsize_))
       ("initial,q", po::value(&initial_freq_)->default_value(initial_freq_))
       ("generations,g", po::value(&num_generations_)->default_value(num_generations_))
+      ("split,s", po::value(&num_generations_after_split_)->default_value(num_generations_after_split_))
       ("interval,i", po::value(&record_interval_)->default_value(record_interval_))
       ("record,r", po::value(&record_flags_)->default_value(record_flags_))
       ("parallel,j", po::value(&concurrency_)->default_value(concurrency_))
@@ -123,6 +124,18 @@ void Program::run() {HERE;
             pop.write_summary(json);
             wtl::ozfstream fasta("sequence.fa.gz");
             pop.write_fasta(fasta);
+            if (num_generations_after_split_ == 0U) break;
+            Population pop2(pop);
+            fs::create_directory("population_1");
+            fs::current_path("population_1");
+            good = pop.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
+            fs::current_path("..");
+            if (!good) continue;
+            fs::create_directory("population_2");
+            fs::current_path("population_2");
+            good = pop2.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
+            fs::current_path("..");
+            if (!good) continue;
             break;
         }
     } catch (const wtl::KeyboardInterrupt& e) {
