@@ -116,13 +116,14 @@ void Program::run() {HERE;
     try {
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
-            if (pop.evolve(num_generations_, record_interval_, static_cast<Recording>(record_flags_))) {
-                wtl::ozfstream json("summary.json.gz");
-                pop.write_summary(json);
-                wtl::ozfstream fasta("sequence.fa.gz");
-                pop.write_fasta(fasta);
-                break;
-            }
+            auto flags = static_cast<Recording>(record_flags_);
+            bool good = pop.evolve(num_generations_, record_interval_, flags);
+            if (!good) continue;
+            wtl::ozfstream json("summary.json.gz");
+            pop.write_summary(json);
+            wtl::ozfstream fasta("sequence.fa.gz");
+            pop.write_fasta(fasta);
+            break;
         }
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;
