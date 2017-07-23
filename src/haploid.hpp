@@ -32,6 +32,7 @@ class Haploid {
     using URNG = wtl::sfmt19937;
 
     Haploid() = default;
+    Haploid(const Haploid&) = default;
     Haploid(Haploid&& other) = default;
     Haploid& operator=(Haploid&&) = default;
 
@@ -56,7 +57,6 @@ class Haploid {
     static void test();
 
   private:
-    Haploid(const Haploid&) = default;
     Haploid& operator=(const Haploid&) = default;
 
     static void set_SELECTION_COEFS_GP();

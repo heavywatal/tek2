@@ -37,6 +37,8 @@ class Population {
     static constexpr double RHO = 200;
 
     Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
+    Population(const Population& other) = default;
+
     bool evolve(const size_t max_generations, const size_t record_interval,
                 const Recording flags=Recording::activity | Recording::fitness);
 
