@@ -9,12 +9,11 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/zfstream.hpp>
+#include <wtl/filesystem.hpp>
 #include <wtl/prandom.hpp>
 #include <sfmt.hpp>
 
 #include <json.hpp>
-
-#include <boost/filesystem.hpp>
 
 #include <unordered_map>
 #include <iostream>
@@ -23,8 +22,6 @@
 #include <future>
 
 namespace tek {
-
-namespace fs = boost::filesystem;
 
 Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
 : concurrency_(concurrency) {HERE;
@@ -71,15 +68,13 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             if (static_cast<bool>(flags & Recording::sequence)) {
                 std::ostringstream outdir;
                 outdir << "generation_" << t;
-                fs::create_directory(outdir.str());
-                fs::current_path(outdir.str());
+                wtl::ChDir cd(outdir.str());
                 for (size_t i=0; i<10U; ++i) {
                     std::ostringstream outfile;
                     outfile << "individual_" << i << ".fa.gz";
                     wtl::ozfstream ozf(outfile.str());
                     write_individual(ozf, i);
                 }
-                fs::current_path("..");
             }
         } else {
             std::cerr << "." << std::flush;

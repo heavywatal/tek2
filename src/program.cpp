@@ -13,15 +13,13 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/zfstream.hpp>
+#include <wtl/filesystem.hpp>
 #include <wtl/getopt.hpp>
-
-#include <boost/filesystem.hpp>
 
 #include <iostream>
 
 namespace tek {
 
-namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 inline po::options_description general_desc() {HERE;
@@ -110,11 +108,8 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 }
 
 void Program::run() {HERE;
-    if (!outdir_.empty()){
-        fs::create_directory(outdir_);
-        fs::current_path(outdir_);
-    }
     try {
+        wtl::ChDir cd_outdir(outdir_, true);
         while (true) {
             Population pop(popsize_, initial_freq_, concurrency_);
             auto flags = static_cast<Recording>(record_flags_);
@@ -126,16 +121,16 @@ void Program::run() {HERE;
             pop.write_fasta(fasta);
             if (num_generations_after_split_ == 0U) break;
             Population pop2(pop);
-            fs::create_directory("population_1");
-            fs::current_path("population_1");
-            good = pop.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
-            fs::current_path("..");
-            if (!good) continue;
-            fs::create_directory("population_2");
-            fs::current_path("population_2");
-            good = pop2.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
-            fs::current_path("..");
-            if (!good) continue;
+            {
+              wtl::ChDir cd("population_1", true);
+              good = pop.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
+              if (!good) continue;
+            }
+            {
+              wtl::ChDir cd("population_2", true);
+              good = pop2.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
+              if (!good) continue;
+            }
             break;
         }
     } catch (const wtl::KeyboardInterrupt& e) {
