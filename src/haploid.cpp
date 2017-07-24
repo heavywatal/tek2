@@ -18,7 +18,7 @@
 namespace tek {
 
 double Haploid::XI_ = 1e-4;
-double Haploid::EXCISION_RATE_ = 1e-6;
+double Haploid::EXCISION_RATE_ = 1e-5;
 double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 
 double Haploid::RECOMBINATION_RATE_ = 0.0;
