@@ -68,7 +68,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             if (static_cast<bool>(flags & Recording::sequence)) {
                 std::ostringstream outdir;
                 outdir << "generation_" << t;
-                wtl::ChDir cd(outdir.str());
+                wtl::ChDir cd(outdir.str(), true);
                 for (size_t i=0; i<10U; ++i) {
                     std::ostringstream outfile;
                     outfile << "individual_" << i << ".fa.gz";
