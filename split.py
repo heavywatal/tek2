@@ -21,7 +21,7 @@ def iter_values(rest):
 
 def iter_args(rest, concurrency, repeat, skip):
     const = [program, '-j{}'.format(concurrency)] + rest
-    const.extend(['-i10000', '-g10000', '-a50000'])
+    const.extend(['-i10000', '-g10000', '-s100000'])
     suffix = '_{}_{}'.format(wopt.now(), wopt.getpid())
     for i, v in enumerate(wopt.cycle(iter_values(rest), repeat)):
         if i < skip:
