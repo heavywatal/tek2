@@ -13,7 +13,6 @@ def iter_values(rest):
     parallel_axes['beta'] = [6, 48]
     crossing_axes = wopt.OrderedDict()
     crossing_axes['xi'] = ['1e-4', '1e-3']
-    crossing_axes['lambda'] = ['1e-4', '1e-3']
     for di in wopt.parallel(parallel_axes):
         for dj in wopt.product(crossing_axes):
             yield wopt.OrderedDict(**di, **dj)
