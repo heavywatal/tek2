@@ -87,12 +87,14 @@ Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
-    for (auto& p: sites_) {
-        if (rng.canonical() < p.second->transposition_rate()) {
-            copying_transposons.push_back(p.second);
+    for (auto it=sites_.cbegin(); it!=sites_.cend();) {
+        if (rng.canonical() < it->second->transposition_rate()) {
+            copying_transposons.push_back(it->second);
         }
         if (rng.canonical() < EXCISION_RATE_) {
-            sites_.erase(p.first);
+            it = sites_.erase(it);
+        } else {
+            ++it;
         }
     }
     return copying_transposons;
