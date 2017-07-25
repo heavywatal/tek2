@@ -77,9 +77,11 @@ class Haploid {
     static double XI_;
     static double EXCISION_RATE_;
     static double MEAN_SELECTION_COEF_;
+    static double SPECIATION_RATIO_;
 
     static double RECOMBINATION_RATE_;
     static double INDEL_RATE_;
+    static double SPECIATION_RATE_;
     static std::valarray<double> SELECTION_COEFS_GP_;
     static std::uniform_int_distribution<uint_fast32_t> UNIFORM_SITES_;
     static std::poisson_distribution<uint_fast32_t> NUM_MUTATIONS_DIST_;
