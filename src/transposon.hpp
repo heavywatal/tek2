@@ -40,6 +40,9 @@ class Transposon {
         }
     }
 
+    template <class URNG> inline
+    void speciate(URNG& generator) {species_ = generator();}
+
     void indel() {has_indel_ = true;}
     double activity() const {
         if (has_indel_) return 0.0;
@@ -76,6 +79,7 @@ class Transposon {
     DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
     DNA<LENGTH - NUM_NONSYNONYMOUS_SITES> synonymous_sites_;
     bool has_indel_ = false;
+    uint_fast32_t species_ = 0;
 };
 
 } // namespace tek

@@ -41,7 +41,8 @@ double Transposon::calc_activity(const uint_fast32_t num_mutations) {
 }
 
 std::ostream& Transposon::write_summary(std::ostream& ost) const {
-    return ost << has_indel_ << ":"
+    return ost << species_ << ":"
+               << has_indel_ << ":"
                << nonsynonymous_sites_.count() << ":"
                << synonymous_sites_.count() << ":"
                << activity();
@@ -49,7 +50,8 @@ std::ostream& Transposon::write_summary(std::ostream& ost) const {
 
 std::ostream& Transposon::write_fasta(std::ostream& ost, const uint_fast32_t copy_number) const {
     ost << ">" << this
-        << " indel=" << has_indel_ << " dn=" << dn() << " ds=" << ds()
+        << " species=" << species_ << " indel=" << has_indel_
+        << " dn=" << dn() << " ds=" << ds()
         << " activity=" << activity();
     if (copy_number > 0U) ost << " copy_number=" << copy_number;
     return write_sequence(ost << "\n") << "\n";
@@ -76,6 +78,7 @@ void Transposon::test() {HERE;
     te.write_fasta(std::cout);
     std::cout << te << std::endl;
     te.indel();
+    te.speciate(mt);
     std::cout << te << std::endl;
     test_activity();
 }
