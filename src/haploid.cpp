@@ -71,7 +71,6 @@ Haploid Haploid::copy_founder() {
     static auto idx = UNIFORM_SITES_(wtl::sfmt());
     Haploid founder;
     founder.sites_[idx] = ORIGINAL_TE_;
-    founder.evaluate_sites();
     return founder;
 }
 
@@ -80,13 +79,7 @@ Haploid Haploid::copy_founder() {
 Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
     Haploid lhalf(*this), rhalf(other);
     lhalf.recombine(rhalf, rng);
-    if (rng.canonical() < 0.5) {
-        lhalf.evaluate_sites();
-        return lhalf;
-    } else {
-        rhalf.evaluate_sites();
-        return rhalf;
-    }
+    return (rng.canonical() < 0.5) ? lhalf : rhalf;
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
@@ -192,23 +185,23 @@ void Haploid::mutate(URNG& rng) {
     }
 }
 
-void Haploid::evaluate_sites() {
-    copy_number_ = sites_.size();
-    prod_1_zs_ = 1.0;
+double Haploid::prod_1_zs() const {
+    double product = 1.0;
     for (const auto& p: sites_) {
-        prod_1_zs_ *= (1.0 - SELECTION_COEFS_GP_[p.first]);
+        product *= (1.0 - SELECTION_COEFS_GP_[p.first]);
     }
+    return product;
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    const double s_cn = XI_ * std::pow(copy_number_ + other.copy_number_, TAU_);
-    return std::max(prod_1_zs_ * other.prod_1_zs_ * (1.0 - s_cn), 0.0);
+    const double s_cn = XI_ * std::pow(sites_.size() + other.sites_.size(), TAU_);
+    return std::max(prod_1_zs() * other.prod_1_zs() * (1.0 - s_cn), 0.0);
 }
 
 std::vector<std::string> Haploid::summarize() const {
     // "site:indel:nonsynonymous:synonymous:activity"
     std::vector<std::string> v;
-    v.reserve(copy_number_);
+    v.reserve(sites_.size());
     for (const auto& p: sites_) {
         std::ostringstream oss;
         p.second->write_summary(oss << p.first << ":");

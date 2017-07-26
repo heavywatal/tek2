@@ -40,7 +40,7 @@ class Haploid {
     void transpose_mutate(Haploid& other, URNG& rng);
     double fitness(const Haploid&) const;
 
-    bool has_transposon() const {return copy_number_ > 0U;};
+    bool has_transposon() const {return !sites_.empty();};
     std::map<double, uint_fast32_t> count_activity() const;
 
     std::vector<std::string> summarize() const;
@@ -64,7 +64,7 @@ class Haploid {
     std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
     void recombine(Haploid&, URNG&);
     void mutate(URNG&);
-    void evaluate_sites();
+    double prod_1_zs() const;
 
     static void test_selection_coefs_cn();
     static void test_selection_coefs_gp();
@@ -88,8 +88,6 @@ class Haploid {
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     std::map<uint_fast32_t, std::shared_ptr<Transposon>> sites_;
-    double prod_1_zs_ = 1.0;
-    uint_fast32_t copy_number_ = 0;
 };
 
 } // namespace tek
