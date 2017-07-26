@@ -25,7 +25,7 @@ read_history_json = function(path) {
 
 count_activity = function(x) {
     popsize = length(x) / 2L
-    .names = c('site', 'indel', 'nonsynonymous', 'synonymous', 'activity')
+    .names = c('site', 'species', 'indel', 'nonsynonymous', 'synonymous', 'activity')
     purrr::compact(x) %>%
     purrr::flatten_chr() %>%
     {tibble::tibble(tmpcol=.)} %>%

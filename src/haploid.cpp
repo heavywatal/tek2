@@ -209,7 +209,7 @@ double Haploid::fitness(const Haploid& other) const {
 }
 
 std::vector<std::string> Haploid::summarize() const {
-    // "site:indel:nonsynonymous:synonymous:activity"
+    // "site:species:indel:nonsynonymous:synonymous:activity"
     std::vector<std::string> v;
     v.reserve(sites_.size());
     for (const auto& p: sites_) {
