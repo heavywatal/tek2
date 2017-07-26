@@ -77,9 +77,44 @@ Haploid Haploid::copy_founder() {
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
-    Haploid lhalf(*this), rhalf(other);
-    lhalf.recombine(rhalf, rng);
-    return (rng.canonical() < 0.5) ? lhalf : rhalf;
+    Haploid gamete(*this);
+    bool flg = (rng.canonical() < 0.5);
+    uint_fast32_t prev = 0U;
+    auto gamete_it = gamete.sites_.begin();
+    auto gamete_end = gamete.sites_.end();
+    auto other_it = other.sites_.cbegin();
+    auto other_end = other.sites_.cend();
+    while (gamete_it != gamete_end || other_it != other_end) {
+        const uint_fast32_t this_pos = (gamete_it != gamete_end)?
+            gamete_it->first:
+            std::numeric_limits<uint_fast32_t>::max();
+        const uint_fast32_t other_pos = (other_it != other_end)?
+            other_it->first:
+            std::numeric_limits<uint_fast32_t>::max();
+        const uint_fast32_t here = std::min(this_pos, other_pos);
+        std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
+        flg ^= (poisson(rng) % 2U);
+        prev = here;
+        if (this_pos < other_pos) {
+            if (flg) {
+                gamete_it = gamete.sites_.erase(gamete_it);
+            } else {
+                ++gamete_it;
+            }
+        } else if (this_pos == other_pos) {
+            if (flg) {
+                gamete_it->second = other_it->second;
+            }
+            ++gamete_it;
+            ++other_it;
+        } else {
+            if (flg) {
+                gamete.sites_.emplace_hint(gamete_it, *other_it);
+            }
+            ++other_it;
+        }
+    }
+    return gamete;
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
@@ -120,48 +155,6 @@ void Haploid::transpose_mutate(Haploid& other, URNG& rng) {
     }
     this->mutate(rng);
     other.mutate(rng);
-}
-
-void Haploid::recombine(Haploid& other, URNG& rng) {
-    bool flg = false;
-    uint_fast32_t prev = 0U;
-    for (auto this_it = this->sites_.begin(), other_it = other.sites_.begin();
-         this_it != this->sites_.end() || other_it != other.sites_.end();
-        ) {
-        const uint_fast32_t this_pos = (this_it == this->end())?
-            std::numeric_limits<uint_fast32_t>::max():
-            this_it->first;
-        const uint_fast32_t other_pos = (other_it == other.end())?
-            std::numeric_limits<uint_fast32_t>::max():
-            other_it->first;
-        const uint_fast32_t here = std::min(this_pos, other_pos);
-        std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
-        flg ^= (poisson(rng) % 2U);
-        prev = here;
-        if (this_pos < other_pos) {
-            if (flg) {
-                other.sites_.emplace_hint(other_it, std::move(*this_it));
-                this_it = this->sites_.erase(this_it);
-            } else {
-                ++this_it;
-            }
-        } else {
-            if (this_pos == other_pos) {
-                if (flg) {
-                  this_it->second.swap(other_it->second);
-                }
-                ++this_it;
-                ++other_it;
-            } else {
-                if (flg) {
-                    this->sites_.emplace_hint(this_it, std::move(*other_it));
-                    other_it = other.sites_.erase(other_it);
-                } else {
-                    ++other_it;
-                }
-            }
-        }
-    }
 }
 
 void Haploid::mutate(URNG& rng) {
@@ -293,9 +286,8 @@ void Haploid::test_recombination() {HERE;
     for (uint_fast32_t x=0U; x<60U; ++x) {
         one.sites_[x] = ORIGINAL_TE_;
     }
-    zero.recombine(one, wtl::sfmt());
-    one.write_positions(std::cerr) << std::endl;
-    zero.write_positions(std::cerr) << std::endl;
+    auto gamete = zero.gametogenesis(one, wtl::sfmt());
+    gamete.write_positions(std::cerr) << std::endl;
 }
 
 } // namespace tek

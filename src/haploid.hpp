@@ -62,7 +62,6 @@ class Haploid {
     static void set_SELECTION_COEFS_GP();
 
     std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
-    void recombine(Haploid&, URNG&);
     void mutate(URNG&);
     double prod_1_zs() const;
 
