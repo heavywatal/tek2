@@ -77,7 +77,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 }
             }
         } else {
-            std::cerr << "." << std::flush;
+            DCERR("." << std::flush);
         }
         if (is_extinct()) {
             std::cerr << "Extinction!" << std::endl;
