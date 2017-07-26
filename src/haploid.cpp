@@ -77,41 +77,42 @@ Haploid Haploid::copy_founder() {
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
+    constexpr uint_fast32_t uint_max = std::numeric_limits<uint_fast32_t>::max();
     Haploid gamete(*this);
     bool flg = (rng.canonical() < 0.5);
-    uint_fast32_t prev = 0U;
     auto gamete_it = gamete.sites_.begin();
     auto gamete_end = gamete.sites_.end();
     auto other_it = other.sites_.cbegin();
     auto other_end = other.sites_.cend();
-    while (gamete_it != gamete_end || other_it != other_end) {
-        const uint_fast32_t this_pos = (gamete_it != gamete_end)?
-            gamete_it->first:
-            std::numeric_limits<uint_fast32_t>::max();
-        const uint_fast32_t other_pos = (other_it != other_end)?
-            other_it->first:
-            std::numeric_limits<uint_fast32_t>::max();
-        const uint_fast32_t here = std::min(this_pos, other_pos);
+    uint_fast32_t gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
+    uint_fast32_t other_pos = (other_it != other_end) ? other_it->first : uint_max;
+    uint_fast32_t here = 0U;
+    uint_fast32_t prev = 0U;
+    while ((here = std::min(gamete_pos, other_pos)) < uint_max) {
         std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
         flg ^= (poisson(rng) % 2U);
         prev = here;
-        if (this_pos < other_pos) {
+        if (gamete_pos < other_pos) {
             if (flg) {
                 gamete_it = gamete.sites_.erase(gamete_it);
             } else {
                 ++gamete_it;
             }
-        } else if (this_pos == other_pos) {
+            gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
+        } else if (gamete_pos == other_pos) {
             if (flg) {
                 gamete_it->second = other_it->second;
             }
             ++gamete_it;
             ++other_it;
+            gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
+            other_pos = (other_it != other_end) ? other_it->first : uint_max;
         } else {
             if (flg) {
                 gamete.sites_.emplace_hint(gamete_it, *other_it);
             }
             ++other_it;
+            other_pos = (other_it != other_end) ? other_it->first : uint_max;
         }
     }
     return gamete;
