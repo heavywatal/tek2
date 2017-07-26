@@ -115,10 +115,14 @@ void Program::run() {HERE;
             auto flags = static_cast<Recording>(record_flags_);
             bool good = pop.evolve(num_generations_, record_interval_, flags);
             if (!good) continue;
-            wtl::ozfstream json("summary.json.gz");
-            pop.write_summary(json);
-            wtl::ozfstream fasta("sequence.fa.gz");
-            pop.write_fasta(fasta);
+            {
+              wtl::ozfstream ost("summary.json.gz");
+              pop.write_summary(ost);
+            }
+            {
+              wtl::ozfstream ost("sequence.fa.gz");
+              pop.write_fasta(ost);
+            }
             if (num_generations_after_split_ == 0U) break;
             Population pop2(pop);
             {
