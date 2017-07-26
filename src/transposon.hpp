@@ -53,6 +53,7 @@ class Transposon {
     }
 
     bool has_indel() const {return has_indel_;}
+    uint_fast32_t species() const {return species_;}
     double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
     double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 

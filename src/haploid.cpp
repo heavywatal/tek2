@@ -194,8 +194,18 @@ double Haploid::prod_1_zs() const {
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    const double s_cn = XI_ * std::pow(sites_.size() + other.sites_.size(), TAU_);
-    return std::max(prod_1_zs() * other.prod_1_zs() * (1.0 - s_cn), 0.0);
+    std::map<uint_fast32_t, uint_fast32_t> counter;
+    for (const auto& p: this->sites_) {
+        ++counter[p.second->species()];
+    }
+    for (const auto& p: other.sites_) {
+        ++counter[p.second->species()];
+    }
+    double prod_1_xi_n_tau = 1.0;
+    for (const auto& p: counter) {
+        prod_1_xi_n_tau *= (1.0 - XI_ * std::pow(p.second, TAU_));
+    }
+    return std::max(prod_1_zs() * other.prod_1_zs() * prod_1_xi_n_tau, 0.0);
 }
 
 std::vector<std::string> Haploid::summarize() const {
