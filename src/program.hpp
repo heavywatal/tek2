@@ -29,6 +29,7 @@ class Program {
   private:
     boost::program_options::options_description options_desc();
     boost::program_options::options_description positional_desc();
+    void main();
     void help_and_exit();
 
     size_t popsize_ = 500;

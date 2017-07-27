@@ -109,36 +109,40 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 
 void Program::run() {HERE;
     try {
-        wtl::ChDir cd_outdir(outdir_, true);
-        while (true) {
-            Population pop(popsize_, initial_freq_, concurrency_);
-            auto flags = static_cast<Recording>(record_flags_);
-            bool good = pop.evolve(num_generations_, record_interval_, flags);
-            if (!good) continue;
-            {
-              wtl::ozfstream ost("summary.json.gz");
-              pop.write_summary(ost);
-            }
-            {
-              wtl::ozfstream ost("sequence.fa.gz");
-              pop.write_fasta(ost);
-            }
-            if (num_generations_after_split_ == 0U) break;
-            Population pop2(pop);
-            {
-              wtl::ChDir cd("population_1", true);
-              good = pop.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
-              if (!good) continue;
-            }
-            {
-              wtl::ChDir cd("population_2", true);
-              good = pop2.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
-              if (!good) continue;
-            }
-            break;
-        }
+        main();
     } catch (const wtl::KeyboardInterrupt& e) {
         std::cerr << e.what() << std::endl;
+    }
+}
+
+void Program::main() {HERE;
+    wtl::ChDir cd_outdir(outdir_, true);
+    while (true) {
+        Population pop(popsize_, initial_freq_, concurrency_);
+        auto flags = static_cast<Recording>(record_flags_);
+        bool good = pop.evolve(num_generations_, record_interval_, flags);
+        if (!good) continue;
+        {
+          wtl::ozfstream ost("summary.json.gz");
+          pop.write_summary(ost);
+        }
+        {
+          wtl::ozfstream ost("sequence.fa.gz");
+          pop.write_fasta(ost);
+        }
+        if (num_generations_after_split_ == 0U) break;
+        Population pop2(pop);
+        {
+          wtl::ChDir cd("population_1", true);
+          good = pop.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
+        }
+        if (!good) continue;
+        {
+          wtl::ChDir cd("population_2", true);
+          good = pop2.evolve(num_generations_after_split_, record_interval_, Recording::sequence);
+        }
+        if (!good) continue;
+        break;
     }
 }
 
