@@ -15,32 +15,19 @@ extract_params = function(filename, params=c('alpha', 'beta', 'lambda', 'xi', 'n
 }
 # .infiles[1] %>% extract_params()
 
-read_history_json = function(path) {
-    message(path)
-    jsonlite::read_json(path, simplifyVector=TRUE) %>%
-    {tibble(generation= as.integer(names(.)), data =.)} %>%
-    dplyr::arrange(generation)
-}
-# .infiles[1] %>% read_history_json()
-
 count_activity = function(x) {
-    popsize = length(x) / 2L
-    .names = c('site', 'species', 'indel', 'nonsynonymous', 'synonymous', 'activity')
-    purrr::compact(x) %>%
-    purrr::flatten_chr() %>%
-    {tibble::tibble(tmpcol=.)} %>%
-    tidyr::separate(tmpcol, .names, sep=':', convert=FALSE) %>%
-    dplyr::group_by(activity= as.double(activity)) %>%
-    dplyr::summarise(copy_number= n() / popsize)
+    dplyr::group_by(x, generation) %>%
+    dplyr::count(activity, wt=copy_number) %>%
+    dplyr::mutate(copy_number=n / 500)
 }
 # .histories$data[[4]] %>% count_activity()
 
 count_per_individual = function(x) {
-    lengths(x) %>%
-    matrix(ncol=2L) %>%
-    rowSums() %>%
-    {tibble::tibble(copy_number=as.integer(.))} %>%
-    dplyr::count(copy_number)
+    dplyr::group_by(x, generation, gamete) %>%
+    dplyr::summarise(copy_number=sum(copy_number)) %>%
+    dplyr::ungroup() %>%
+    tidyr::complete(generation, gamete, fill=list(copy_number=0L)) %>%
+    dplyr::count(generation, copy_number)
 }
 # .histories$data[[4]] %>% count_per_individual()
 
@@ -59,14 +46,13 @@ plot_copynumber_generation = function(data) {
 .indirs = wtl::command_args()$args
 .indirs = '.'
 
-.infiles = file.path(.indirs, 'history.json.gz') %>%
+.infiles = file.path(.indirs, 'activity.tsv.gz') %>%
     purrr::keep(file.exists) %>%
     print()
 
 .histories = .infiles %>% set_names() %>%
     map_df(extract_params, .id='infile') %>%
-    dplyr::mutate(data= purrr::map(infile, read_history_json)) %>%
-    tidyr::unnest() %>%
+    dplyr::mutate(data= purrr::map(infile, read_tsv)) %>%
     print()
 
 .counted = .histories %>%
@@ -99,6 +85,7 @@ ggsave('fig-s2.png', .p, width=15, height=12)
     ggplot(aes(copy_number, n, group=generation))+
     geom_line(aes(colour=generation), size=1, alpha=0.8)+
     wtl::scale_colour_gradientb('Spectral', 4L)+
+    facet_grid(alpha + desc(nu) ~ desc(xi) + lambda, labeller=label_both, scale='free_x')+
     theme_bw()+theme(legend.position='bottom')
 .p
 ggsave('copies_per_individual.pdf', .p, width=5, height=5)
@@ -146,14 +133,16 @@ ggsave('selection_methods.pdf', .p, width=4, height=4)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-.cols = c('position', 'indel', 'nonsynonymous', 'synonymous', 'activity')
+.cols = c('site', 'species', 'indel', 'nonsynonymous', 'synonymous', 'activity')
 .nsam = 100L
 .gametes = 'summary.json.gz' %>% fromJSON()
 
-.summary = .gametes %>% sample(.nsam) %>% flatten_chr() %>%
-    {tibble(x=.)} %>%
-    tidyr::separate(x, .cols, ':') %>%
-    dplyr::mutate_all(as.numeric) %>%
+.summary = .gametes %>% sample(.nsam) %>%
+    {tibble(tmpcol=., gamete=seq_along(.))} %>%
+    tidyr::unnest() %>%
+    tidyr::separate(tmpcol, .cols, ':') %>%
+    dplyr::mutate_at(vars(c('site', 'species', 'indel', 'nonsynonymous', 'synonymous')), as.integer) %>%
+    dplyr::mutate(activity= as.double(activity)) %>%
     dplyr::mutate(dn= nonsynonymous / 200, ds= synonymous / 100) %>%
     dplyr::mutate(dn_ds= dn / ds, distance= (nonsynonymous + synonymous) / 300) %>%
     print()
@@ -175,7 +164,7 @@ ggsave('selection_methods.pdf', .p, width=4, height=4)
     theme_bw()
 
 .summary %>%
-    dplyr::count(position) %>%
+    dplyr::count(site) %>%
     dplyr::mutate(freq = n / .nsam) %>%
     ggplot(aes(freq))+
     geom_histogram(binwidth=0.1, center=0)+
