@@ -25,8 +25,8 @@ namespace po = boost::program_options;
 inline po::options_description general_desc() {HERE;
     po::options_description description("General");
     description.add_options()
-        ("help,h", po::value<bool>()->default_value(false)->implicit_value(true), "print this help")
-        ("verbose,v", po::value<bool>()->default_value(false)->implicit_value(true), "verbose output")
+        ("help,h", po::bool_switch(), "print this help")
+        ("verbose,v", po::bool_switch(), "verbose output")
         ("test", po::value<int>()->default_value(0)->implicit_value(1));
     return description;
 }
