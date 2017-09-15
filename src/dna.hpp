@@ -15,11 +15,15 @@
 
 namespace tek {
 
+/*! @brief DNA class
+*/
 template <uint_fast32_t N>
 class DNA {
+    //! template for translation from integer to character
     static const std::string NUCLEOTIDE;
 
   public:
+    //! diviation from the original
     uint_fast32_t count() const {
         uint_fast32_t cnt = 0;
         for (const auto x: sequence_) {
@@ -28,6 +32,7 @@ class DNA {
         return cnt;
     }
 
+    //! mutate ith site
     template <class URNG> inline
     void flip(const uint_fast32_t i, URNG& generator) {
         typename URNG::result_type random_bits = 0U;
@@ -39,10 +44,12 @@ class DNA {
         sequence_[i] ^= two_bits;
     }
 
+    //! get ith nucleotide as char
     const char& operator[](const uint_fast32_t i) const {
         return NUCLEOTIDE[sequence_[i]];
     }
 
+    //! translate integer to nucleotide character and print
     std::ostream& write(std::ostream& ost) const {
         for (const auto x: sequence_) {
             ost << NUCLEOTIDE[x];
@@ -50,10 +57,12 @@ class DNA {
         return ost;
     }
 
+    //! shortcut of write()
     friend std::ostream& operator<<(std::ostream& ost, const DNA& x) {
         return x.write(ost);
     }
 
+    //! count different nucleotides
     uint_fast32_t operator-(const DNA<N>& other) const {
         uint_fast32_t diff = 0;
         for (uint_fast32_t i=0; i<N; ++i) {
@@ -63,6 +72,7 @@ class DNA {
     }
 
   private:
+    //! sequence as integer array
     std::array<uint_fast8_t, N> sequence_ = {};
 };
 

@@ -27,13 +27,19 @@ namespace tek {
 
 class Transposon;
 
+/*! @brief Haploid class
+*/
 class Haploid {
   public:
     using URNG = wtl::sfmt19937;
 
+    //! default constructor
     Haploid() = default;
+    //! default copy constructor
     Haploid(const Haploid&) = default;
+    //! default move constructor
     Haploid(Haploid&& other) = default;
+    //! default move assignment operator
     Haploid& operator=(Haploid&&) = default;
 
     Haploid gametogenesis(const Haploid& other, URNG& rng) const;
@@ -69,15 +75,23 @@ class Haploid {
     static void test_selection_coefs_gp();
     static void test_recombination();
 
+    //! number of TE sites in a haploid genome \f$T\f$
     static constexpr uint_fast32_t NUM_SITES = 2'000'000;
+    //! relative rate of indels to point mutation \f$\phi\f
     static constexpr double INDEL_RATIO_ = 0.2;
+    //! constant for the intensity of copy number selection \f$\tau\f$
     static constexpr double TAU_ = 1.5;
+    //! proportion of non-neutral sites
     static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
+    //! parameter for the intensity of copy number selection \f$\xi\f$
     static double XI_;
+    //! excision rate per generation per element \f$\nu\f$
     static double EXCISION_RATE_;
+    //! mean selection coef against TEs on functional sites \f$\lambda\f
     static double MEAN_SELECTION_COEF_;
     static double SPECIATION_RATIO_;
 
+    //! recombination rate per site \f$c = \rho / 4N\f$
     static double RECOMBINATION_RATE_;
     static double INDEL_RATE_;
     static double SPECIATION_RATE_;

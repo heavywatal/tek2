@@ -18,15 +18,24 @@
 
 namespace tek {
 
+/*! @brief Transposon class
+*/
 class Transposon {
   public:
+    //! number of base pairs
     static constexpr uint_fast32_t LENGTH = 300;
+    //! number of synonymous sites
     static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3;
+    //! number of nonsynonymous sites
     static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
+    //! resiprocal of synonymous sites
     static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
+    //! resiprocal of nonsynonymous sites
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
+    //! basal value of transposition rate
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
 
+    //! default constructor
     Transposon() = default;
 
     template <class URNG> inline
@@ -60,6 +69,7 @@ class Transposon {
     std::ostream& write_summary(std::ostream&) const;
     std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0) const;
     std::ostream& write_sequence(std::ostream&) const;
+    //! shortcut for write_summary()
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
     static void set_parameters();
@@ -72,9 +82,13 @@ class Transposon {
     static void test_activity();
     static void test_activity(std::ostream&, const double alpha, const unsigned int beta);
 
+    //! intercept of sequence identity to make activity zero
     static double ALPHA_;
+    //! 1 - ALPHA_
     static double THRESHOLD_;
+    //! exponent of activity curve
     static unsigned int BETA_;
+    //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
 
     DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;

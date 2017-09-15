@@ -31,12 +31,17 @@ constexpr Recording operator|(Recording x, Recording y) {
 
 class Haploid;
 
+/*! @brief Population class
+*/
 class Population {
   public:
+    //! population mutation rate \f$4N\mu\f$
     static constexpr double THETA = 0.01;
+    //! population recombination rate \f$4Nc\f$
     static constexpr double RHO = 200;
 
     Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
+    //! default copy constructor
     Population(const Population& other) = default;
 
     bool evolve(const size_t max_generations, const size_t record_interval,
