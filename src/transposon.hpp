@@ -38,6 +38,7 @@ class Transposon {
     //! default constructor
     Transposon() = default;
 
+    //! make one point mutation
     template <class URNG> inline
     void mutate(URNG& generator) {
         static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0U, LENGTH - 1U);
@@ -49,14 +50,18 @@ class Transposon {
         }
     }
 
+    //! modify #species_
     template <class URNG> inline
     void speciate(URNG& generator) {species_ = generator();}
 
+    //! set #has_indel_
     void indel() {has_indel_ = true;}
+    //! count nonsynonymous mutations and return one of #ACTIVITY_
     double activity() const {
         if (has_indel_) return 0.0;
         return ACTIVITY_[nonsynonymous_sites_.count()];
     }
+    //! transposition rate
     double transposition_rate() const {
         return MAX_TRANSPOSITION_RATE * activity();
     }
@@ -84,16 +89,20 @@ class Transposon {
 
     //! intercept of sequence identity to make activity zero
     static double ALPHA_;
-    //! 1 - ALPHA_
+    //! 1 - #ALPHA_
     static double THRESHOLD_;
     //! exponent of activity curve
     static unsigned int BETA_;
     //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
 
+    //! nonsynonymous sites
     DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
+    //! synonymous sites
     DNA<LENGTH - NUM_NONSYNONYMOUS_SITES> synonymous_sites_;
+    //! activity is zero if this is true
     bool has_indel_ = false;
+    //! transposon species
     uint_fast32_t species_ = 0;
 };
 
