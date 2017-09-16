@@ -19,17 +19,21 @@ class Program {
   public:
     //! Parse command arguments
     Program(const std::vector<std::string>& args);
+    //! Parse command arguments
     Program(int argc, char* argv[])
     : Program(std::vector<std::string>(argv, argv + argc)) {}
 
-    //! Top level function that should be called once from main()
+    //! Top level function that should be called once from global main
     void run();
 
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
   private:
-    boost::program_options::options_description options_desc();
-    boost::program_options::options_description positional_desc();
+    //! called from run()
     void main();
+    //! options description for optional arguments
+    boost::program_options::options_description options_desc();
+    //! options description for positional arguments
+    boost::program_options::options_description positional_desc();
+    //! Print help message and exit
     void help_and_exit();
 
     //! population size

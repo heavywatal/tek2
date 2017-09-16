@@ -31,6 +31,7 @@ class Transposon;
 */
 class Haploid {
   public:
+    //! random number generator class
     using URNG = wtl::sfmt19937;
 
     //! default constructor
@@ -52,14 +53,19 @@ class Haploid {
     std::vector<std::string> summarize() const;
     std::ostream& write_positions(std::ostream&) const;
     std::ostream& write_fasta(std::ostream&) const;
+    //! shortcut of << summarize()
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
+    //! shortcut of sites_.begin()
     auto begin() const {return sites_.begin();}
+    //! shortcut of sites_.end()
     auto end() const {return sites_.end();}
 
     static Haploid copy_founder();
     static void set_parameters(const size_t popsize, const double theta, const double rho);
+    //! options description for optional arguments
     static boost::program_options::options_description options_desc();
+    //! unit test
     static void test();
 
   private:
@@ -89,19 +95,25 @@ class Haploid {
     static double EXCISION_RATE_;
     //! mean selection coef against TEs on functional sites \f$\lambda\f
     static double MEAN_SELECTION_COEF_;
+    //! TODO
     static double SPECIATION_RATIO_;
 
     //! recombination rate per site \f$c = \rho / 4N\f$
     static double RECOMBINATION_RATE_;
-    //! absolute indel rate \f\phi\mu\f$
+    //! absolute indel rate \f$\phi\mu\f$
     static double INDEL_RATE_;
+    //! TODO
     static double SPECIATION_RATE_;
     //! pre-calculated coefficient of GP selection
     static std::valarray<double> SELECTION_COEFS_GP_;
+    //! uniform distribution to get mutating site
     static std::uniform_int_distribution<uint_fast32_t> UNIFORM_SITES_;
+    //! poisson distribution to get number of mutations
     static std::poisson_distribution<uint_fast32_t> NUM_MUTATIONS_DIST_;
+    //! original TE with no mutation and complete activity
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
+    //! position => shptr to transposon
     std::map<uint_fast32_t, std::shared_ptr<Transposon>> sites_;
 };
 

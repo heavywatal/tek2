@@ -66,9 +66,13 @@ class Transposon {
         return MAX_TRANSPOSITION_RATE * activity();
     }
 
+    //! getter of #has_indel_
     bool has_indel() const {return has_indel_;}
+    //! getter of #species_
     uint_fast32_t species() const {return species_;}
+    //! nonsynonymous substitution per nonsynonymous site
     double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
+    //! synonymous substitution per synonymous site
     double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
     std::ostream& write_summary(std::ostream&) const;
@@ -78,7 +82,9 @@ class Transposon {
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
     static void set_parameters();
+    //! options description for optional arguments
     static boost::program_options::options_description options_desc();
+    //! unit test
     static void test();
 
   private:

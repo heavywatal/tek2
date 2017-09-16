@@ -51,15 +51,17 @@ class Population {
     std::ostream& write_fasta(std::ostream&) const;
     std::ostream& write_individual(std::ostream&, const size_t i=0) const;
     std::ostream& write(std::ostream&) const;
+    //! shortcut of write()
     friend std::ostream& operator<<(std::ostream&, const Population&);
-
+    //! unit test
     static void test();
   private:
     std::vector<double> step(const double previous_max_fitness=1.0);
-
+    //! return true if no TE exists in #gametes_
     bool is_extinct() const;
-
+    //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;
+    //! number of threads
     const unsigned int concurrency_;
 };
 
