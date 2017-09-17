@@ -43,17 +43,24 @@ class Haploid {
     //! default move assignment operator
     Haploid& operator=(Haploid&&) = default;
 
+    //! return a Haploid object after recombination
     Haploid gametogenesis(const Haploid& other, URNG& rng) const;
+    //! mutation process within an individual
     void transpose_mutate(Haploid& other, URNG& rng);
+    //! evaluate and return fitness
     double fitness(const Haploid&) const;
 
+    //! !sites_.empty()
     bool has_transposon() const {return !sites_.empty();};
+    //! count activity
     std::map<double, uint_fast32_t> count_activity() const;
 
+    //! return vector of Transposon summaries
     std::vector<std::string> summarize() const;
+    //! write positions
     std::ostream& write_positions(std::ostream&) const;
+    //! write sequence with address as name
     std::ostream& write_fasta(std::ostream&) const;
-    //! shortcut of << summarize()
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
     //! shortcut of sites_.begin()
@@ -61,7 +68,9 @@ class Haploid {
     //! shortcut of sites_.end()
     auto end() const {return sites_.end();}
 
+    //! return a Haploid with an #ORIGINAL_TE_ on the same site
     static Haploid copy_founder();
+    //! set static member variables
     static void set_parameters(const size_t popsize, const double theta, const double rho);
     //! options description for optional arguments
     static boost::program_options::options_description options_desc();
@@ -69,16 +78,28 @@ class Haploid {
     static void test();
 
   private:
+    //! default copy assignment operator (private)
     Haploid& operator=(const Haploid&) = default;
 
+    //! set \f$s_{GP}\f$ for all TE sites
     static void set_SELECTION_COEFS_GP();
 
+    //! return TEs to be transposed
     std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
+    //! make point mutation, indel, and speciation
     void mutate(URNG&);
+    //!
+    /*! \f[
+            \prod _j^T (1 - z_j s_{GP,j})
+        \f]
+    */
     double prod_1_zs() const;
 
+    //! write to file
     static void test_selection_coefs_cn();
+    //! write to file
     static void test_selection_coefs_gp();
+    //! print to std::cerr
     static void test_recombination();
 
     //! number of TE sites in a haploid genome \f$T\f$

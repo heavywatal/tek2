@@ -22,6 +22,7 @@ namespace tek {
 
 namespace po = boost::program_options;
 
+//! options description for general arguments
 inline po::options_description general_desc() {HERE;
     po::options_description description("General");
     description.add_options()

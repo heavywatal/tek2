@@ -32,7 +32,7 @@ class DNA {
         return cnt;
     }
 
-    //! mutate ith site
+    //! mutate i-th site
     template <class URNG> inline
     void flip(const uint_fast32_t i, URNG& generator) {
         typename URNG::result_type random_bits = 0U;
@@ -44,7 +44,7 @@ class DNA {
         sequence_[i] ^= two_bits;
     }
 
-    //! get ith nucleotide as char
+    //! get i-th nucleotide as char
     const char& operator[](const uint_fast32_t i) const {
         return NUCLEOTIDE[sequence_[i]];
     }
@@ -79,6 +79,7 @@ class DNA {
 template <uint_fast32_t N>
 const std::string DNA<N>::NUCLEOTIDE = "ACGT";
 
+//! unit test
 template <class URNG> inline
 void DNA_test(URNG& generator) {
     constexpr uint_fast32_t N = 30;

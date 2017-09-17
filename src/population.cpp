@@ -164,15 +164,9 @@ std::ostream& Population::write_individual(std::ostream& ost, const size_t i) co
     return ost;
 }
 
-std::ostream& Population::write(std::ostream& ost) const {HERE;
-    for (const auto& x: gametes_) {
-        x.write_fasta(ost);
-    }
-    return ost;
-}
-
+//! shortcut << Population::gametes_
 std::ostream& operator<<(std::ostream& ost, const Population& pop) {
-    return pop.write(ost);
+    return ost << pop.gametes_;
 }
 
 void Population::test() {HERE;

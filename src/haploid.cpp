@@ -233,6 +233,7 @@ std::ostream& Haploid::write_fasta(std::ostream& ost) const {
     return ost;
 }
 
+//! shortcut of << Haploid::summarize()
 std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
     return ost << x.summarize();
 }

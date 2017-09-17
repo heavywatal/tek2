@@ -66,6 +66,7 @@ std::ostream& Transposon::write_sequence(std::ostream& ost) const {
     return ost;
 }
 
+//! shortcut for Transposon::write_summary()
 std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
     return x.write_summary(ost);
 }

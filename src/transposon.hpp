@@ -75,12 +75,15 @@ class Transposon {
     //! synonymous substitution per synonymous site
     double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
+    //! write summary
     std::ostream& write_summary(std::ostream&) const;
+    //! write sequqnce with header in FASTA format
     std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0) const;
+    //! write sequence
     std::ostream& write_sequence(std::ostream&) const;
-    //! shortcut for write_summary()
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
+    //! set #THRESHOLD_ and #ACTIVITY_
     static void set_parameters();
     //! options description for optional arguments
     static boost::program_options::options_description options_desc();
@@ -89,8 +92,15 @@ class Transposon {
 
   private:
 
+    //!
+    /*! \f[
+            a = \left(\frac {1 - d - \alpha} {1 - \alpha} \right)^\beta
+        \f]
+    */
     static double calc_activity(const uint_fast32_t num_mutations);
+    //! Figure 1
     static void test_activity();
+    //! implementation of test_activity()
     static void test_activity(std::ostream&, const double alpha, const unsigned int beta);
 
     //! intercept of sequence identity to make activity zero
