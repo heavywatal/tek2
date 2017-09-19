@@ -102,10 +102,11 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = src
+INPUT                  = . src
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.cpp \
-                         *.hpp
+                         *.hpp \
+                         *.md
 RECURSIVE              = NO
 EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
