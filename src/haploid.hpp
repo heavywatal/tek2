@@ -72,7 +72,7 @@ class Haploid {
     static Haploid copy_founder();
     //! set static member variables
     static void set_parameters(const size_t popsize, const double theta, const double rho);
-    //! options description for optional arguments
+    //! options description for Haploid class
     static boost::program_options::options_description options_desc();
     //! unit test
     static void test();
@@ -102,26 +102,30 @@ class Haploid {
     //! print to std::cerr
     static void test_recombination();
 
-    //! number of TE sites in a haploid genome \f$T\f$
+    //! @ingroup params
+    //! \f$T\f$, number of TE sites in a haploid genome
     static constexpr uint_fast32_t NUM_SITES = 2'000'000;
-    //! relative rate of indels to point mutation \f$\phi\f
+    //! @ingroup params
+    //! \f$\phi\f$, relative rate of indels to point mutation
     static constexpr double INDEL_RATIO_ = 0.2;
-    //! constant for the intensity of copy number selection \f$\tau\f$
+    //! @ingroup params
+    //! \f$\tau\f$, constant for the intensity of copy number selection
     static constexpr double TAU_ = 1.5;
-    //! proportion of non-neutral sites
+    //! @ingroup params
+    //! \f$p\f$, proportion of non-neutral sites
     static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
-    //! parameter for the intensity of copy number selection \f$\xi\f$
+    //! \f$\xi\f$, parameter for the intensity of copy number selection
     static double XI_;
-    //! excision rate per generation per element \f$\nu\f$
+    //! \f$\nu\f$, excision rate per generation per element
     static double EXCISION_RATE_;
-    //! mean selection coef against TEs on functional sites \f$\lambda\f
+    //! \f$\lambda\f$, mean selection coef against TEs on functional sites
     static double MEAN_SELECTION_COEF_;
     //! TODO
     static double SPECIATION_RATIO_;
 
-    //! recombination rate per site \f$c = \rho / 4N\f$
+    //! \f$c = \rho / 4N\f$, recombination rate per site
     static double RECOMBINATION_RATE_;
-    //! absolute indel rate \f$\phi\mu\f$
+    //! \f$\phi\mu\f$, absolute indel rate
     static double INDEL_RATE_;
     //! TODO
     static double SPECIATION_RATE_;

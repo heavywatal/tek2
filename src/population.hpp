@@ -38,9 +38,11 @@ class Haploid;
 */
 class Population {
   public:
-    //! population mutation rate \f$4N\mu\f$
+    //! @ingroup params
+    //! \f$\theta = 4N\mu\f$, population mutation rate
     static constexpr double THETA = 0.01;
-    //! population recombination rate \f$4Nc\f$
+    //! @ingroup params
+    //! \f$\rho = 4Nc\f$, population recombination rate
     static constexpr double RHO = 200;
 
     //! constructor

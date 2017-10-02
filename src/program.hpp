@@ -29,7 +29,7 @@ class Program {
   private:
     //! called from run()
     void main();
-    //! options description for optional arguments
+    //! options description for Program class
     boost::program_options::options_description options_desc();
     //! options description for positional arguments
     boost::program_options::options_description positional_desc();

@@ -1,6 +1,7 @@
 // -*- mode: c++; coding: utf-8 -*-
 /*! @file program.cpp
     @brief Implementation of Program class
+    @defgroup params Parameters
 */
 #include "program.hpp"
 #include "population.hpp"
@@ -32,6 +33,19 @@ inline po::options_description general_desc() {HERE;
     return description;
 }
 
+/*! @ingroup params
+
+    Command line option | Symbol  | Variable
+    ------------------- | ------- | -------------------------
+    `-n,--popsize`      | \f$N\f$ | Program::popsize_
+    `-q,--initial`      |         | Program::initial_freq_
+    `-g,--generations`  |         | Program::num_generations_
+    `-s,--split`        |         | Program::num_generations_after_split_
+    `-i,--interval`     |         | Program::record_interval_
+    `-r,--record`       |         | Program::record_flags_
+    `-j,--parallel`     |         | Program::concurrency_
+    `-o,--outdir`       |         | Program::outdir_
+*/
 po::options_description Program::options_desc() {HERE;
     po::options_description description("Program");
     description.add_options()

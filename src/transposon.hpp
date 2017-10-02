@@ -22,7 +22,8 @@ namespace tek {
 */
 class Transposon {
   public:
-    //! number of base pairs
+    //! @ingroup params
+    //! \f$L\f$, sequence length of TE (bp)
     static constexpr uint_fast32_t LENGTH = 300;
     //! number of synonymous sites
     static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3;
@@ -32,7 +33,8 @@ class Transposon {
     static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
     //! resiprocal of nonsynonymous sites
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
-    //! basal value of transposition rate
+    //! @ingroup params
+    //! \f$u_0\f$, maximum transposition rate
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
 
     //! default constructor
@@ -85,7 +87,7 @@ class Transposon {
 
     //! set #THRESHOLD_ and #ACTIVITY_
     static void set_parameters();
-    //! options description for optional arguments
+    //! options description for Transposon class
     static boost::program_options::options_description options_desc();
     //! unit test
     static void test();

@@ -19,6 +19,13 @@ std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 
 namespace po = boost::program_options;
 
+/*! @ingroup params
+
+    Command line option | Symbol        | Variable
+    ------------------- | ------------- | -------------------------
+    `--alpha`           | \f$\alpha\f$  | Transposon::ALPHA_
+    `--beta`            | \f$\beta\f$   | Transposon::BETA_
+*/
 po::options_description Transposon::options_desc() {HERE;
     po::options_description description("Transposon");
     description.add_options()

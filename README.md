@@ -7,3 +7,5 @@ T. E. Kijima and H. Innan
 Population genetics and molecular evolution of DNA sequences in transposable elements. I. A simulation framework
 
 [Project page on GitHub](https://github.com/heavywatal/tek-evolution)
+
+@ref params

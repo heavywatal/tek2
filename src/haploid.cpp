@@ -35,6 +35,15 @@ std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>
 
 namespace po = boost::program_options;
 
+/*! @ingroup params
+
+    Command line option | Symbol        | Variable
+    ------------------- | ------------- | -------------------------
+    `--xi`              | \f$\xi\f$     | Haploid::XI_
+    `--nu`              | \f$\nu\f$     | Haploid::EXCISION_RATE_
+    `--spec`            |               | Haploid::SPECIATION_RATIO_
+    `--lambda`          | \f$\lambda\f$ | Haploid::MEAN_SELECTION_COEF_
+*/
 po::options_description Haploid::options_desc() {HERE;
     po::options_description description("Haploid");
     description.add_options()
