@@ -54,6 +54,8 @@ class Program {
     size_t num_repeats_ = 1;
     //! name of output directory
     std::string outdir_ = "";
+    //! writen to "program_options.conf"
+    std::string config_string_;
 };
 
 } // namespace tek

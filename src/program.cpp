@@ -115,9 +115,10 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
     Transposon::set_parameters();
     Haploid::set_parameters(popsize_, Population::THETA, Population::RHO);
 
+    config_string_ = wtl::flags_into_string(vm);
     if (vm["verbose"].as<bool>()) {
         std::cerr << wtl::iso8601datetime() << std::endl;
-        std::cerr << wtl::flags_into_string(vm) << std::endl;
+        std::cerr << config_string_ << std::endl;
     }
     test(vm["test"].as<int>());
 }
@@ -137,6 +138,7 @@ void Program::main() {HERE;
         auto flags = static_cast<Recording>(record_flags_);
         bool good = pop.evolve(num_generations_, record_interval_, flags);
         if (!good) continue;
+        wtl::opfstream{"program_options.conf"} << config_string_;
         {
           wtl::ozfstream ost("summary.json.gz");
           pop.write_summary(ost);
