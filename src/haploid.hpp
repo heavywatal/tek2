@@ -48,6 +48,11 @@ class Haploid {
     //! mutation process within an individual
     void transpose_mutate(Haploid& other, URNG& rng);
     //! evaluate and return fitness
+    /*! \f[\begin{split}
+            s_{CN,k} &= \xi n_k ^\tau \\
+            w_k &= w_{k,GP} (1 - s_{CN,k})
+        \end{split}\f]
+    */
     double fitness(const Haploid&) const;
 
     //! !sites_.empty()
@@ -88,9 +93,9 @@ class Haploid {
     std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
     //! make point mutation, indel, and speciation
     void mutate(URNG&);
-    //!
+    //! calculate genome position component of fitness
     /*! \f[
-            \prod _j^T (1 - z_j s_{GP,j})
+            w_{k,GP} = \prod _j^T (1 - z_j s_{GP,j})
         \f]
     */
     double prod_1_zs() const;

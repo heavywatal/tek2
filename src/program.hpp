@@ -13,7 +13,7 @@
 
 namespace tek {
 
-/*! @brief Represents single run
+/*! @brief Program class
 */
 class Program {
   public:
