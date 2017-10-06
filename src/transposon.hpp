@@ -44,17 +44,17 @@ class Transposon {
     template <class URNG> inline
     void mutate(URNG& generator) {
         static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0U, LENGTH - 1U);
+        static std::bernoulli_distribution bern_speciation(SPECIATION_RATE_);
         uint_fast32_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
         } else {
             nonsynonymous_sites_.flip(pos, generator);
         }
+        if (SPECIATION_RATE_ > 0.0 && bern_speciation(generator)) {
+            species_ = generator();
+        }
     }
-
-    //! modify #species_
-    template <class URNG> inline
-    void speciate(URNG& generator) {species_ = generator();}
 
     //! set #has_indel_
     void indel() {has_indel_ = true;}
@@ -113,6 +113,8 @@ class Transposon {
     static unsigned int BETA_;
     //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
+    //! speciation rate per mutation
+    static double SPECIATION_RATE_;
 
     //! nonsynonymous sites
     DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;

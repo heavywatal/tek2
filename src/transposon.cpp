@@ -14,6 +14,7 @@ namespace tek {
 
 double Transposon::ALPHA_ = 0.7;
 unsigned int Transposon::BETA_ = 6U;
+double Transposon::SPECIATION_RATE_ = 0.0;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 
@@ -25,12 +26,14 @@ namespace po = boost::program_options;
     ------------------- | ------------- | -------------------------
     `--alpha`           | \f$\alpha\f$  | Transposon::ALPHA_
     `--beta`            | \f$\beta\f$   | Transposon::BETA_
+    `--spec`            |               | Transposon::SPECIATION_RATE_
 */
 po::options_description Transposon::options_desc() {HERE;
     po::options_description description("Transposon");
     description.add_options()
       ("alpha", po::value(&ALPHA_)->default_value(ALPHA_))
-      ("beta", po::value(&BETA_)->default_value(BETA_));
+      ("beta", po::value(&BETA_)->default_value(BETA_))
+      ("spec", po::value(&SPECIATION_RATE_)->default_value(SPECIATION_RATE_));
     return description;
 }
 
@@ -86,7 +89,6 @@ void Transposon::test() {HERE;
     te.write_fasta(std::cout);
     std::cout << te << std::endl;
     te.indel();
-    te.speciate(mt);
     std::cout << te << std::endl;
     test_activity();
 }

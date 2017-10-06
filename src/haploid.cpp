@@ -20,11 +20,9 @@ namespace tek {
 double Haploid::XI_ = 1e-4;
 double Haploid::EXCISION_RATE_ = 1e-5;
 double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
-double Haploid::SPECIATION_RATIO_ = 0.0;
 
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
-double Haploid::SPECIATION_RATE_ = 0.0;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
 std::uniform_int_distribution<uint_fast32_t> Haploid::UNIFORM_SITES_(0, Haploid::NUM_SITES - 1U);
 std::poisson_distribution<uint_fast32_t> Haploid::NUM_MUTATIONS_DIST_(0.0);
@@ -41,7 +39,6 @@ namespace po = boost::program_options;
     ------------------- | ------------- | -------------------------
     `--xi`              | \f$\xi\f$     | Haploid::XI_
     `--nu`              | \f$\nu\f$     | Haploid::EXCISION_RATE_
-    `--spec`            |               | Haploid::SPECIATION_RATIO_
     `--lambda`          | \f$\lambda\f$ | Haploid::MEAN_SELECTION_COEF_
 */
 po::options_description Haploid::options_desc() {HERE;
@@ -49,7 +46,6 @@ po::options_description Haploid::options_desc() {HERE;
     description.add_options()
       ("xi", po::value(&XI_)->default_value(XI_))
       ("nu", po::value(&EXCISION_RATE_)->default_value(EXCISION_RATE_))
-      ("spec", po::value(&SPECIATION_RATIO_)->default_value(SPECIATION_RATIO_))
       ("lambda", po::value(&MEAN_SELECTION_COEF_)->default_value(MEAN_SELECTION_COEF_));
     return description;
 }
@@ -70,7 +66,6 @@ void Haploid::set_parameters(const size_t popsize, const double theta, const dou
     RECOMBINATION_RATE_ = rho / four_n;
     const double mu = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = mu * INDEL_RATIO_;
-    SPECIATION_RATE_ = mu * SPECIATION_RATIO_;
     NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
     set_SELECTION_COEFS_GP();
 }
@@ -172,15 +167,11 @@ void Haploid::mutate(URNG& rng) {
     for (auto& p: sites_) {
         const cnt_t num_mutations = NUM_MUTATIONS_DIST_(rng);
         const bool is_deactivating = rng.canonical() < INDEL_RATE_;
-        const bool is_speciating = rng.canonical() < SPECIATION_RATE_;
-        if (num_mutations > 0 || is_deactivating || is_speciating) {
+        if (num_mutations > 0 || is_deactivating) {
             p.second = std::make_shared<Transposon>(*p.second);
         }
         for (cnt_t i=0; i<num_mutations; ++i) {
             p.second->mutate(rng);
-        }
-        if (is_speciating) {
-            p.second->speciate(rng);
         }
         if (is_deactivating) {
             p.second->indel();

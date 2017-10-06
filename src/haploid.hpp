@@ -125,15 +125,11 @@ class Haploid {
     static double EXCISION_RATE_;
     //! \f$\lambda\f$, mean selection coef against TEs on functional sites
     static double MEAN_SELECTION_COEF_;
-    //! TODO
-    static double SPECIATION_RATIO_;
 
     //! \f$c = \rho / 4N\f$, recombination rate per site
     static double RECOMBINATION_RATE_;
     //! \f$\phi\mu\f$, absolute indel rate
     static double INDEL_RATE_;
-    //! TODO
-    static double SPECIATION_RATE_;
     //! pre-calculated coefficient of GP selection
     static std::valarray<double> SELECTION_COEFS_GP_;
     //! uniform distribution to get mutating site
