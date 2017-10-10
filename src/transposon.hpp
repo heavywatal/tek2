@@ -71,7 +71,7 @@ class Transposon {
     //! getter of #has_indel_
     bool has_indel() const {return has_indel_;}
     //! getter of #species_
-    uint_fast32_t species() const {return species_;}
+    int32_t species() const {return species_;}
     //! nonsynonymous substitution per nonsynonymous site
     double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
     //! synonymous substitution per synonymous site
@@ -123,7 +123,7 @@ class Transposon {
     //! activity is zero if this is true
     bool has_indel_ = false;
     //! transposon species
-    uint_fast32_t species_ = 0;
+    int32_t species_ = 0;
 };
 
 } // namespace tek
