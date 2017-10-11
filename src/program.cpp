@@ -62,13 +62,6 @@ po::options_description Program::options_desc() {HERE;
     return description;
 }
 
-po::options_description Program::positional_desc() {HERE;
-    po::options_description description("Positional");
-    description.add_options()
-        ("nrep", po::value(&num_repeats_)->default_value(num_repeats_));
-    return description;
-}
-
 void Program::help_and_exit() {HERE;
     auto description = general_desc();
     description.add(options_desc());
@@ -103,13 +96,9 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
 
     auto description = general_desc();
     description.add(options_desc());
-    description.add(positional_desc());
-    po::positional_options_description positional;
-    positional.add("nrep", 1);
     po::variables_map vm;
     po::store(po::command_line_parser({arguments.begin() + 1, arguments.end()}).
-              options(description).
-              positional(positional).run(), vm);
+              options(description).run(), vm);
     if (vm["help"].as<bool>()) {help_and_exit();}
     po::notify(vm);
     Transposon::set_parameters();

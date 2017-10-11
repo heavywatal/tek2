@@ -31,8 +31,6 @@ class Program {
     void main();
     //! options description for Program class
     boost::program_options::options_description options_desc();
-    //! options description for positional arguments
-    boost::program_options::options_description positional_desc();
     //! Print help message and exit
     void help_and_exit();
 
@@ -50,8 +48,6 @@ class Program {
     int record_flags_ = 3;
     //! number of threads
     unsigned int concurrency_ = 1;
-    //! dummy
-    size_t num_repeats_ = 1;
     //! name of output directory
     std::string outdir_ = "";
     //! writen to "program_options.conf"
