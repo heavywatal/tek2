@@ -1,4 +1,3 @@
-// -*- mode: c++; coding: utf-8 -*-
 /*! @file program.hpp
     @brief Interface of Program class
 */

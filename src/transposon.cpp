@@ -1,4 +1,3 @@
-// -*- mode: c++; coding: utf-8 -*-
 /*! @file transposon.cpp
     @brief Implementation of Transposon class
 */

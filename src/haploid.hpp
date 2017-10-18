@@ -1,4 +1,3 @@
-// -*- mode: c++; coding: utf-8 -*-
 /*! @file haploid.hpp
     @brief Interface of Haploid class
 */

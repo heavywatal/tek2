@@ -1,4 +1,3 @@
-// -*- mode: c++; coding: utf-8 -*-
 /*! @file population.hpp
     @brief Interface of Population class
 */

@@ -1,9 +1,7 @@
-// -*- mode: c++; coding: utf-8 -*-
 /*! @file program.cpp
     @brief Implementation of Program class
     @defgroup params Parameters
 */
-#include "version.hpp"
 #include "program.hpp"
 #include "population.hpp"
 #include "haploid.hpp"
@@ -67,9 +65,6 @@ void Program::help_and_exit() {HERE;
     auto description = general_desc();
     description.add(options_desc());
     // do not print positional arguments as options
-    std::cout << "commit " << GIT_COMMIT_HASH
-              << " [" << GIT_BRANCH << "]\n"
-              << "Date:  " << GIT_COMMIT_TIME << std::endl;
     std::cout << "Usage: tek [options]\n" << std::endl;
     description.print(std::cout);
     throw wtl::ExitSuccess();
