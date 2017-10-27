@@ -121,14 +121,14 @@ class Haploid {
     //! \f$\lambda\f$, mean selection coef against TEs on functional sites
     static double MEAN_SELECTION_COEF_;
 
-    //! \f$c = \rho / 4N\f$, recombination rate per site
-    static double RECOMBINATION_RATE_;
-    //! \f$\phi\mu\f$, absolute indel rate
+    //! \f$L\mu = L\theta / 4N\f$, mutation rate per TE
+    static double MUTATION_RATE_;
+    //! \f$L\phi\mu\f$, absolute indel rate per TE
     static double INDEL_RATE_;
+    //! \f$c = \rho / 4N\f$, recombination rate per TE site
+    static double RECOMBINATION_RATE_;
     //! \f$s_{GP}\f$ : coefficient of GP selection
     static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
-    //! poisson distribution to get number of mutations
-    static std::poisson_distribution<uint_fast32_t> NUM_MUTATIONS_DIST_;
     //! original TE with no mutation and complete activity
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 

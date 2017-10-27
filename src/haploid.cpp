@@ -19,10 +19,10 @@ double Haploid::XI_ = 1e-4;
 double Haploid::EXCISION_RATE_ = 1e-5;
 double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 
+double Haploid::MUTATION_RATE_ = 0.0;
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::unordered_map<Haploid::position_t, double> Haploid::SELECTION_COEFS_GP_;
-std::poisson_distribution<uint_fast32_t> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
@@ -49,10 +49,9 @@ po::options_description Haploid::options_desc() {HERE;
 
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
     const double four_n = 4.0 * popsize;
+    MUTATION_RATE_ = Transposon::LENGTH * theta / four_n;
+    INDEL_RATE_ = MUTATION_RATE_ * INDEL_RATIO_;
     RECOMBINATION_RATE_ = rho / four_n;
-    const double mu = Transposon::LENGTH * theta / four_n;
-    INDEL_RATE_ = mu * INDEL_RATIO_;
-    NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
 }
 
 Haploid::position_t Haploid::new_position() {
@@ -155,14 +154,15 @@ void Haploid::transpose_mutate(Haploid& other, URBG& rng) {
 }
 
 void Haploid::mutate(URBG& rng) {
-    using cnt_t = decltype(NUM_MUTATIONS_DIST_)::result_type;
+    static std::poisson_distribution<uint_fast32_t> POISSON_MUT(MUTATION_RATE_);
+    static std::bernoulli_distribution BERN_INDEL(INDEL_RATE_);
     for (auto& p: sites_) {
-        const cnt_t num_mutations = NUM_MUTATIONS_DIST_(rng);
-        const bool is_deactivating = rng.canonical() < INDEL_RATE_;
+        const uint_fast32_t num_mutations = POISSON_MUT(rng);
+        const bool is_deactivating = BERN_INDEL(rng);
         if (num_mutations > 0u || is_deactivating) {
             p.second = std::make_shared<Transposon>(*p.second);
         }
-        for (cnt_t i=0u; i<num_mutations; ++i) {
+        for (uint_fast32_t i=0u; i<num_mutations; ++i) {
             p.second->mutate(rng);
         }
         if (is_deactivating) {
