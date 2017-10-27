@@ -7,7 +7,6 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/prandom.hpp>
-#include <sfmt.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -22,8 +21,7 @@ double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
-std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
-std::uniform_int_distribution<uint_fast32_t> Haploid::UNIFORM_SITES_(0u, Haploid::NUM_SITES - 1u);
+std::unordered_map<Haploid::position_t, double> Haploid::SELECTION_COEFS_GP_;
 std::poisson_distribution<uint_fast32_t> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
@@ -49,29 +47,30 @@ po::options_description Haploid::options_desc() {HERE;
     return description;
 }
 
-void Haploid::set_SELECTION_COEFS_GP() {HERE;
-    std::vector<uint_fast32_t> sites(NUM_SITES);
-    std::iota(sites.begin(), sites.end(), 0u);
-    const uint_fast32_t n = NUM_SITES * PROP_FUNCTIONAL_SITES_;
-    const auto functional_sites = wtl::sample(sites, n, wtl::sfmt());
-    std::exponential_distribution<double> expo_dist(1.0 / MEAN_SELECTION_COEF_);
-    for (const auto i: functional_sites) {
-        SELECTION_COEFS_GP_[i] = expo_dist(wtl::sfmt());
-    }
-}
-
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
     const double four_n = 4.0 * popsize;
     RECOMBINATION_RATE_ = rho / four_n;
     const double mu = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = mu * INDEL_RATIO_;
     NUM_MUTATIONS_DIST_.param(decltype(NUM_MUTATIONS_DIST_)::param_type(mu));
-    set_SELECTION_COEFS_GP();
+}
+
+Haploid::position_t Haploid::new_position() {
+    static std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
+    static std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
+    position_t j = 0u;
+    while (SELECTION_COEFS_GP_.find(j = wtl::sfmt()()) != SELECTION_COEFS_GP_.end()) {;}
+    if (BERN_FUNCTIONAL(wtl::sfmt())) {
+        SELECTION_COEFS_GP_[j] = EXPO_DIST(wtl::sfmt());
+    } else {
+        SELECTION_COEFS_GP_[j] = 0.0;
+    }
+    return j;
 }
 
 Haploid Haploid::copy_founder() {
     // TODO: avoid functional site?
-    static auto idx = UNIFORM_SITES_(wtl::sfmt());
+    static auto idx = new_position();
     Haploid founder;
     founder.sites_[idx] = ORIGINAL_TE_;
     return founder;
@@ -79,19 +78,19 @@ Haploid Haploid::copy_founder() {
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
-Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
-    constexpr uint_fast32_t uint_max = std::numeric_limits<uint_fast32_t>::max();
+Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
+    constexpr position_t max_pos = std::numeric_limits<position_t>::max();
     Haploid gamete(*this);
     bool flg = (rng.canonical() < 0.5);
     auto gamete_it = gamete.sites_.begin();
     auto gamete_end = gamete.sites_.end();
     auto other_it = other.sites_.cbegin();
     auto other_end = other.sites_.cend();
-    uint_fast32_t gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
-    uint_fast32_t other_pos = (other_it != other_end) ? other_it->first : uint_max;
-    uint_fast32_t here = 0u;
-    uint_fast32_t prev = 0u;
-    while ((here = std::min(gamete_pos, other_pos)) < uint_max) {
+    position_t gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : max_pos;
+    position_t other_pos = (other_it != other_end) ? other_it->first : max_pos;
+    position_t here = 0u;
+    position_t prev = 0u;
+    while ((here = std::min(gamete_pos, other_pos)) < max_pos) {
         std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
         flg ^= (poisson(rng) % 2u);
         prev = here;
@@ -101,27 +100,27 @@ Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
             } else {
                 ++gamete_it;
             }
-            gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
+            gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : max_pos;
         } else if (gamete_pos == other_pos) {
             if (flg) {
                 gamete_it->second = other_it->second;
             }
             ++gamete_it;
             ++other_it;
-            gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
-            other_pos = (other_it != other_end) ? other_it->first : uint_max;
+            gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : max_pos;
+            other_pos = (other_it != other_end) ? other_it->first : max_pos;
         } else {
             if (flg) {
                 gamete.sites_.emplace_hint(gamete_it, *other_it);
             }
             ++other_it;
-            other_pos = (other_it != other_end) ? other_it->first : uint_max;
+            other_pos = (other_it != other_end) ? other_it->first : max_pos;
         }
     }
     return gamete;
 }
 
-std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
+std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& rng) {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto it=sites_.cbegin(); it!=sites_.cend();) {
         if (rng.canonical() < it->second->transposition_rate()) {
@@ -136,7 +135,7 @@ std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URNG& rng) {
     return copying_transposons;
 }
 
-void Haploid::transpose_mutate(Haploid& other, URNG& rng) {
+void Haploid::transpose_mutate(Haploid& other, URBG& rng) {
     auto copying_transposons = this->transpose(rng);
     {
         auto tmp = other.transpose(rng);
@@ -144,24 +143,18 @@ void Haploid::transpose_mutate(Haploid& other, URNG& rng) {
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
     }
-    constexpr uint_fast32_t tolerance = 100u;
     for (auto& p: copying_transposons) {
-        for (uint_fast32_t i=0u; i<tolerance; ++i) {
-            auto target_haploid = this;
-            if (rng.canonical() < 0.5) {
-                target_haploid = &other;
-            }
-            auto& target_site = target_haploid->sites_[UNIFORM_SITES_(rng)];
-            if (target_site) continue;
-            target_site = std::move(p);
-            break;
+        auto target_haploid = this;
+        if (rng.canonical() < 0.5) {
+            target_haploid = &other;
         }
+        target_haploid->sites_.emplace(new_position(), std::move(p));
     }
     this->mutate(rng);
     other.mutate(rng);
 }
 
-void Haploid::mutate(URNG& rng) {
+void Haploid::mutate(URBG& rng) {
     using cnt_t = decltype(NUM_MUTATIONS_DIST_)::result_type;
     for (auto& p: sites_) {
         const cnt_t num_mutations = NUM_MUTATIONS_DIST_(rng);
@@ -247,9 +240,14 @@ void Haploid::test() {HERE;
 }
 
 void Haploid::test_selection_coefs_gp() {HERE;
-    std::ofstream("tek-selection_coefs_gp.tsv")
-        << "s_gp\n"
-        << wtl::str_join(wtl::sample(SELECTION_COEFS_GP_, 2000u, wtl::sfmt()), "\n");
+    for (unsigned int i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
+        new_position();
+    }
+    std::ofstream fout("tek-selection_coefs_gp.tsv");
+    fout << "s_gp\n";
+    for (const auto& p: SELECTION_COEFS_GP_) {
+        fout << p.second << "\n";
+    }
     /*R
     read_tsv('tek-selection_coefs_gp.tsv') %>% {
       ggplot(., aes(s_gp))+
@@ -263,7 +261,7 @@ void Haploid::test_selection_coefs_gp() {HERE;
 void Haploid::test_selection_coefs_cn() {HERE;
     std::ofstream ost("tek-selection_coefs_cn.tsv");
     ost << "xi\tcopy_number\ts_cn\n";
-    const uint_fast32_t n = 2u * NUM_SITES;
+    const uint_fast32_t n = 10'000u;
     for (const double xi: {1e-5, 1e-4, 1e-3}) {
         for (uint_fast32_t i=0u; i<n; ++i) {
             const double s_cn = xi * std::pow(i, TAU_);

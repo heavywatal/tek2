@@ -5,22 +5,20 @@
 #ifndef TEK_HAPLOID_HPP_
 #define TEK_HAPLOID_HPP_
 
+#include <sfmt.hpp>
+
 #include <boost/program_options.hpp>
 
 #include <cstdint>
 #include <iosfwd>
 #include <string>
 #include <vector>
-#include <valarray>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <random>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
-
-namespace wtl {
-    class sfmt19937;
-}
 
 namespace tek {
 
@@ -31,7 +29,9 @@ class Transposon;
 class Haploid {
   public:
     //! random number generator class
-    using URNG = wtl::sfmt19937;
+    using URBG = wtl::sfmt19937;
+    //! unsigned integer type for TE position
+    using position_t = URBG::result_type;
 
     //! default constructor
     Haploid() = default;
@@ -43,9 +43,9 @@ class Haploid {
     Haploid& operator=(Haploid&&) = default;
 
     //! return a Haploid object after recombination
-    Haploid gametogenesis(const Haploid& other, URNG& rng) const;
+    Haploid gametogenesis(const Haploid& other, URBG& rng) const;
     //! mutation process within an individual
-    void transpose_mutate(Haploid& other, URNG& rng);
+    void transpose_mutate(Haploid& other, URBG& rng);
     //! evaluate and return fitness
     /*! \f[\begin{split}
             s_{CN,k} &= \xi n_k ^\tau \\
@@ -85,13 +85,10 @@ class Haploid {
     //! default copy assignment operator (private)
     Haploid& operator=(const Haploid&) = default;
 
-    //! set \f$s_{GP}\f$ for all TE sites
-    static void set_SELECTION_COEFS_GP();
-
     //! return TEs to be transposed
-    std::vector<std::shared_ptr<Transposon>> transpose(URNG&);
+    std::vector<std::shared_ptr<Transposon>> transpose(URBG&);
     //! make point mutation, indel, and speciation
-    void mutate(URNG&);
+    void mutate(URBG&);
     //! calculate genome position component of fitness
     /*! \f[
             w_{k,GP} = \prod _j^T (1 - z_j s_{GP,j})
@@ -99,6 +96,8 @@ class Haploid {
     */
     double prod_1_zs() const;
 
+    //! insert a new element into #SELECTION_COEFS_GP_ and return its key
+    static position_t new_position();
     //! write to file
     static void test_selection_coefs_cn();
     //! write to file
@@ -106,9 +105,6 @@ class Haploid {
     //! print to std::cerr
     static void test_recombination();
 
-    //! @ingroup params
-    //! \f$T\f$, number of TE sites in a haploid genome
-    static constexpr uint_fast32_t NUM_SITES = 2'000'000u;
     //! @ingroup params
     //! \f$\phi\f$, relative rate of indels to point mutation
     static constexpr double INDEL_RATIO_ = 0.2;
@@ -129,17 +125,15 @@ class Haploid {
     static double RECOMBINATION_RATE_;
     //! \f$\phi\mu\f$, absolute indel rate
     static double INDEL_RATE_;
-    //! pre-calculated coefficient of GP selection
-    static std::valarray<double> SELECTION_COEFS_GP_;
-    //! uniform distribution to get mutating site
-    static std::uniform_int_distribution<uint_fast32_t> UNIFORM_SITES_;
+    //! \f$s_{GP}\f$ : coefficient of GP selection
+    static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
     //! poisson distribution to get number of mutations
     static std::poisson_distribution<uint_fast32_t> NUM_MUTATIONS_DIST_;
     //! original TE with no mutation and complete activity
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
 
     //! position => shptr to transposon
-    std::map<uint_fast32_t, std::shared_ptr<Transposon>> sites_;
+    std::map<position_t, std::shared_ptr<Transposon>> sites_;
 };
 
 } // namespace tek
