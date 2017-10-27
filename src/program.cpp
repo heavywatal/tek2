@@ -135,7 +135,7 @@ void Program::main() {HERE;
           wtl::ozfstream ost("sequence.fa.gz");
           pop.write_fasta(ost);
         }
-        if (num_generations_after_split_ == 0U) break;
+        if (num_generations_after_split_ == 0u) break;
         Population pop2(pop);
         {
           wtl::ChDir cd("population_1", true);

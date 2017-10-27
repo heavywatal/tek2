@@ -12,7 +12,7 @@
 namespace tek {
 
 double Transposon::ALPHA_ = 0.7;
-unsigned int Transposon::BETA_ = 6U;
+unsigned int Transposon::BETA_ = 6u;
 double Transposon::SPECIATION_RATE_ = 0.0;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
@@ -38,7 +38,7 @@ po::options_description Transposon::options_desc() {HERE;
 
 void Transposon::set_parameters() {HERE;
     THRESHOLD_ = 1.0 - ALPHA_;
-    for (uint_fast32_t i=0; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+    for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         ACTIVITY_[i] = calc_activity(i);
     }
 }
@@ -62,12 +62,12 @@ std::ostream& Transposon::write_fasta(std::ostream& ost, const uint_fast32_t cop
         << " species=" << species_ << " indel=" << has_indel_
         << " dn=" << dn() << " ds=" << ds()
         << " activity=" << activity();
-    if (copy_number > 0U) ost << " copy_number=" << copy_number;
+    if (copy_number > 0u) ost << " copy_number=" << copy_number;
     return write_sequence(ost << "\n") << "\n";
 }
 
 std::ostream& Transposon::write_sequence(std::ostream& ost) const {
-    for (uint_fast32_t in=0, is=0; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
+    for (uint_fast32_t in=0u, is=0u; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
         ost << nonsynonymous_sites_[in];
         ost << nonsynonymous_sites_[++in];
         ost <<    synonymous_sites_[is];
@@ -110,7 +110,7 @@ void Transposon::test_activity(std::ostream& ost, const double alpha, const unsi
     ALPHA_ = alpha;
     BETA_ = beta;
     set_parameters();
-    for (uint_fast32_t i=0; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+    for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
         if (identity < 0.7) continue;
         ost << alpha << "\t" << beta << "\t"

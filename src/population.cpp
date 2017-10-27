@@ -24,18 +24,18 @@ namespace tek {
 
 Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
 : concurrency_(concurrency) {HERE;
-    gametes_.reserve(size * 2U);
-    for (size_t i=0; i<num_founders; ++i) {
+    gametes_.reserve(size * 2u);
+    for (size_t i=0u; i<num_founders; ++i) {
         gametes_.push_back(Haploid::copy_founder());
     }
-    gametes_.resize(size * 2U);
+    gametes_.resize(size * 2u);
 }
 
 bool Population::evolve(const size_t max_generations, const size_t record_interval, const Recording flags) {HERE;
     constexpr double margin = 0.1;
     double max_fitness = 1.0;
     for (size_t t=1; t<=max_generations; ++t) {
-        bool is_recording = ((t % record_interval) == 0U);
+        bool is_recording = ((t % record_interval) == 0u);
         const auto fitness_record = step(max_fitness);
         max_fitness = *std::max_element(fitness_record.begin(), fitness_record.end());
         max_fitness = std::min(max_fitness + margin, 1.0);
@@ -47,7 +47,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 if (t == record_interval) {
                     ozf << "generation\tgamete\tactivity\tcopy_number\n";
                 }
-                for (size_t i=0; i<gametes_.size(); ++i) {
+                for (size_t i=0u; i<gametes_.size(); ++i) {
                     for (const auto& p: gametes_[i].count_activity()) {
                         ozf << t << "\t" << i << "\t"
                                       << p.first << "\t" << p.second << "\n";
@@ -68,7 +68,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 std::ostringstream outdir;
                 outdir << "generation_" << t;
                 wtl::ChDir cd(outdir.str(), true);
-                for (size_t i=0; i<10U; ++i) {
+                for (size_t i=0u; i<10u; ++i) {
                     std::ostringstream outfile;
                     outfile << "individual_" << i << ".fa.gz";
                     wtl::ozfstream ozf(outfile.str());
@@ -89,8 +89,8 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 
 std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
-    std::vector<size_t> indices(num_gametes / 2U);
-    std::iota(indices.begin(), indices.end(), 0U);
+    std::vector<size_t> indices(num_gametes / 2u);
+    std::iota(indices.begin(), indices.end(), 0u);
     std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
     std::vector<double> fitness_record;
@@ -99,11 +99,11 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     auto task = [&,this](const size_t seed) {
         wtl::sfmt19937 rng(seed);
         while (true) {
-            const auto parents = wtl::sample(indices, 2U, rng);
-            const auto& mother_lchr = gametes_[2U * parents[0U]];
-            const auto& mother_rchr = gametes_[2U * parents[0U] + 1U];
-            const auto& father_lchr = gametes_[2U * parents[1U]];
-            const auto& father_rchr = gametes_[2U * parents[1U] + 1U];
+            const auto parents = wtl::sample(indices, 2u, rng);
+            const auto& mother_lchr = gametes_[2u * parents[0u]];
+            const auto& mother_rchr = gametes_[2u * parents[0u] + 1u];
+            const auto& father_lchr = gametes_[2u * parents[1u]];
+            const auto& father_rchr = gametes_[2u * parents[1u] + 1u];
             auto egg   = mother_lchr.gametogenesis(mother_rchr, rng);
             auto sperm = father_lchr.gametogenesis(father_rchr, rng);
             const double fitness = egg.fitness(sperm);
@@ -118,7 +118,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     };
     std::vector<std::future<void>> futures;
     futures.reserve(concurrency_);
-    for (size_t i=0; i<concurrency_; ++i) {
+    for (size_t i=0u; i<concurrency_; ++i) {
         futures.push_back(std::async(std::launch::async, task, wtl::sfmt()()));
     }
     for (auto& f: futures) f.wait();
@@ -155,7 +155,7 @@ std::ostream& Population::write_fasta(std::ostream& ost) const {HERE;
 }
 
 std::ostream& Population::write_individual(std::ostream& ost, const size_t i) const {
-    for (const size_t x: {2U * i, 2U * i + 1U}) {
+    for (const size_t x: {2u * i, 2u * i + 1u}) {
         for (const auto& p: gametes_.at(x)) {
             p.second->write_fasta(ost);
         }

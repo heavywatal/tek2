@@ -23,9 +23,9 @@ class Transposon {
   public:
     //! @ingroup params
     //! \f$L\f$, sequence length of TE (bp)
-    static constexpr uint_fast32_t LENGTH = 300;
+    static constexpr uint_fast32_t LENGTH = 300u;
     //! number of synonymous sites
-    static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3;
+    static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
     //! number of nonsynonymous sites
     static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
     //! resiprocal of synonymous sites
@@ -42,7 +42,7 @@ class Transposon {
     //! make one point mutation
     template <class URNG> inline
     void mutate(URNG& generator) {
-        static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0U, LENGTH - 1U);
+        static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
         static std::bernoulli_distribution bern_speciation(SPECIATION_RATE_);
         uint_fast32_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
@@ -79,7 +79,7 @@ class Transposon {
     //! write summary
     std::ostream& write_summary(std::ostream&) const;
     //! write sequqnce with header in FASTA format
-    std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0) const;
+    std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0u) const;
     //! write sequence
     std::ostream& write_sequence(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Transposon&);

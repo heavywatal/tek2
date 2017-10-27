@@ -24,9 +24,9 @@ class DNA {
   public:
     //! diviation from the original
     uint_fast32_t count() const {
-        uint_fast32_t cnt = 0;
+        uint_fast32_t cnt = 0u;
         for (const auto x: sequence_) {
-            if (x > 0U) ++cnt;
+            if (x > 0u) ++cnt;
         }
         return cnt;
     }
@@ -34,17 +34,16 @@ class DNA {
     //! mutate i-th site
     template <class URNG> inline
     void flip(const uint_fast32_t i, URNG& generator) {
-        typename URNG::result_type random_bits = 0U;
-        while ((random_bits = generator()) < 1U) {;}
-        uint_fast8_t two_bits = 0U;
-        while ((two_bits = random_bits & 0b00000011) < 1U) {
+        typename URNG::result_type random_bits = 0u;
+        while ((random_bits = generator()) == 0u) {;}
+        while ((0b00000011u & random_bits) == 0u) {
             random_bits >>= 2;
         }
-        sequence_[i] ^= two_bits;
+        sequence_[i] ^= (0b00000011u & random_bits);
     }
 
     //! get i-th nucleotide as char
-    const char& operator[](const uint_fast32_t i) const {
+    const char& operator[](const size_t i) const {
         return NUCLEOTIDE[sequence_[i]];
     }
 
@@ -63,8 +62,8 @@ class DNA {
 
     //! count different nucleotides
     uint_fast32_t operator-(const DNA<N>& other) const {
-        uint_fast32_t diff = 0;
-        for (uint_fast32_t i=0; i<N; ++i) {
+        uint_fast32_t diff = 0u;
+        for (uint_fast32_t i=0u; i<N; ++i) {
             if (this->sequence_[i] != other.sequence_[i]) ++diff;
         }
         return diff;
@@ -81,10 +80,10 @@ const std::string DNA<N>::NUCLEOTIDE = "ACGT";
 //! unit test
 template <class URNG> inline
 void DNA_test(URNG& generator) {
-    constexpr uint_fast32_t N = 30;
+    constexpr uint_fast32_t N = 30u;
     DNA<N> x, y;
     std::cerr << x << std::endl;
-    for (uint_fast32_t i=0; i<N; ++i) {
+    for (uint_fast32_t i=0u; i<N; ++i) {
         x.flip(i, generator);
     }
     std::cerr << x << std::endl;

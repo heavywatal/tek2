@@ -108,7 +108,7 @@ class Haploid {
 
     //! @ingroup params
     //! \f$T\f$, number of TE sites in a haploid genome
-    static constexpr uint_fast32_t NUM_SITES = 2'000'000;
+    static constexpr uint_fast32_t NUM_SITES = 2'000'000u;
     //! @ingroup params
     //! \f$\phi\f$, relative rate of indels to point mutation
     static constexpr double INDEL_RATIO_ = 0.2;

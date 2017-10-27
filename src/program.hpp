@@ -34,19 +34,19 @@ class Program {
     void help_and_exit();
 
     //! population size
-    size_t popsize_ = 500;
+    size_t popsize_ = 500u;
     //! initial number of individuals with TE
-    size_t initial_freq_ = 1;
+    size_t initial_freq_ = 1u;
     //! maximum number of generations to simulate
-    size_t num_generations_ = 1000;
+    size_t num_generations_ = 1000u;
     //! number of generations to simulate after population split
-    size_t num_generations_after_split_ = 0;
+    size_t num_generations_after_split_ = 0u;
     //! interval of recording
-    size_t record_interval_ = 10;
+    size_t record_interval_ = 10u;
     //! enum Recording
     int record_flags_ = 3;
     //! number of threads
-    unsigned int concurrency_ = 1;
+    unsigned int concurrency_ = 1u;
     //! name of output directory
     std::string outdir_ = "";
     //! writen to "program_options.conf"

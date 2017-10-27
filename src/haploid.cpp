@@ -23,7 +23,7 @@ double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::valarray<double> Haploid::SELECTION_COEFS_GP_(Haploid::NUM_SITES);
-std::uniform_int_distribution<uint_fast32_t> Haploid::UNIFORM_SITES_(0, Haploid::NUM_SITES - 1U);
+std::uniform_int_distribution<uint_fast32_t> Haploid::UNIFORM_SITES_(0u, Haploid::NUM_SITES - 1u);
 std::poisson_distribution<uint_fast32_t> Haploid::NUM_MUTATIONS_DIST_(0.0);
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
 
@@ -51,7 +51,7 @@ po::options_description Haploid::options_desc() {HERE;
 
 void Haploid::set_SELECTION_COEFS_GP() {HERE;
     std::vector<uint_fast32_t> sites(NUM_SITES);
-    std::iota(sites.begin(), sites.end(), 0);
+    std::iota(sites.begin(), sites.end(), 0u);
     const uint_fast32_t n = NUM_SITES * PROP_FUNCTIONAL_SITES_;
     const auto functional_sites = wtl::sample(sites, n, wtl::sfmt());
     std::exponential_distribution<double> expo_dist(1.0 / MEAN_SELECTION_COEF_);
@@ -89,11 +89,11 @@ Haploid Haploid::gametogenesis(const Haploid& other, URNG& rng) const {
     auto other_end = other.sites_.cend();
     uint_fast32_t gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : uint_max;
     uint_fast32_t other_pos = (other_it != other_end) ? other_it->first : uint_max;
-    uint_fast32_t here = 0U;
-    uint_fast32_t prev = 0U;
+    uint_fast32_t here = 0u;
+    uint_fast32_t prev = 0u;
     while ((here = std::min(gamete_pos, other_pos)) < uint_max) {
         std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
-        flg ^= (poisson(rng) % 2U);
+        flg ^= (poisson(rng) % 2u);
         prev = here;
         if (gamete_pos < other_pos) {
             if (flg) {
@@ -144,9 +144,9 @@ void Haploid::transpose_mutate(Haploid& other, URNG& rng) {
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
     }
-    constexpr uint_fast32_t tolerance = 100;
+    constexpr uint_fast32_t tolerance = 100u;
     for (auto& p: copying_transposons) {
-        for (uint_fast32_t i=0; i<tolerance; ++i) {
+        for (uint_fast32_t i=0u; i<tolerance; ++i) {
             auto target_haploid = this;
             if (rng.canonical() < 0.5) {
                 target_haploid = &other;
@@ -166,10 +166,10 @@ void Haploid::mutate(URNG& rng) {
     for (auto& p: sites_) {
         const cnt_t num_mutations = NUM_MUTATIONS_DIST_(rng);
         const bool is_deactivating = rng.canonical() < INDEL_RATE_;
-        if (num_mutations > 0 || is_deactivating) {
+        if (num_mutations > 0u || is_deactivating) {
             p.second = std::make_shared<Transposon>(*p.second);
         }
-        for (cnt_t i=0; i<num_mutations; ++i) {
+        for (cnt_t i=0u; i<num_mutations; ++i) {
             p.second->mutate(rng);
         }
         if (is_deactivating) {
@@ -249,7 +249,7 @@ void Haploid::test() {HERE;
 void Haploid::test_selection_coefs_gp() {HERE;
     std::ofstream("tek-selection_coefs_gp.tsv")
         << "s_gp\n"
-        << wtl::str_join(wtl::sample(SELECTION_COEFS_GP_, 2000, wtl::sfmt()), "\n");
+        << wtl::str_join(wtl::sample(SELECTION_COEFS_GP_, 2000u, wtl::sfmt()), "\n");
     /*R
     read_tsv('tek-selection_coefs_gp.tsv') %>% {
       ggplot(., aes(s_gp))+
@@ -263,9 +263,9 @@ void Haploid::test_selection_coefs_gp() {HERE;
 void Haploid::test_selection_coefs_cn() {HERE;
     std::ofstream ost("tek-selection_coefs_cn.tsv");
     ost << "xi\tcopy_number\ts_cn\n";
-    const uint_fast32_t n = 2 * NUM_SITES;
+    const uint_fast32_t n = 2u * NUM_SITES;
     for (const double xi: {1e-5, 1e-4, 1e-3}) {
-        for (uint_fast32_t i=0; i<n; ++i) {
+        for (uint_fast32_t i=0u; i<n; ++i) {
             const double s_cn = xi * std::pow(i, TAU_);
             if (s_cn > 1.0) break;
             ost << xi << "\t" << i << "\t" << s_cn << "\n";
@@ -284,7 +284,7 @@ void Haploid::test_selection_coefs_cn() {HERE;
 void Haploid::test_recombination() {HERE;
     Haploid zero;
     Haploid one;
-    for (uint_fast32_t x=0U; x<60U; ++x) {
+    for (uint_fast32_t x=0u; x<60u; ++x) {
         one.sites_[x] = ORIGINAL_TE_;
     }
     auto gamete = zero.gametogenesis(one, wtl::sfmt());
