@@ -43,26 +43,26 @@ class Transposon {
     template <class URNG> inline
     void mutate(URNG& generator) {
         static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
-        static std::bernoulli_distribution bern_speciation(SPECIATION_RATE_);
+        static std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
         uint_fast32_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
         } else {
             nonsynonymous_sites_.flip(pos, generator);
         }
-        if (SPECIATION_RATE_ > 0.0 && bern_speciation(generator)) {
+        if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(generator)) {
             species_ = generator();
         }
     }
 
     //! set #has_indel_
     void indel() {has_indel_ = true;}
-    //! count nonsynonymous mutations and return one of #ACTIVITY_
+    //! \f$a_i\f$; count nonsynonymous mutations and return the pre-calculated #ACTIVITY_
     double activity() const {
         if (has_indel_) return 0.0;
         return ACTIVITY_[nonsynonymous_sites_.count()];
     }
-    //! transposition rate
+    //! \f$u_i = u_0 \times a_i\f$
     double transposition_rate() const {
         return MAX_TRANSPOSITION_RATE * activity();
     }
