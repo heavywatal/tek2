@@ -33,8 +33,15 @@ class Program {
     //! Print help message and exit
     void help_and_exit();
 
-    //! population size
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @addtogroup params
+    //! @{
+
+    //! \f$N\f$, population size
     size_t popsize_ = 500u;
+    //! @} params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+
     //! initial number of individuals with TE
     size_t initial_freq_ = 1u;
     //! maximum number of generations to simulate

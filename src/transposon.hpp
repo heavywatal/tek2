@@ -21,20 +21,25 @@ namespace tek {
 */
 class Transposon {
   public:
-    //! @ingroup params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @addtogroup params
+    //! @{
+
     //! \f$L\f$, sequence length of TE (bp)
     static constexpr uint_fast32_t LENGTH = 300u;
     //! number of synonymous sites
     static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
     //! number of nonsynonymous sites
     static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
+    //! \f$u_0\f$, maximum transposition rate
+    static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
+    //! @} params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+
     //! resiprocal of synonymous sites
     static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
     //! resiprocal of nonsynonymous sites
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
-    //! @ingroup params
-    //! \f$u_0\f$, maximum transposition rate
-    static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
 
     //! default constructor
     Transposon() = default;
@@ -104,16 +109,23 @@ class Transposon {
     //! implementation of test_activity()
     static void test_activity(std::ostream&, const double alpha, const unsigned int beta);
 
-    //! intercept of sequence identity to make activity zero
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @addtogroup params
+    //! @{
+
+    //! \f$\alpha\f$, intercept of sequence identity to make activity zero
     static double ALPHA_;
-    //! 1 - #ALPHA_
-    static double THRESHOLD_;
-    //! exponent of activity curve
+    //! \f$\beta\f$, exponent of activity curve
     static unsigned int BETA_;
-    //! pre-calculated activity values
-    static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
     //! speciation rate per mutation
     static double SPECIATION_RATE_;
+    //! @} params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+
+    //! 1 - #ALPHA_
+    static double THRESHOLD_;
+    //! pre-calculated activity values
+    static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
 
     //! nonsynonymous sites
     DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;

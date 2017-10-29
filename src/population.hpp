@@ -37,12 +37,16 @@ class Haploid;
 */
 class Population {
   public:
-    //! @ingroup params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @addtogroup params
+    //! @{
+
     //! \f$\theta = 4N\mu\f$, population mutation rate
     static constexpr double THETA = 0.01;
-    //! @ingroup params
     //! \f$\rho = 4Nc\f$, population recombination rate
     static constexpr double RHO = 200;
+    //! @} params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! constructor
     Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);

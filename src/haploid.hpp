@@ -105,13 +105,14 @@ class Haploid {
     //! print to std::cerr
     static void test_recombination();
 
-    //! @ingroup params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @addtogroup params
+    //! @{
+
     //! \f$\phi\f$, relative rate of indels to point mutation
     static constexpr double INDEL_RATIO_ = 0.2;
-    //! @ingroup params
     //! \f$\tau\f$, constant for the intensity of copy number selection
     static constexpr double TAU_ = 1.5;
-    //! @ingroup params
     //! \f$p\f$, proportion of non-neutral sites
     static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
     //! \f$\xi\f$, parameter for the intensity of copy number selection
@@ -127,6 +128,9 @@ class Haploid {
     static double INDEL_RATE_;
     //! \f$c = \rho / 4N\f$, recombination rate per TE site
     static double RECOMBINATION_RATE_;
+    //! @} params
+    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+
     //! \f$s_{GP}\f$ : coefficient of GP selection
     static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
     //! original TE with no mutation and complete activity
