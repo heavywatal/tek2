@@ -24,6 +24,7 @@ double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::unordered_map<Haploid::position_t, double> Haploid::SELECTION_COEFS_GP_;
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
+std::mutex Haploid::MTX_;
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 // static functions
@@ -54,22 +55,19 @@ void Haploid::set_parameters(const size_t popsize, const double theta, const dou
     RECOMBINATION_RATE_ = rho / four_n;
 }
 
-Haploid::position_t Haploid::new_position() {
+Haploid::position_t Haploid::new_position(URBG& rng) {
     static std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
     static std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
+    auto coef = BERN_FUNCTIONAL(rng) ? EXPO_DIST(rng) : 0.0;
     position_t j = 0u;
-    while (SELECTION_COEFS_GP_.find(j = wtl::sfmt()()) != SELECTION_COEFS_GP_.end()) {;}
-    if (BERN_FUNCTIONAL(wtl::sfmt())) {
-        SELECTION_COEFS_GP_[j] = EXPO_DIST(wtl::sfmt());
-    } else {
-        SELECTION_COEFS_GP_[j] = 0.0;
-    }
+    std::lock_guard<std::mutex> lock(MTX_);
+    while (!SELECTION_COEFS_GP_.emplace(j = rng(), coef).second) {;}
     return j;
 }
 
 Haploid Haploid::copy_founder() {
     // TODO: avoid functional site?
-    static auto idx = new_position();
+    static auto idx = new_position(wtl::sfmt());
     Haploid founder;
     founder.sites_[idx] = ORIGINAL_TE_;
     return founder;
@@ -147,7 +145,7 @@ void Haploid::transpose_mutate(Haploid& other, URBG& rng) {
         if (rng.canonical() < 0.5) {
             target_haploid = &other;
         }
-        target_haploid->sites_.emplace(new_position(), std::move(p));
+        target_haploid->sites_.emplace(new_position(rng), std::move(p));
     }
     this->mutate(rng);
     other.mutate(rng);
@@ -174,7 +172,7 @@ void Haploid::mutate(URBG& rng) {
 double Haploid::prod_1_zs() const {
     double product = 1.0;
     for (const auto& p: sites_) {
-        product *= (1.0 - SELECTION_COEFS_GP_[p.first]);
+        product *= (1.0 - SELECTION_COEFS_GP_.at(p.first));
     }
     return product;
 }
@@ -241,7 +239,7 @@ void Haploid::test() {HERE;
 
 void Haploid::test_selection_coefs_gp() {HERE;
     for (unsigned int i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
-        new_position();
+        new_position(wtl::sfmt());
     }
     std::ofstream fout("tek-selection_coefs_gp.tsv");
     fout << "s_gp\n";

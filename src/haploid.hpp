@@ -97,7 +97,7 @@ class Haploid {
     double prod_1_zs() const;
 
     //! insert a new element into #SELECTION_COEFS_GP_ and return its key
-    static position_t new_position();
+    static position_t new_position(URBG&);
     //! write to file
     static void test_selection_coefs_cn();
     //! write to file
@@ -135,6 +135,8 @@ class Haploid {
     static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
     //! original TE with no mutation and complete activity
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
+    //! 
+    static std::mutex MTX_;
 
     //! position => shptr to transposon
     std::map<position_t, std::shared_ptr<Transposon>> sites_;
