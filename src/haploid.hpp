@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <memory>
 #include <random>
+#include <shared_mutex>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -135,8 +136,8 @@ class Haploid {
     static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
     //! original TE with no mutation and complete activity
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
-    //! 
-    static std::mutex MTX_;
+    //! readers-writer lock for #SELECTION_COEFS_GP_
+    static std::shared_timed_mutex MTX_;
 
     //! position => shptr to transposon
     std::map<position_t, std::shared_ptr<Transposon>> sites_;

@@ -24,7 +24,7 @@ double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
 std::unordered_map<Haploid::position_t, double> Haploid::SELECTION_COEFS_GP_;
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
-std::mutex Haploid::MTX_;
+std::shared_timed_mutex Haploid::MTX_;
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 // static functions
@@ -56,11 +56,11 @@ void Haploid::set_parameters(const size_t popsize, const double theta, const dou
 }
 
 Haploid::position_t Haploid::new_position(URBG& rng) {
-    static std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
-    static std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
+    thread_local std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
+    thread_local std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
     auto coef = BERN_FUNCTIONAL(rng) ? EXPO_DIST(rng) : 0.0;
     position_t j = 0u;
-    std::lock_guard<std::mutex> lock(MTX_);
+    std::lock_guard<std::shared_timed_mutex> lock(MTX_);
     while (!SELECTION_COEFS_GP_.emplace(j = rng(), coef).second) {;}
     return j;
 }
@@ -152,8 +152,8 @@ void Haploid::transpose_mutate(Haploid& other, URBG& rng) {
 }
 
 void Haploid::mutate(URBG& rng) {
-    static std::poisson_distribution<uint_fast32_t> POISSON_MUT(MUTATION_RATE_);
-    static std::bernoulli_distribution BERN_INDEL(INDEL_RATE_);
+    thread_local std::poisson_distribution<uint_fast32_t> POISSON_MUT(MUTATION_RATE_);
+    thread_local std::bernoulli_distribution BERN_INDEL(INDEL_RATE_);
     for (auto& p: sites_) {
         const uint_fast32_t num_mutations = POISSON_MUT(rng);
         const bool is_deactivating = BERN_INDEL(rng);
@@ -171,6 +171,7 @@ void Haploid::mutate(URBG& rng) {
 
 double Haploid::prod_1_zs() const {
     double product = 1.0;
+    std::shared_lock<std::shared_timed_mutex> lock(MTX_);
     for (const auto& p: sites_) {
         product *= (1.0 - SELECTION_COEFS_GP_.at(p.first));
     }

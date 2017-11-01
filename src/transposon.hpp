@@ -47,8 +47,8 @@ class Transposon {
     //! make one point mutation
     template <class URNG> inline
     void mutate(URNG& generator) {
-        static std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
-        static std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
+        thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
+        thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
         uint_fast32_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
