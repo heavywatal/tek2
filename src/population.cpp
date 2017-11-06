@@ -9,6 +9,7 @@
 #include <wtl/iostr.hpp>
 #include <wtl/zfstream.hpp>
 #include <wtl/filesystem.hpp>
+#include <wtl/concurrent.hpp>
 #include <wtl/prandom.hpp>
 #include <sfmt.hpp>
 
@@ -18,7 +19,6 @@
 #include <iostream>
 #include <algorithm>
 #include <mutex>
-#include <future>
 
 namespace tek {
 
@@ -88,6 +88,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 }
 
 std::vector<double> Population::step(const double previous_max_fitness) {
+    static wtl::ThreadPool pool(concurrency_);
     const size_t num_gametes = gametes_.size();
     std::vector<size_t> indices(num_gametes / 2u);
     std::iota(indices.begin(), indices.end(), 0u);
@@ -116,12 +117,10 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             nextgen.push_back(std::move(sperm));
         }
     };
-    std::vector<std::future<void>> futures;
-    futures.reserve(concurrency_);
     for (size_t i=0u; i<concurrency_; ++i) {
-        futures.push_back(std::async(std::launch::async, task, wtl::sfmt()()));
+        pool.submit(std::bind(task, wtl::sfmt()()));
     }
-    for (auto& f: futures) f.wait();
+    pool.wait();
     gametes_.swap(nextgen);
     return fitness_record;
 }
