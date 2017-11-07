@@ -88,23 +88,24 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 }
 
 std::vector<double> Population::step(const double previous_max_fitness) {
-    static wtl::ThreadPool pool(concurrency_);
     const size_t num_gametes = gametes_.size();
-    std::vector<size_t> indices(num_gametes / 2u);
-    std::iota(indices.begin(), indices.end(), 0u);
-    std::vector<Haploid> nextgen;
+    static wtl::ThreadPool pool(concurrency_);
+    static std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
     std::vector<double> fitness_record;
     fitness_record.reserve(num_gametes);
     std::mutex mtx;
     auto task = [&,this](const size_t seed) {
+        std::uniform_int_distribution<size_t> dist_idx(0u, num_gametes / 2u - 1u);
         wtl::sfmt19937 rng(seed);
         while (true) {
-            const auto parents = wtl::sample(indices, 2u, rng);
-            const auto& mother_lchr = gametes_[2u * parents[0u]];
-            const auto& mother_rchr = gametes_[2u * parents[0u] + 1u];
-            const auto& father_lchr = gametes_[2u * parents[1u]];
-            const auto& father_rchr = gametes_[2u * parents[1u] + 1u];
+            const size_t mother_idx = dist_idx(rng);
+            size_t father_idx = 0u;
+            while ((father_idx = dist_idx(rng)) == mother_idx) {;}
+            const auto& mother_lchr = gametes_[2u * mother_idx];
+            const auto& mother_rchr = gametes_[2u * mother_idx + 1u];
+            const auto& father_lchr = gametes_[2u * father_idx];
+            const auto& father_rchr = gametes_[2u * father_idx + 1u];
             auto egg   = mother_lchr.gametogenesis(mother_rchr, rng);
             auto sperm = father_lchr.gametogenesis(father_rchr, rng);
             const double fitness = egg.fitness(sperm);
@@ -117,11 +118,13 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             nextgen.push_back(std::move(sperm));
         }
     };
+    pool.wait();
     for (size_t i=0u; i<concurrency_; ++i) {
         pool.submit(std::bind(task, wtl::sfmt()()));
     }
     pool.wait();
     gametes_.swap(nextgen);
+    pool.submit([] {nextgen.clear();});
     return fitness_record;
 }
 
