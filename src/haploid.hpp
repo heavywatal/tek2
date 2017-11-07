@@ -56,7 +56,7 @@ class Haploid {
     double fitness(const Haploid&) const;
 
     //! !sites_.empty()
-    bool has_transposon() const {return !sites_.empty();};
+    bool has_transposon() const {return !sites_.empty();}
     //! count activity
     std::map<double, uint_fast32_t> count_activity() const;
 

@@ -179,7 +179,7 @@ double Haploid::prod_1_zs() const {
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    std::map<uint_fast32_t, uint_fast32_t> counter;
+    std::map<int32_t, uint_fast32_t> counter;
     for (const auto& p: this->sites_) {
         ++counter[p.second->species()];
     }
@@ -239,7 +239,7 @@ void Haploid::test() {HERE;
 }
 
 void Haploid::test_selection_coefs_gp() {HERE;
-    for (unsigned int i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
+    for (size_t i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
         new_position(wtl::sfmt());
     }
     std::ofstream fout("tek-selection_coefs_gp.tsv");

@@ -31,7 +31,7 @@ class Program {
     //! options description for Program class
     boost::program_options::options_description options_desc();
     //! Print help message and exit
-    void help_and_exit();
+    [[noreturn]] void help_and_exit();
 
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params
