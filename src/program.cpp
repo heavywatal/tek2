@@ -126,7 +126,7 @@ void Program::main() {HERE;
         auto flags = static_cast<Recording>(record_flags_);
         bool good = pop.evolve(num_generations_, record_interval_, flags);
         if (!good) continue;
-        wtl::opfstream{"program_options.conf"} << config_string_;
+        wtl::make_ofs("program_options.conf") << config_string_;
         {
           wtl::ozfstream ost("summary.json.gz");
           pop.write_summary(ost);
