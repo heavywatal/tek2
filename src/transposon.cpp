@@ -4,10 +4,10 @@
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
+#include <wtl/iostr.hpp>
 
 #include <cmath>
 #include <iostream>
-#include <fstream>
 
 namespace tek {
 
@@ -93,7 +93,7 @@ void Transposon::test() {HERE;
 }
 
 void Transposon::test_activity() {HERE;
-    std::ofstream ost("tek-activity_function.tsv");
+    auto ost = wtl::make_ofs("tek-activity_function.tsv");
     ost << "alpha\tbeta\tidentity\tactivity\n";
     test_activity(ost, 0.70,  6);
     test_activity(ost, 0.75, 12);

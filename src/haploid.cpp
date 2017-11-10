@@ -10,7 +10,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <fstream>
 #include <numeric>
 
 namespace tek {
@@ -242,10 +241,10 @@ void Haploid::test_selection_coefs_gp() {HERE;
     for (size_t i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
         new_position(wtl::sfmt());
     }
-    std::ofstream fout("tek-selection_coefs_gp.tsv");
-    fout << "s_gp\n";
+    auto ofs = wtl::make_ofs("tek-selection_coefs_gp.tsv");
+    ofs << "s_gp\n";
     for (const auto& p: SELECTION_COEFS_GP_) {
-        fout << p.second << "\n";
+        ofs << p.second << "\n";
     }
     /*R
     read_tsv('tek-selection_coefs_gp.tsv') %>% {
@@ -258,7 +257,7 @@ void Haploid::test_selection_coefs_gp() {HERE;
 }
 
 void Haploid::test_selection_coefs_cn() {HERE;
-    std::ofstream ost("tek-selection_coefs_cn.tsv");
+    auto ost = wtl::make_ofs("tek-selection_coefs_cn.tsv");
     ost << "xi\tcopy_number\ts_cn\n";
     const uint_fast32_t n = 10'000u;
     for (const double xi: {1e-5, 1e-4, 1e-3}) {
