@@ -45,8 +45,8 @@ class Transposon {
     Transposon() = default;
 
     //! make one point mutation
-    template <class URNG> inline
-    void mutate(URNG& generator) {
+    template <class URBG> inline
+    void mutate(URBG& generator) {
         thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
         thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
         uint_fast32_t pos = UNIF_LEN(generator);
