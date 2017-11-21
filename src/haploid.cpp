@@ -65,10 +65,10 @@ Haploid::position_t Haploid::new_position(URBG& rng) {
 }
 
 Haploid Haploid::copy_founder() {
-    // TODO: avoid functional site?
-    static auto idx = new_position(wtl::sfmt());
+    constexpr position_t pos = std::numeric_limits<position_t>::max() / 2u;
+    SELECTION_COEFS_GP_.emplace(pos, 0.0);
     Haploid founder;
-    founder.sites_[idx] = ORIGINAL_TE_;
+    founder.sites_[pos] = ORIGINAL_TE_;
     return founder;
 }
 
@@ -238,8 +238,9 @@ void Haploid::test() {HERE;
 }
 
 void Haploid::test_selection_coefs_gp() {HERE;
+    URBG rng(std::random_device{}());
     for (size_t i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
-        new_position(wtl::sfmt());
+        new_position(rng);
     }
     auto ofs = wtl::make_ofs("tek-selection_coefs_gp.tsv");
     ofs << "s_gp\n";
@@ -278,12 +279,13 @@ void Haploid::test_selection_coefs_cn() {HERE;
 }
 
 void Haploid::test_recombination() {HERE;
+    URBG rng(std::random_device{}());
     Haploid zero;
     Haploid one;
     for (uint_fast32_t x=0u; x<60u; ++x) {
         one.sites_[x] = ORIGINAL_TE_;
     }
-    auto gamete = zero.gametogenesis(one, wtl::sfmt());
+    auto gamete = zero.gametogenesis(one, rng);
     gamete.write_positions(std::cerr) << std::endl;
 }
 

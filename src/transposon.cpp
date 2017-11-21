@@ -90,6 +90,7 @@ void Transposon::test() {HERE;
     te.indel();
     std::cout << te << std::endl;
     test_activity();
+    DNA_test(mt);
 }
 
 void Transposon::test_activity() {HERE;

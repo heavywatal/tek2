@@ -11,7 +11,6 @@
 #include <wtl/filesystem.hpp>
 #include <wtl/concurrent.hpp>
 #include <wtl/prandom.hpp>
-#include <sfmt.hpp>
 
 #include <json.hpp>
 
@@ -89,15 +88,16 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 
 std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
+    static Haploid::URBG seeder(std::random_device{}());
     static wtl::ThreadPool pool(concurrency_);
     static std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
     std::vector<double> fitness_record;
     fitness_record.reserve(num_gametes);
     std::mutex mtx;
-    auto task = [&,this](const size_t seed) {
+    auto task = [&,this](const Haploid::URBG::result_type seed) {
         std::uniform_int_distribution<size_t> dist_idx(0u, num_gametes / 2u - 1u);
-        wtl::sfmt19937 rng(seed);
+        Haploid::URBG rng(seed);
         while (true) {
             const size_t mother_idx = dist_idx(rng);
             size_t father_idx = 0u;
@@ -119,7 +119,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
         }
     };
     for (size_t i=0u; i<concurrency_; ++i) {
-        pool.submit(std::bind(task, wtl::sfmt()()));
+        pool.submit(std::bind(task, seeder()));
     }
     pool.wait();
     gametes_.swap(nextgen);
