@@ -118,13 +118,12 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             nextgen.push_back(std::move(sperm));
         }
     };
-    pool.wait();
     for (size_t i=0u; i<concurrency_; ++i) {
         pool.submit(std::bind(task, wtl::sfmt()()));
     }
     pool.wait();
     gametes_.swap(nextgen);
-    pool.submit([] {nextgen.clear();});
+    nextgen.clear();
     return fitness_record;
 }
 
