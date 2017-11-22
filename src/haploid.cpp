@@ -52,6 +52,9 @@ void Haploid::set_parameters(const size_t popsize, const double theta, const dou
     MUTATION_RATE_ = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = MUTATION_RATE_ * INDEL_RATIO_;
     RECOMBINATION_RATE_ = rho / four_n;
+    DCERR("MUTATION_RATE_ = " << MUTATION_RATE_ << std::endl);
+    DCERR("INDEL_RATE_ = " << INDEL_RATE_ << std::endl);
+    DCERR("RECOMBINATION_RATE_ = " << RECOMBINATION_RATE_ << std::endl);
 }
 
 Haploid::position_t Haploid::new_position(URBG& rng) {
@@ -87,8 +90,17 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
     position_t here = 0u;
     position_t prev = 0u;
     while ((here = std::min(gamete_pos, other_pos)) < max_pos) {
-        std::poisson_distribution<uint_fast32_t> poisson((here - prev) * RECOMBINATION_RATE_);
-        flg ^= (poisson(rng) % 2u);
+        const double lambda = (here - prev) * RECOMBINATION_RATE_;
+        if (lambda < 10.0) {
+            std::poisson_distribution<position_t> poisson(lambda);
+            if (poisson(rng) % 2u != 0u) {
+                flg = !flg;
+            }
+        } else {
+            if (rng.canonical() < 0.5) {
+                flg = !flg;
+            }
+        }
         prev = here;
         if (gamete_pos < other_pos) {
             if (flg) {
