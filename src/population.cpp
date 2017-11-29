@@ -10,7 +10,7 @@
 #include <wtl/zfstream.hpp>
 #include <wtl/filesystem.hpp>
 #include <wtl/concurrent.hpp>
-#include <wtl/prandom.hpp>
+#include <wtl/random.hpp>
 
 #include <json.hpp>
 
@@ -109,7 +109,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             auto egg   = mother_lchr.gametogenesis(mother_rchr, rng);
             auto sperm = father_lchr.gametogenesis(father_rchr, rng);
             const double fitness = egg.fitness(sperm);
-            if (fitness < rng.canonical() * previous_max_fitness) continue;
+            if (fitness < wtl::generate_canonical(rng) * previous_max_fitness) continue;
             egg.transpose_mutate(sperm, rng);
             std::lock_guard<std::mutex> lock(mtx);
             if (nextgen.size() >= num_gametes) break;

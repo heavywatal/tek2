@@ -6,7 +6,7 @@
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
-#include <wtl/prandom.hpp>
+#include <wtl/random.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -80,7 +80,7 @@ Haploid Haploid::copy_founder() {
 Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
     constexpr position_t max_pos = std::numeric_limits<position_t>::max();
     Haploid gamete(*this);
-    bool flg = (rng.canonical() < 0.5);
+    bool flg = (wtl::generate_canonical(rng) < 0.5);
     auto gamete_it = gamete.sites_.begin();
     auto gamete_end = gamete.sites_.end();
     auto other_it = other.sites_.cbegin();
@@ -97,7 +97,7 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
                 flg = !flg;
             }
         } else {
-            if (rng.canonical() < 0.5) {
+            if (wtl::generate_canonical(rng) < 0.5) {
                 flg = !flg;
             }
         }
@@ -131,10 +131,10 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& rng) {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto it=sites_.cbegin(); it!=sites_.cend();) {
-        if (rng.canonical() < it->second->transposition_rate()) {
+        if (wtl::generate_canonical(rng) < it->second->transposition_rate()) {
             copying_transposons.push_back(it->second);
         }
-        if (rng.canonical() < EXCISION_RATE_) {
+        if (wtl::generate_canonical(rng) < EXCISION_RATE_) {
             it = sites_.erase(it);
         } else {
             ++it;
@@ -153,7 +153,7 @@ void Haploid::transpose_mutate(Haploid& other, URBG& rng) {
     }
     for (auto& p: copying_transposons) {
         auto target_haploid = this;
-        if (rng.canonical() < 0.5) {
+        if (wtl::generate_canonical(rng) < 0.5) {
             target_haploid = &other;
         }
         target_haploid->sites_.emplace(new_position(rng), std::move(p));
