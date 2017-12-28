@@ -22,6 +22,9 @@ class DNA {
   public:
     //! construct
     DNA(const size_t n): sequence_(n) {}
+    //! construct from sequence
+    DNA(std::valarray<uint_fast8_t>&& s)
+    : sequence_(std::forward<std::valarray<uint_fast8_t>>(s)) {}
 
     //! diviation from the original
     uint_fast32_t count() const {
@@ -37,6 +40,11 @@ class DNA {
             random_bits >>= 2;
         }
         sequence_[i] ^= (0b00000011u & random_bits);
+    }
+
+    //! get i-th nucleotide
+    uint_fast8_t operator[](const size_t i) const {
+        return sequence_[i];
     }
 
     //! get i-th nucleotide as char
@@ -73,17 +81,52 @@ class DNA {
     std::valarray<uint_fast8_t> sequence_;
 };
 
+/*! @brief Homolog class
+*/
+class Homolog {
+  public:
+    Homolog(size_t length): counts_(length, {0u, 0u, 0u, 0u}) {}
+
+    Homolog& operator+=(const DNA& seq) {
+        const size_t n = counts_.size();
+        for (size_t i=0; i<n; ++i) {
+            ++counts_[i][seq[i]];
+        }
+        return *this;
+    }
+
+    std::valarray<uint_fast8_t> majority() const {
+        const size_t n = counts_.size();
+        std::valarray<uint_fast8_t> result(n);
+        for (size_t i=0; i<n; ++i) {
+            const auto& v = counts_[i];
+            result[i] = static_cast<uint_fast8_t>(std::distance(v.begin(), std::max_element(v.begin(), v.end())));
+        }
+        return result;
+    }
+
+  private:
+    std::vector<std::vector<uint_fast32_t>> counts_;
+};
+
 //! unit test
 template <class URBG> inline
 void DNA_test(URBG& generator) {
     constexpr size_t n = 30u;
-    DNA x(n), y(n);
+    DNA x(n);
+    DNA y(n);
     std::cerr << x << std::endl;
     for (size_t i=0u; i<n; ++i) {
-        x.flip(i, generator);
+        y.flip(i, generator);
     }
-    std::cerr << x << std::endl;
+    std::cerr << y << std::endl;
     std::cerr << wtl::count(x != y) << std::endl;
+
+    Homolog counter(n);
+    counter += x;
+    counter += y;
+    counter += y;
+    std::cerr << DNA(counter.majority()) << std::endl;
 }
 
 } // namespace tek
