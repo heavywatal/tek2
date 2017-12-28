@@ -68,9 +68,9 @@ std::ostream& Transposon::write_fasta(std::ostream& ost, const uint_fast32_t cop
 
 std::ostream& Transposon::write_sequence(std::ostream& ost) const {
     for (size_t in=0u, is=0u; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
-        ost << nonsynonymous_sites_[in];
-        ost << nonsynonymous_sites_[++in];
-        ost <<    synonymous_sites_[is];
+        ost << nonsynonymous_sites_.at(in);
+        ost << nonsynonymous_sites_.at(++in);
+        ost <<    synonymous_sites_.at(is);
     }
     return ost;
 }

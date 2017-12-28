@@ -40,7 +40,7 @@ class DNA {
     }
 
     //! get i-th nucleotide as char
-    const char& operator[](const size_t i) const {
+    const char& at(const size_t i) const {
         return translate(sequence_[i]);
     }
 
