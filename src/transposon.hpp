@@ -42,7 +42,9 @@ class Transposon {
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
 
     //! default constructor
-    Transposon() = default;
+    Transposon()
+    : nonsynonymous_sites_(NUM_NONSYNONYMOUS_SITES),
+      synonymous_sites_(LENGTH - NUM_NONSYNONYMOUS_SITES) {}
 
     //! make one point mutation
     template <class URBG> inline
@@ -128,9 +130,9 @@ class Transposon {
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
 
     //! nonsynonymous sites
-    DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
+    DNA nonsynonymous_sites_;
     //! synonymous sites
-    DNA<LENGTH - NUM_NONSYNONYMOUS_SITES> synonymous_sites_;
+    DNA synonymous_sites_;
     //! activity is zero if this is true
     bool has_indel_ = false;
     //! transposon species

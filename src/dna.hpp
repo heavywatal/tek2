@@ -18,13 +18,10 @@ namespace tek {
 
 /*! @brief DNA class
 */
-template <size_t N>
 class DNA {
-    //! template for translation from integer to character
-    static const std::string NUCLEOTIDE;
-
   public:
-    DNA(): sequence_(N) {}
+    //! construct
+    DNA(const size_t n): sequence_(n) {}
 
     //! diviation from the original
     uint_fast32_t count() const {
@@ -44,13 +41,13 @@ class DNA {
 
     //! get i-th nucleotide as char
     const char& operator[](const size_t i) const {
-        return NUCLEOTIDE[sequence_[i]];
+        return translate(sequence_[i]);
     }
 
     //! translate integer to nucleotide character and print
     std::ostream& write(std::ostream& ost) const {
         for (const auto x: sequence_) {
-            ost << NUCLEOTIDE[x];
+            ost << translate(x);
         }
         return ost;
     }
@@ -61,25 +58,28 @@ class DNA {
     }
 
     //! comparison of sequence
-    std::valarray<bool> operator!=(const DNA<N>& other) const {
+    std::valarray<bool> operator!=(const DNA& other) const {
         return this->sequence_ != other.sequence_;
     }
 
   private:
+    //! translate integer to character
+    static const char& translate(const uint_fast8_t x) {
+        static const std::string NUCLEOTIDE = "ACGT";
+        return NUCLEOTIDE[x];
+    }
+
     //! sequence as integer array
     std::valarray<uint_fast8_t> sequence_;
 };
 
-template <size_t N>
-const std::string DNA<N>::NUCLEOTIDE = "ACGT";
-
 //! unit test
 template <class URBG> inline
 void DNA_test(URBG& generator) {
-    constexpr size_t N = 30u;
-    DNA<N> x, y;
+    constexpr size_t n = 30u;
+    DNA x(n), y(n);
     std::cerr << x << std::endl;
-    for (size_t i=0u; i<N; ++i) {
+    for (size_t i=0u; i<n; ++i) {
         x.flip(i, generator);
     }
     std::cerr << x << std::endl;
