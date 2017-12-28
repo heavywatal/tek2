@@ -38,12 +38,12 @@ po::options_description Transposon::options_desc() {HERE;
 
 void Transposon::set_parameters() {HERE;
     THRESHOLD_ = 1.0 - ALPHA_;
-    for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+    for (size_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         ACTIVITY_[i] = calc_activity(i);
     }
 }
 
-double Transposon::calc_activity(const uint_fast32_t num_mutations) {
+double Transposon::calc_activity(const size_t num_mutations) {
     const double diff = num_mutations * OVER_NONSYNONYMOUS_SITES;
     if (diff >= THRESHOLD_) return 0.0;
     return std::pow(1.0 - diff / THRESHOLD_, BETA_);
@@ -67,7 +67,7 @@ std::ostream& Transposon::write_fasta(std::ostream& ost, const uint_fast32_t cop
 }
 
 std::ostream& Transposon::write_sequence(std::ostream& ost) const {
-    for (uint_fast32_t in=0u, is=0u; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
+    for (size_t in=0u, is=0u; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
         ost << nonsynonymous_sites_[in];
         ost << nonsynonymous_sites_[++in];
         ost <<    synonymous_sites_[is];
@@ -111,7 +111,7 @@ void Transposon::test_activity(std::ostream& ost, const double alpha, const unsi
     ALPHA_ = alpha;
     BETA_ = beta;
     set_parameters();
-    for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+    for (size_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
         if (identity < 0.7) continue;
         ost << alpha << "\t" << beta << "\t"

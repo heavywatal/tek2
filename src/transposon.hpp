@@ -26,11 +26,11 @@ class Transposon {
     //! @{
 
     //! \f$L\f$, sequence length of TE (bp)
-    static constexpr uint_fast32_t LENGTH = 300u;
+    static constexpr size_t LENGTH = 300u;
     //! number of synonymous sites
-    static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
+    static constexpr size_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
     //! number of nonsynonymous sites
-    static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
+    static constexpr size_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
     //! \f$u_0\f$, maximum transposition rate
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
     //! @} params
@@ -47,9 +47,9 @@ class Transposon {
     //! make one point mutation
     template <class URBG> inline
     void mutate(URBG& generator) {
-        thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
+        thread_local std::uniform_int_distribution<size_t> UNIF_LEN(0u, LENGTH - 1u);
         thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
-        uint_fast32_t pos = UNIF_LEN(generator);
+        size_t pos = UNIF_LEN(generator);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
         } else {
@@ -103,7 +103,7 @@ class Transposon {
             a = \left(\frac {1 - d - \alpha} {1 - \alpha} \right)^\beta
         \f]
     */
-    static double calc_activity(const uint_fast32_t num_mutations);
+    static double calc_activity(const size_t num_mutations);
     //! Figure 1
     static void test_activity();
     //! implementation of test_activity()
