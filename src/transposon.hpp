@@ -62,7 +62,7 @@ class Transposon {
             nonsynonymous_sites_.flip(pos, generator);
         }
         if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(generator)) {
-            species_ = generator();
+            species_ = static_cast<int32_t>(generator());
         }
     }
 
