@@ -32,6 +32,7 @@ constexpr Recording operator|(Recording x, Recording y) {
 }
 
 class Haploid;
+class Transposon;
 
 /*! @brief Population class
 */
@@ -69,6 +70,8 @@ class Population {
   private:
     //! proceed one generation and return fitness record
     std::vector<double> step(const double previous_max_fitness=1.0);
+    //! find farthest element
+    Transposon* find_farthest();
     //! return true if no TE exists in #gametes_
     bool is_extinct() const;
     //! vector of chromosomes, not individuals
