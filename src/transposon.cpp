@@ -82,16 +82,18 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
 
 void Transposon::test() {HERE;
     std::mt19937 mt(std::random_device{}());
-    Transposon te;
-    te.mutate(mt);
-    te.mutate(mt);
-    te.write_fasta(std::cout);
-    std::cout << te << std::endl;
-    te.indel();
-    std::cout << te << std::endl;
+    Transposon wt, mut;
+    mut.mutate(mt);
+    mut.mutate(mt);
+    mut.write_fasta(std::cout);
+    std::cout << mut << std::endl;
+    mut.indel();
+    std::cout << mut << std::endl;
+    std::cout << "Hamming distance: " << mut - wt << std::endl;
     TransposonFamily family;
-    family += te;
-    family += te;
+    family += wt;
+    family += wt;
+    family += mut;
     family.majority().write_fasta(std::cout);
     test_activity();
     DNA_test(mt);

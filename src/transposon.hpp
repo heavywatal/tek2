@@ -78,7 +78,15 @@ class Transposon {
         return MAX_TRANSPOSITION_RATE * activity();
     }
 
+    //! Hamming distance
+    ptrdiff_t operator-(const Transposon& other) const {
+        return wtl::count(nonsynonymous_sites() != other.nonsynonymous_sites()) +
+               wtl::count(synonymous_sites() != other.synonymous_sites());
+    }
+
+    //! getter of #nonsynonymous_sites_
     const DNA& nonsynonymous_sites() const {return nonsynonymous_sites_;}
+    //! getter of #synonymous_sites_
     const DNA& synonymous_sites() const {return synonymous_sites_;}
     //! getter of #has_indel_
     bool has_indel() const {return has_indel_;}
