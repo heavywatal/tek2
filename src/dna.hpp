@@ -28,7 +28,7 @@ class DNA {
 
     //! diviation from the original
     uint_fast32_t count() const {
-        return wtl::count(sequence_ > 0u);
+        return static_cast<uint_fast32_t>(wtl::count(sequence_ > 0u));
     }
 
     //! mutate i-th site
