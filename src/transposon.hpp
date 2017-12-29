@@ -46,6 +46,10 @@ class Transposon {
     : nonsynonymous_sites_(NUM_NONSYNONYMOUS_SITES),
       synonymous_sites_(LENGTH - NUM_NONSYNONYMOUS_SITES) {}
 
+    Transposon(std::valarray<uint_fast8_t>&& non, std::valarray<uint_fast8_t>&& syn)
+    : nonsynonymous_sites_(std::forward<std::valarray<uint_fast8_t>>(non)),
+      synonymous_sites_(std::forward<std::valarray<uint_fast8_t>>(syn)) {}
+
     //! make one point mutation
     template <class URBG> inline
     void mutate(URBG& generator) {
@@ -74,6 +78,8 @@ class Transposon {
         return MAX_TRANSPOSITION_RATE * activity();
     }
 
+    const DNA& nonsynonymous_sites() const {return nonsynonymous_sites_;}
+    const DNA& synonymous_sites() const {return synonymous_sites_;}
     //! getter of #has_indel_
     bool has_indel() const {return has_indel_;}
     //! getter of #species_
@@ -137,6 +143,29 @@ class Transposon {
     bool has_indel_ = false;
     //! transposon species
     int32_t species_ = 0;
+};
+
+/*! @brief TransposonFamily class
+*/
+class TransposonFamily {
+  public:
+    TransposonFamily()
+    : nonsynonymous_sites_(Transposon::NUM_NONSYNONYMOUS_SITES),
+      synonymous_sites_(Transposon::NUM_SYNONYMOUS_SITES) {}
+
+    TransposonFamily& operator+=(const Transposon& x) {
+        nonsynonymous_sites_ += x.nonsynonymous_sites();
+        synonymous_sites_ += x.synonymous_sites();
+        return *this;
+    }
+
+    Transposon majority() const {
+        return Transposon(nonsynonymous_sites_.majority(), synonymous_sites_.majority());
+    }
+
+  private:
+    Homolog nonsynonymous_sites_;
+    Homolog synonymous_sites_;
 };
 
 } // namespace tek

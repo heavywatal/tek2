@@ -81,14 +81,18 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
 }
 
 void Transposon::test() {HERE;
-    Transposon te;
     std::mt19937 mt(std::random_device{}());
+    Transposon te;
     te.mutate(mt);
     te.mutate(mt);
     te.write_fasta(std::cout);
     std::cout << te << std::endl;
     te.indel();
     std::cout << te << std::endl;
+    TransposonFamily family;
+    family += te;
+    family += te;
+    family.majority().write_fasta(std::cout);
     test_activity();
     DNA_test(mt);
 }
