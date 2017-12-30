@@ -26,18 +26,18 @@ namespace po = boost::program_options;
 
     Command line option | Symbol        | Variable
     ------------------- | ------------- | -------------------------
-    `--alpha`           | \f$\alpha\f$  | Transposon::ALPHA_
-    `--beta`            | \f$\beta\f$   | Transposon::BETA_
+    `-a,--alpha`        | \f$\alpha\f$  | Transposon::ALPHA_
+    `-b,--beta`         | \f$\beta\f$   | Transposon::BETA_
     `--spec`            |               | Transposon::SPECIATION_RATE_
-    `--mindist`         |               | Transposon::MIN_DISTANCE_
+    `-d,--mindist`      |               | Transposon::MIN_DISTANCE_
 */
 po::options_description Transposon::options_desc() {HERE;
     po::options_description description("Transposon");
     description.add_options()
-      ("alpha", po::value(&ALPHA_)->default_value(ALPHA_))
-      ("beta", po::value(&BETA_)->default_value(BETA_))
+      ("alpha,a", po::value(&ALPHA_)->default_value(ALPHA_))
+      ("beta,b", po::value(&BETA_)->default_value(BETA_))
       ("spec", po::value(&SPECIATION_RATE_)->default_value(SPECIATION_RATE_))
-      ("mindist", po::value(&MIN_DISTANCE_)->default_value(MIN_DISTANCE_));
+      ("mindist,d", po::value(&MIN_DISTANCE_)->default_value(MIN_DISTANCE_));
     return description;
 }
 
