@@ -48,9 +48,9 @@ class Transposon {
     : nonsynonymous_sites_(NUM_NONSYNONYMOUS_SITES),
       synonymous_sites_(LENGTH - NUM_NONSYNONYMOUS_SITES) {}
 
-    Transposon(std::valarray<uint_fast8_t>&& non, std::valarray<uint_fast8_t>&& syn)
-    : nonsynonymous_sites_(std::forward<std::valarray<uint_fast8_t>>(non)),
-      synonymous_sites_(std::forward<std::valarray<uint_fast8_t>>(syn)) {}
+    Transposon(DNA&& non, DNA&& syn)
+    : nonsynonymous_sites_(std::forward<DNA>(non)),
+      synonymous_sites_(std::forward<DNA>(syn)) {}
 
     //! make one point mutation
     template <class URBG>

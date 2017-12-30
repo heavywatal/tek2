@@ -95,14 +95,14 @@ class Homolog {
         return *this;
     }
 
-    std::valarray<uint_fast8_t> majority() const {
+    DNA majority() const {
         const size_t n = counts_.size();
         std::valarray<uint_fast8_t> result(n);
         for (size_t i=0; i<n; ++i) {
             const auto& v = counts_[i];
             result[i] = static_cast<uint_fast8_t>(std::distance(v.begin(), std::max_element(v.begin(), v.end())));
         }
-        return result;
+        return DNA(std::move(result));
     }
 
   private:
