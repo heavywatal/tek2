@@ -14,6 +14,7 @@ namespace tek {
 double Transposon::ALPHA_ = 0.7;
 unsigned int Transposon::BETA_ = 6u;
 double Transposon::SPECIATION_RATE_ = 0.0;
+ptrdiff_t Transposon::MIN_DISTANCE_ = 65535;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 uint_fast32_t Transposon::LATEST_SPECIES_ = 0u;
@@ -28,13 +29,15 @@ namespace po = boost::program_options;
     `--alpha`           | \f$\alpha\f$  | Transposon::ALPHA_
     `--beta`            | \f$\beta\f$   | Transposon::BETA_
     `--spec`            |               | Transposon::SPECIATION_RATE_
+    `--mindist`         |               | Transposon::MIN_DISTANCE_
 */
 po::options_description Transposon::options_desc() {HERE;
     po::options_description description("Transposon");
     description.add_options()
       ("alpha", po::value(&ALPHA_)->default_value(ALPHA_))
       ("beta", po::value(&BETA_)->default_value(BETA_))
-      ("spec", po::value(&SPECIATION_RATE_)->default_value(SPECIATION_RATE_));
+      ("spec", po::value(&SPECIATION_RATE_)->default_value(SPECIATION_RATE_))
+      ("mindist", po::value(&MIN_DISTANCE_)->default_value(MIN_DISTANCE_));
     return description;
 }
 

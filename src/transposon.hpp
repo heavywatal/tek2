@@ -10,6 +10,7 @@
 #include <boost/program_options.hpp>
 
 #include <iosfwd>
+#include <unordered_map>
 #include <array>
 #include <random>
 #include <mutex>
@@ -94,6 +95,8 @@ class Transposon {
                wtl::count(synonymous_sites() != other.synonymous_sites());
     }
 
+    //! getter of #MIN_DISTANCE_
+    static ptrdiff_t MIN_DISTANCE() {return MIN_DISTANCE_;}
     //! getter of #nonsynonymous_sites_
     const DNA& nonsynonymous_sites() const {return nonsynonymous_sites_;}
     //! getter of #synonymous_sites_
@@ -145,6 +148,8 @@ class Transposon {
     static unsigned int BETA_;
     //! speciation rate per mutation
     static double SPECIATION_RATE_;
+    //! distance required for speciation
+    static ptrdiff_t MIN_DISTANCE_;
     //! @} params
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -178,6 +183,7 @@ class TransposonFamily {
     TransposonFamily& operator+=(const Transposon& x) {
         nonsynonymous_sites_ += x.nonsynonymous_sites();
         synonymous_sites_ += x.synonymous_sites();
+        ++species_count_[x.species()];
         return *this;
     }
 
@@ -185,9 +191,13 @@ class TransposonFamily {
         return Transposon(nonsynonymous_sites_.majority(), synonymous_sites_.majority());
     }
 
+    const std::unordered_map<uint_fast32_t, uint_fast32_t>&
+    species_count() const {return species_count_;}
+
   private:
     Homolog nonsynonymous_sites_;
     Homolog synonymous_sites_;
+    std::unordered_map<uint_fast32_t, uint_fast32_t> species_count_;
 };
 
 } // namespace tek

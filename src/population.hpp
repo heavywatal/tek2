@@ -70,8 +70,8 @@ class Population {
   private:
     //! proceed one generation and return fitness record
     std::vector<double> step(const double previous_max_fitness=1.0);
-    //! find farthest element
-    Transposon* find_farthest();
+    //! find farthest element, count species, and cause speciation if qualified
+    void supply_new_species();
     //! return true if no TE exists in #gametes_
     bool is_extinct() const;
     //! vector of chromosomes, not individuals

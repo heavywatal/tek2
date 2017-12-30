@@ -40,12 +40,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         max_fitness = std::min(max_fitness + margin, 1.0);
         if (is_recording) {
             std::cerr << "*" << std::flush;
-            if (false) {
-                Transposon* farthest = find_farthest();
-                if (farthest) {
-                    DCERR(*farthest);
-                }
-            }
+            supply_new_species();
             if (static_cast<bool>(flags & Recording::activity)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
                 wtl::ozfstream ozf("activity.tsv.gz", ioflag);
@@ -55,7 +50,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 for (size_t i=0u; i<gametes_.size(); ++i) {
                     for (const auto& p: gametes_[i].count_activity()) {
                         ozf << t << "\t" << i << "\t"
-                                      << p.first << "\t" << p.second << "\n";
+                            << p.first << "\t" << p.second << "\n";
                     }
                 }
             }
@@ -133,7 +128,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     return fitness_record;
 }
 
-Transposon* Population::find_farthest() {
+void Population::supply_new_species() {
     TransposonFamily counter;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {
@@ -153,7 +148,11 @@ Transposon* Population::find_farthest() {
             }
         }
     }
-    return farthest;
+    if ((max_distance >= Transposon::MIN_DISTANCE()) &&
+        (counter.species_count().size() == 1u)) {
+        farthest->speciate();
+        DCERR(*farthest);
+    }
 }
 
 bool Population::is_extinct() const {
