@@ -51,7 +51,7 @@ class Transposon {
       synonymous_sites_(std::forward<std::valarray<uint_fast8_t>>(syn)) {}
 
     //! make one point mutation
-    template <class URBG> inline
+    template <class URBG>
     void mutate(URBG& generator) {
         thread_local std::uniform_int_distribution<size_t> UNIF_LEN(0u, LENGTH - 1u);
         thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
@@ -62,17 +62,25 @@ class Transposon {
             nonsynonymous_sites_.flip(pos, generator);
         }
         if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(generator)) {
-            species_ = static_cast<int32_t>(generator());
+            speciate(generator);
         }
+    }
+
+    //! set random #species_
+    template <class URBG>
+    void speciate(URBG& generator) {
+        species_ = static_cast<int32_t>(generator());
     }
 
     //! set #has_indel_
     void indel() {has_indel_ = true;}
+
     //! \f$a_i\f$; count nonsynonymous mutations and return the pre-calculated #ACTIVITY_
     double activity() const {
         if (has_indel_) return 0.0;
         return ACTIVITY_[nonsynonymous_sites_.count()];
     }
+
     //! \f$u_i = u_0 \times a_i\f$
     double transposition_rate() const {
         return MAX_TRANSPOSITION_RATE * activity();
