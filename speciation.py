@@ -9,6 +9,13 @@ program = 'tek'
 
 def iter_values(rest):
     crossing_axes = wopt.OrderedDict()
+    crossing_axes['mindist'] = ['10', '20', '50', '100', '200']
+    for d in wopt.product(crossing_axes):
+        yield wopt.OrderedDict(**d)
+
+
+def iter_values_spec(rest):
+    crossing_axes = wopt.OrderedDict()
     crossing_axes['xi'] = ['1e-4', '5e-4']
     crossing_axes['spec'] = ['1e-4', '1e-3']
     for d in wopt.product(crossing_axes):
@@ -17,7 +24,7 @@ def iter_values(rest):
 
 def iter_args(rest, concurrency, repeat, skip):
     const = [program, '-j{}'.format(concurrency)] + rest
-    suffix = '_{}_{}'.format(wopt.now(), wopt.getpid())
+    suffix = '_{}'.format(wopt.now())
     for i, v in enumerate(wopt.cycle(iter_values(rest), repeat)):
         if i < skip:
             continue
@@ -27,19 +34,15 @@ def iter_args(rest, concurrency, repeat, skip):
 
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-n', '--dry-run', action='store_true')
-    parser.add_argument('-j', '--jobs', type=int, default=wopt.cpu_count())
+    parser = wopt.ArgumentParser()
     parser.add_argument('--skip', type=int, default=0)
     parser.add_argument('-o', '--outdir', default='.stdout')
     parser.add_argument('-r', '--repeat', type=int, default=1)
     (args, rest) = parser.parse_known_args()
+    print("cpu_count(): {}".format(wopt.cpu_count()))
+    print('{} jobs * {} threads/job'.format(args.jobs, args.parallel))
 
-    per_job = wopt.cpu_count() // args.jobs
-    if args.jobs > 1:
-        per_job += 1
-    wopt.map_async(iter_args(rest, per_job, args.repeat, args.skip),
+    wopt.map_async(iter_args(rest, args.parallel, args.repeat, args.skip),
                    args.jobs, args.dry_run, outdir=args.outdir)
     print('End of ' + __file__)
 
