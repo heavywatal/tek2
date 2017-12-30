@@ -16,6 +16,8 @@ unsigned int Transposon::BETA_ = 6u;
 double Transposon::SPECIATION_RATE_ = 0.0;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
+uint_fast32_t Transposon::LATEST_SPECIES_ = 0u;
+std::mutex Transposon::MTX_;
 
 namespace po = boost::program_options;
 

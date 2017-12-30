@@ -12,6 +12,7 @@
 #include <iosfwd>
 #include <array>
 #include <random>
+#include <mutex>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -62,14 +63,15 @@ class Transposon {
             nonsynonymous_sites_.flip(pos, generator);
         }
         if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(generator)) {
-            speciate(generator);
+            speciate();
         }
     }
 
-    //! set random #species_
-    template <class URBG>
-    void speciate(URBG& generator) {
-        species_ = static_cast<int32_t>(generator());
+    //! set new #species_
+    void speciate() {
+        std::lock_guard<std::mutex> lock(MTX_);
+        ++LATEST_SPECIES_;
+        species_ = LATEST_SPECIES_;
     }
 
     //! set #has_indel_
@@ -99,7 +101,7 @@ class Transposon {
     //! getter of #has_indel_
     bool has_indel() const {return has_indel_;}
     //! getter of #species_
-    int32_t species() const {return species_;}
+    uint_fast32_t species() const {return species_;}
     //! nonsynonymous substitution per nonsynonymous site
     double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
     //! synonymous substitution per synonymous site
@@ -150,6 +152,10 @@ class Transposon {
     static double THRESHOLD_;
     //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
+    //! incremented by speciation
+    static uint_fast32_t LATEST_SPECIES_;
+    //! mutex for speciation
+    static std::mutex MTX_;
 
     //! nonsynonymous sites
     DNA nonsynonymous_sites_;
@@ -158,7 +164,7 @@ class Transposon {
     //! activity is zero if this is true
     bool has_indel_ = false;
     //! transposon species
-    int32_t species_ = 0;
+    uint_fast32_t species_ = 0;
 };
 
 /*! @brief TransposonFamily class

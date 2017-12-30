@@ -190,7 +190,7 @@ double Haploid::prod_1_zs() const {
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    std::map<int32_t, uint_fast32_t> counter;
+    std::map<uint_fast32_t, uint_fast32_t> counter;
     for (const auto& p: this->sites_) {
         ++counter[p.second->species()];
     }
