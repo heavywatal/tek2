@@ -10,7 +10,6 @@
 #include <boost/program_options.hpp>
 
 #include <iosfwd>
-#include <unordered_map>
 #include <array>
 #include <random>
 #include <mutex>
@@ -71,8 +70,8 @@ class Transposon {
     //! set new #species_
     void speciate() {
         std::lock_guard<std::mutex> lock(MTX_);
-        ++LATEST_SPECIES_;
-        species_ = LATEST_SPECIES_;
+        species_ = NUM_SPECIES_;
+        ++NUM_SPECIES_;
     }
 
     //! set #has_indel_
@@ -157,8 +156,8 @@ class Transposon {
     static double THRESHOLD_;
     //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
-    //! incremented by speciation
-    static uint_fast32_t LATEST_SPECIES_;
+    //! number of species; incremented by speciation
+    static uint_fast32_t NUM_SPECIES_;
     //! mutex for speciation
     static std::mutex MTX_;
 
@@ -183,7 +182,7 @@ class TransposonFamily {
     TransposonFamily& operator+=(const Transposon& x) {
         nonsynonymous_sites_ += x.nonsynonymous_sites();
         synonymous_sites_ += x.synonymous_sites();
-        ++species_count_[x.species()];
+        ++size_;
         return *this;
     }
 
@@ -191,13 +190,12 @@ class TransposonFamily {
         return Transposon(nonsynonymous_sites_.majority(), synonymous_sites_.majority());
     }
 
-    const std::unordered_map<uint_fast32_t, uint_fast32_t>&
-    species_count() const {return species_count_;}
+    uint_fast32_t size() const {return size_;}
 
   private:
     Homolog nonsynonymous_sites_;
     Homolog synonymous_sites_;
-    std::unordered_map<uint_fast32_t, uint_fast32_t> species_count_;
+    uint_fast32_t size_ = 0u;
 };
 
 } // namespace tek

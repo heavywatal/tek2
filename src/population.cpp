@@ -129,27 +129,34 @@ std::vector<double> Population::step(const double previous_max_fitness) {
 }
 
 void Population::supply_new_species() {
-    TransposonFamily counter;
+    std::unordered_map<uint_fast32_t, TransposonFamily> counter;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {
-            counter += *p.second;
+            counter[p.second->species()] += *p.second;
         }
     }
-    const Transposon center = counter.majority();
+    std::unordered_map<uint_fast32_t, Transposon> centers;
+    for (const auto& p: counter) {
+        centers[p.first] = p.second.majority();
+    }
+
     Transposon* farthest = nullptr;
     ptrdiff_t max_distance = 0;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {
             if (p.second->activity() < 0.01) continue;
-            ptrdiff_t distance = (*p.second - center);
+            ptrdiff_t distance = (*p.second - centers[p.second->species()]);
             if (distance > max_distance) {
                 max_distance = distance;
                 farthest = p.second.get();
             }
         }
     }
-    if ((max_distance >= Transposon::MIN_DISTANCE()) &&
-        (counter.species_count().size() == 1u)) {
+
+    if (farthest &&
+        std::all_of(centers.begin(), centers.end(), [farthest](const auto& p) {
+            return (p.second - *farthest) >= Transposon::MIN_DISTANCE();
+        })) {
         farthest->speciate();
         DCERR(*farthest);
     }

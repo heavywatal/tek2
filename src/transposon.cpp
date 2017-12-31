@@ -17,7 +17,7 @@ double Transposon::SPECIATION_RATE_ = 0.0;
 ptrdiff_t Transposon::MIN_DISTANCE_ = 65535;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
-uint_fast32_t Transposon::LATEST_SPECIES_ = 0u;
+uint_fast32_t Transposon::NUM_SPECIES_ = 1u;
 std::mutex Transposon::MTX_;
 
 namespace po = boost::program_options;
