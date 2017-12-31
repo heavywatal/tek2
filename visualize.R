@@ -5,7 +5,7 @@ loadNamespace("cowplot")
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "nu")) {
+extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "nu", "mindist")) {
   patterns = sprintf("_%s([^_]+)_", params)
   str_match(paste0("_", filename), patterns)[, 2] %>%
     parse_double() %>%
@@ -52,14 +52,24 @@ plot_copynumber_generation = function(data) {
 
 .histories = .infiles %>%
   set_names() %>%
-  map_df(extract_params, .id = "infile") %>%
+  purrr::map_dfr(extract_params, .id = "infile") %>%
   dplyr::mutate(data = purrr::map(infile, read_tsv)) %>%
   print()
 
 .counted = .histories %>%
+  dplyr::group_by(mindist) %>%
+  dplyr::mutate(repl = seq_len(n())) %>%
+  dplyr::ungroup() %>%
   dplyr::mutate(data = purrr::map(data, count_activity)) %>%
   tidyr::unnest() %>%
   print()
+
+.p = .counted %>%
+  dplyr::filter(mindist < 20) %>%
+  plot_copynumber_generation()+
+  facet_grid(mindist ~ repl)
+ggsave("speciation.png", .p, width = 7, height = 7)
+
 
 .nested = .counted %>%
   tidyr::nest(-xi) %>%
