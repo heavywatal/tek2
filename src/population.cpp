@@ -44,15 +44,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             if (static_cast<bool>(flags & Recording::activity)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
                 wtl::ozfstream ozf("activity.tsv.gz", ioflag);
-                if (t == record_interval) {
-                    ozf << "generation\tgamete\tactivity\tcopy_number\n";
-                }
-                for (size_t i=0u; i<gametes_.size(); ++i) {
-                    for (const auto& p: gametes_[i].count_activity()) {
-                        ozf << t << "\t" << i << "\t"
-                            << p.first << "\t" << p.second << "\n";
-                    }
-                }
+                write_activity(ozf, t, t == record_interval);
             }
             if (static_cast<bool>(flags & Recording::fitness)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
@@ -167,6 +159,26 @@ bool Population::is_extinct() const {
         if (x.has_transposon()) return false;
     }
     return true;
+}
+
+void Population::write_activity(std::ostream& ost, const size_t time, const bool header) const {
+    std::map<uint_fast32_t, std::map<double, uint_fast32_t>> counter;
+    for (const auto& chr: gametes_) {
+        for (const auto& p: chr) {
+            const auto& te = *p.second;
+            ++counter[te.species()][te.activity()];
+        }
+    }
+    if (header) {
+        ost << "generation\tspecies\tactivity\tcopy_number\n";
+    }
+    for (const auto& sp: counter) {
+        auto species = sp.first;
+        for (const auto& act_cnt: sp.second) {
+            ost << time << "\t" << species << "\t"
+                << act_cnt.first << "\t" << act_cnt.second << "\n";
+        }
+    }
 }
 
 std::ostream& Population::write_summary(std::ostream& ost) const {HERE;

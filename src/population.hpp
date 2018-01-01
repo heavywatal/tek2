@@ -74,6 +74,9 @@ class Population {
     void supply_new_species();
     //! return true if no TE exists in #gametes_
     bool is_extinct() const;
+    //! summarize and write activity
+    void write_activity(std::ostream&, const size_t time, const bool header) const;
+
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;
     //! number of threads

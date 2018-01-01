@@ -57,8 +57,6 @@ class Haploid {
 
     //! !sites_.empty()
     bool has_transposon() const {return !sites_.empty();}
-    //! count activity
-    std::map<double, uint_fast32_t> count_activity() const;
 
     //! return vector of Transposon summaries
     std::vector<std::string> summarize() const;

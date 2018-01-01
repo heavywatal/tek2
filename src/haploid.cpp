@@ -216,14 +216,6 @@ std::vector<std::string> Haploid::summarize() const {
     return v;
 }
 
-std::map<double, uint_fast32_t> Haploid::count_activity() const {
-    std::map<double, uint_fast32_t> counter;
-    for (const auto& p: sites_) {
-        ++counter[p.second->activity()];
-    }
-    return counter;
-}
-
 std::ostream& Haploid::write_positions(std::ostream& ost) const {
     return ost << wtl::str_join(sites_, ",", wtl::make_oss(), [](const auto& p){return p.first;});
 }
