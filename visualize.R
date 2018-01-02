@@ -3,7 +3,6 @@ library(jsonlite)
 library(wtl)
 loadNamespace("cowplot")
 
-# #######1#########2#########3#########4#########5#########6#########7#########
 
 extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "nu", "mindist")) {
   patterns = sprintf("_%s([^_]+)_", params)
@@ -14,22 +13,6 @@ extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "n
     as_tibble()
 }
 # .infiles[1] %>% extract_params()
-
-count_activity = function(x) {
-  dplyr::group_by(x, generation) %>%
-    dplyr::count(activity, wt = copy_number) %>%
-    dplyr::mutate(copy_number = n / 500)
-}
-# .histories$data[[4]] %>% count_activity()
-
-count_per_individual = function(x) {
-  dplyr::group_by(x, generation, gamete) %>%
-    dplyr::summarise(copy_number = sum(copy_number)) %>%
-    dplyr::ungroup() %>%
-    tidyr::complete(generation, gamete, fill = list(copy_number = 0L)) %>%
-    dplyr::count(generation, copy_number)
-}
-# .histories$data[[4]] %>% count_per_individual()
 
 plot_copynumber_generation = function(data) {
   ggplot(data, aes(generation, copy_number, group = activity)) +
@@ -60,15 +43,22 @@ plot_copynumber_generation = function(data) {
   dplyr::group_by(mindist) %>%
   dplyr::mutate(repl = seq_len(n())) %>%
   dplyr::ungroup() %>%
-  dplyr::mutate(data = purrr::map(data, count_activity)) %>%
   tidyr::unnest() %>%
+  dplyr::mutate(copy_number = copy_number / 500) %>%
   print()
 
+
+.levels = sort.int(unique(.counted$species), decreasing=TRUE)
 .p = .counted %>%
-  dplyr::filter(mindist < 20) %>%
-  plot_copynumber_generation()+
-  facet_grid(mindist ~ repl)
-ggsave("speciation.png", .p, width = 7, height = 7)
+  dplyr::mutate(species = factor(species, levels=.levels)) %>%
+  ggplot(aes(generation, copy_number)) +
+  geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
+  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)) +
+  facet_grid(mindist ~ repl) +
+  wtl::theme_wtl() +
+  theme(legend.position = "bottom")
+.p
+ggsave("copynumber-activity-species.png", .p, width = 7, height = 7)
 
 
 .nested = .counted %>%
@@ -84,22 +74,6 @@ ggsave("speciation.png", .p, width = 7, height = 7)
 .nested$plt[[1]] + coord_cartesian(ylim = c(0, 370))
 
 ggsave("fig-s2.png", .p, width = 15, height = 12)
-
-
-.per_individual = .histories %>%
-  dplyr::mutate(data = purrr::map(data, count_per_individual)) %>%
-  unnest() %>%
-  print()
-
-.p = .per_individual %>%
-  dplyr::filter(0L <= generation, generation <= 2000L) %>%
-  ggplot(aes(copy_number, n, group = generation)) +
-  geom_line(aes(colour = generation), size = 1, alpha = 0.8) +
-  wtl::scale_colour_gradientb("Spectral", 4L) +
-  facet_grid(alpha + desc(nu) ~ desc(xi) + lambda, labeller = label_both, scale = "free_x") +
-  theme_bw() + theme(legend.position = "bottom")
-.p
-ggsave("copies_per_individual.pdf", .p, width = 5, height = 5)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
