@@ -89,13 +89,13 @@ class Transposon {
     }
 
     //! Hamming distance
-    ptrdiff_t operator-(const Transposon& other) const {
+    size_t operator-(const Transposon& other) const {
         return wtl::count(nonsynonymous_sites() != other.nonsynonymous_sites()) +
                wtl::count(synonymous_sites() != other.synonymous_sites());
     }
 
     //! getter of #MIN_DISTANCE_
-    static ptrdiff_t MIN_DISTANCE() {return MIN_DISTANCE_;}
+    static size_t MIN_DISTANCE() {return MIN_DISTANCE_;}
     //! getter of #nonsynonymous_sites_
     const DNA& nonsynonymous_sites() const {return nonsynonymous_sites_;}
     //! getter of #synonymous_sites_
@@ -148,7 +148,7 @@ class Transposon {
     //! speciation rate per mutation
     static double SPECIATION_RATE_;
     //! distance required for speciation
-    static ptrdiff_t MIN_DISTANCE_;
+    static size_t MIN_DISTANCE_;
     //! @} params
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

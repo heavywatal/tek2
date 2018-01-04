@@ -14,7 +14,7 @@ namespace tek {
 double Transposon::ALPHA_ = 0.7;
 unsigned int Transposon::BETA_ = 6u;
 double Transposon::SPECIATION_RATE_ = 0.0;
-ptrdiff_t Transposon::MIN_DISTANCE_ = 65535;
+size_t Transposon::MIN_DISTANCE_ = 65535u;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 uint_fast32_t Transposon::NUM_SPECIES_ = 1u;

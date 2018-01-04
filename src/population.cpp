@@ -133,11 +133,11 @@ void Population::supply_new_species() {
     }
 
     Transposon* farthest = nullptr;
-    ptrdiff_t max_distance = 0;
+    size_t max_distance = 0;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {
             if (p.second->activity() < 0.01) continue;
-            ptrdiff_t distance = (*p.second - centers[p.second->species()]);
+            size_t distance = (*p.second - centers[p.second->species()]);
             if (distance > max_distance) {
                 max_distance = distance;
                 farthest = p.second.get();
