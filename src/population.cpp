@@ -40,7 +40,9 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         max_fitness = std::min(max_fitness + margin, 1.0);
         if (is_recording) {
             std::cerr << "*" << std::flush;
-            supply_new_species();
+            if (Transposon::MIN_DISTANCE() < Transposon::LENGTH) {
+                supply_new_species();
+            }
             if (static_cast<bool>(flags & Recording::activity)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
                 wtl::ozfstream ozf("activity.tsv.gz", ioflag);
