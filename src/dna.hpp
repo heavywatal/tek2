@@ -109,26 +109,6 @@ class Homolog {
     std::vector<std::vector<uint_fast32_t>> counts_;
 };
 
-//! unit test
-template <class URBG> inline
-void DNA_test(URBG& generator) {
-    constexpr size_t n = 30u;
-    DNA x(n);
-    DNA y(n);
-    std::cerr << x << std::endl;
-    for (size_t i=0u; i<n; ++i) {
-        y.flip(i, generator);
-    }
-    std::cerr << y << std::endl;
-    std::cerr << wtl::count(x != y) << std::endl;
-
-    Homolog counter(n);
-    counter += x;
-    counter += y;
-    counter += y;
-    std::cerr << DNA(counter.majority()) << std::endl;
-}
-
 } // namespace tek
 
 #endif /* TEK_DNA_HPP_ */

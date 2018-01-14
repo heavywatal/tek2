@@ -101,7 +101,6 @@ void Transposon::test() {HERE;
     family += mut;
     family.majority().write_fasta(std::cout);
     test_activity();
-    DNA_test(mt);
 }
 
 void Transposon::test_activity() {HERE;

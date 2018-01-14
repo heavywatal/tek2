@@ -71,3 +71,8 @@ endif()
 install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+include(CTest)
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
