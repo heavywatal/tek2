@@ -218,12 +218,4 @@ std::ostream& operator<<(std::ostream& ost, const Population& pop) {
     return ost << pop.gametes_;
 }
 
-void Population::test() {HERE;
-    Population pop(6, 6);
-    std::cout << pop.gametes_ << std::endl;
-    pop.step();
-    std::cout << pop.gametes_ << std::endl;
-    pop.write_individual(std::cout, 2);
-}
-
 } // namespace tek

@@ -65,8 +65,6 @@ class Population {
     //! write_fasta() for i-th individual
     std::ostream& write_individual(std::ostream&, const size_t i=0) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
-    //! unit test
-    static void test();
   private:
     //! proceed one generation and return fitness record
     std::vector<double> step(const double previous_max_fitness=1.0);

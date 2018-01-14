@@ -81,7 +81,6 @@ inline void test(const int flg) {HERE;
       case 1:
         Transposon::test();
         Haploid::test();
-        Population::test();
         throw wtl::ExitSuccess();
       default:
         throw std::runtime_error("Unknown argument for --test");
