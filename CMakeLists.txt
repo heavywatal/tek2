@@ -31,6 +31,7 @@ if(${CMAKE_INSTALL_PREFIX} MATCHES linuxbrew)
   set(CMAKE_INSTALL_LIBDIR lib)
 endif()
 
+set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -62,14 +63,29 @@ configure_file(
 aux_source_directory(src srcfiles)
 message(STATUS "Source files: ${srcfiles}")
 
-add_executable(${PROJECT_NAME} main.cpp ${srcfiles})
-target_link_libraries(${PROJECT_NAME} wtl sfmt ${Boost_LIBRARIES})
+add_library(sharedlib SHARED ${srcfiles})
+target_link_libraries(sharedlib wtl sfmt ${Boost_LIBRARIES})
+set_target_properties(sharedlib PROPERTIES
+  OUTPUT_NAME ${PROJECT_NAME}
+)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} sharedlib)
 if(PROFILE)
   target_link_libraries(${PROJECT_NAME} profiler)
 endif()
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} sharedlib
+  EXPORT ${PROJECT_NAME}-config
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(DIRECTORY src/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*.hpp")
+install(EXPORT ${PROJECT_NAME}-config
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
 )
 
 include(CTest)
