@@ -47,6 +47,12 @@ po::options_description Haploid::options_desc() {HERE;
     return description;
 }
 
+Haploid::Haploid(const size_t n) {
+    for (uint_fast32_t i=0u; i<n; ++i) {
+        sites_.emplace(i, ORIGINAL_TE_);
+    }
+}
+
 void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
     const double four_n = 4.0 * popsize;
     MUTATION_RATE_ = Transposon::LENGTH * theta / four_n;
@@ -232,65 +238,11 @@ std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
     return ost << x.summarize();
 }
 
-void Haploid::test() {HERE;
-    Haploid x = Haploid::copy_founder();
-    std::cout << x << std::endl;
-    x.write_fasta(std::cout);
-    test_selection_coefs_gp();
-    test_selection_coefs_cn();
-    test_recombination();
-}
-
-void Haploid::test_selection_coefs_gp() {HERE;
+void Haploid::insert_coefs_gp(const size_t n) {
     URBG rng(std::random_device{}());
-    for (size_t i=SELECTION_COEFS_GP_.size(); i<2000u; ++i) {
+    for (size_t i=SELECTION_COEFS_GP_.size(); i<n; ++i) {
         new_position(rng);
     }
-    auto ofs = wtl::make_ofs("tek-selection_coefs_gp.tsv");
-    ofs << "s_gp\n";
-    for (const auto& p: SELECTION_COEFS_GP_) {
-        ofs << p.second << "\n";
-    }
-    /*R
-    read_tsv('tek-selection_coefs_gp.tsv') %>% {
-      ggplot(., aes(s_gp))+
-      geom_histogram(bins=30)+
-      geom_vline(xintercept=mean(.$s_gp), colour='tomato')+
-      theme_bw()
-    } %>% {ggsave('selection_coefs_gp.pdf', ., width=4, height=4)}
-    */
-}
-
-void Haploid::test_selection_coefs_cn() {HERE;
-    auto ost = wtl::make_ofs("tek-selection_coefs_cn.tsv");
-    ost << "xi\tcopy_number\ts_cn\n";
-    const uint_fast32_t n = 10'000u;
-    for (const double xi: {1e-5, 1e-4, 1e-3}) {
-        for (uint_fast32_t i=0u; i<n; ++i) {
-            const double s_cn = xi * std::pow(i, TAU_);
-            if (s_cn > 1.0) break;
-            ost << xi << "\t" << i << "\t" << s_cn << "\n";
-        }
-    }
-    /*R
-    read_tsv('tek-selection_coefs_cn.tsv') %>%
-    mutate(xi= sprintf('%.0e', xi)) %>% {
-      ggplot(., aes(copy_number, s_cn, group=xi, colour=xi))+
-      geom_line()+
-      theme_bw()+theme(legend.position='top')
-    } %>% {ggsave('selection_coefs_cn.pdf', ., width=4, height=4)}
-    */
-}
-
-void Haploid::test_recombination() {HERE;
-    URBG rng(std::random_device{}());
-    Haploid zero;
-    Haploid one;
-    for (uint_fast32_t x=0u; x<60u; ++x) {
-        one.sites_[x] = ORIGINAL_TE_;
-    }
-    auto gamete = zero.gametogenesis(one, rng);
-    gamete.write_positions(std::cerr) << std::endl;
 }
 
 } // namespace tek

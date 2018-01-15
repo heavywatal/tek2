@@ -115,14 +115,14 @@ class Transposon {
     std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0u) const;
     //! write sequence
     std::ostream& write_sequence(std::ostream&) const;
+    //! calculate and write activity for the given alpha and beta
+    static void write_activity(std::ostream&, const double alpha, const unsigned int beta);
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
     //! set #THRESHOLD_ and #ACTIVITY_
     static void set_parameters();
     //! options description for Transposon class
     static boost::program_options::options_description options_desc();
-    //! unit test
-    static void test();
 
   private:
 
@@ -132,10 +132,6 @@ class Transposon {
         \f]
     */
     static double calc_activity(const size_t num_mutations);
-    //! Figure 1
-    static void test_activity();
-    //! implementation of test_activity()
-    static void test_activity(std::ostream&, const double alpha, const unsigned int beta);
 
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params

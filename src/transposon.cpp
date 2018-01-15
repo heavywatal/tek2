@@ -85,39 +85,7 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
     return x.write_summary(ost);
 }
 
-void Transposon::test() {HERE;
-    std::mt19937 mt(std::random_device{}());
-    Transposon wt, mut;
-    mut.mutate(mt);
-    mut.mutate(mt);
-    mut.write_fasta(std::cout);
-    std::cout << mut << std::endl;
-    mut.indel();
-    std::cout << mut << std::endl;
-    std::cout << "Hamming distance: " << mut - wt << std::endl;
-    TransposonFamily family;
-    family += wt;
-    family += wt;
-    family += mut;
-    family.majority().write_fasta(std::cout);
-    test_activity();
-}
-
-void Transposon::test_activity() {HERE;
-    auto ost = wtl::make_ofs("tek-activity_function.tsv");
-    ost << "alpha\tbeta\tidentity\tactivity\n";
-    test_activity(ost, 0.70,  6);
-    test_activity(ost, 0.75, 12);
-    test_activity(ost, 0.80, 24);
-    test_activity(ost, 0.85, 48);
-    /* R
-    read_tsv('tek-activity_function.tsv') %>%
-    {ggplot(., aes(identity, activity, group=alpha, colour=alpha)) + geom_line()} %>%
-    {ggsave('activity_function.pdf', ., width=5, height=3)}
-    */
-}
-
-void Transposon::test_activity(std::ostream& ost, const double alpha, const unsigned int beta) {
+void Transposon::write_activity(std::ostream& ost, const double alpha, const unsigned int beta) {
     ALPHA_ = alpha;
     BETA_ = beta;
     set_parameters();
