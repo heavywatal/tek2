@@ -134,6 +134,15 @@ void Population::supply_new_species() {
         centers[p.first] = p.second.majority();
     }
 
+    Transposon::INTERACTION_COEFS_clear();
+    for (const auto& px: centers) {
+        for (const auto& py: centers) {
+            if (px.first < py.first) {
+                Transposon::INTERACTION_COEFS_emplace(px.first, py.first, px.second * py.second);
+            }
+        }
+    }
+
     Transposon* farthest = nullptr;
     size_t max_distance = 0;
     for (const auto& chr: gametes_) {
@@ -153,6 +162,10 @@ void Population::supply_new_species() {
         })) {
         farthest->speciate();
         DCERR(*farthest);
+        // NOTE: the center of the original species has not been adjusted
+        for (const auto& p: centers) {
+            Transposon::INTERACTION_COEFS_emplace(p.first, farthest->species(), p.second * *farthest);
+        }
     }
 }
 

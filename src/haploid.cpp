@@ -196,7 +196,7 @@ double Haploid::prod_1_zs() const {
 }
 
 double Haploid::fitness(const Haploid& other) const {
-    std::map<uint_fast32_t, uint_fast32_t> counter;
+    std::unordered_map<uint_fast32_t, uint_fast32_t> counter;
     for (const auto& p: this->sites_) {
         ++counter[p.second->species()];
     }
@@ -204,8 +204,16 @@ double Haploid::fitness(const Haploid& other) const {
         ++counter[p.second->species()];
     }
     double prod_1_xi_n_tau = 1.0;
-    for (const auto& p: counter) {
-        prod_1_xi_n_tau *= (1.0 - XI_ * std::pow(p.second, TAU_));
+    for (const auto& px: counter) {
+        // within species
+        prod_1_xi_n_tau *= (1.0 - XI_ * std::pow(px.second, TAU_));
+        for (const auto& py: counter) {
+            if (px.first < py.first) {
+                // between species
+                double coef = Transposon::INTERACTION_COEFS_get(px.first, py.first);
+                prod_1_xi_n_tau *= (1.0 - coef * XI_ * std::pow(px.second, 0.5 * TAU_) * std::pow(py.second, 0.5 * TAU_));
+            }
+        }
     }
     return std::max(prod_1_zs() * other.prod_1_zs() * prod_1_xi_n_tau, 0.0);
 }

@@ -18,6 +18,7 @@ size_t Transposon::MIN_DISTANCE_ = Transposon::LENGTH;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 uint_fast32_t Transposon::NUM_SPECIES_ = 1u;
+std::unordered_map<uint_fast64_t, double> Transposon::INTERACTION_COEFS_;
 std::mutex Transposon::MTX_;
 
 namespace po = boost::program_options;

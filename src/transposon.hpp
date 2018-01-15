@@ -11,6 +11,7 @@
 
 #include <iosfwd>
 #include <array>
+#include <unordered_map>
 #include <random>
 #include <mutex>
 
@@ -93,7 +94,32 @@ class Transposon {
         return wtl::count(nonsynonymous_sites() != other.nonsynonymous_sites()) +
                wtl::count(synonymous_sites() != other.synonymous_sites());
     }
-
+    //! interaction coefficient between species
+    /*! \f[
+            f(d) = \frac {L - d} {L - d _c}
+        \f]
+    */
+    double operator*(const Transposon& other) const {
+        const static double over_LEN_MIN_D = 1.0 / (LENGTH - MIN_DISTANCE());
+        const auto dist = (*this - other);
+        if (dist < MIN_DISTANCE()) {
+            return 1.0;
+        } else {
+            return (LENGTH - dist) * over_LEN_MIN_D;
+        }
+    }
+    //! clear #INTERACTION_COEFS_
+    static void INTERACTION_COEFS_clear() {INTERACTION_COEFS_.clear();}
+    //! setter of #INTERACTION_COEFS_
+    static void INTERACTION_COEFS_emplace(uint_fast32_t x, uint_fast32_t y, double coef) {
+        INTERACTION_COEFS_.emplace((static_cast<uint_fast64_t>(x) << 32) | y, coef);
+    }
+    //! getter of #INTERACTION_COEFS_
+    static double INTERACTION_COEFS_get(uint_fast32_t x, uint_fast32_t y) {
+        return INTERACTION_COEFS_.at((static_cast<uint_fast64_t>(x) << 32) | y);
+    }
+    //! getter of #INTERACTION_COEFS_
+    static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS() {return INTERACTION_COEFS_;}
     //! getter of #MIN_DISTANCE_
     static size_t MIN_DISTANCE() {return MIN_DISTANCE_;}
     //! getter of #nonsynonymous_sites_
@@ -154,6 +180,8 @@ class Transposon {
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
     //! number of species; incremented by speciation
     static uint_fast32_t NUM_SPECIES_;
+    //! interaction coefficients between species
+    static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS_;
     //! mutex for speciation
     static std::mutex MTX_;
 
