@@ -170,10 +170,9 @@ void Population::supply_new_species() {
 }
 
 bool Population::is_extinct() const {
-    for (const auto& x: gametes_) {
-        if (x.has_transposon()) return false;
-    }
-    return true;
+    return std::all_of(gametes_.begin(), gametes_.end(), [](const Haploid& x) {
+        return x.empty();
+    });
 }
 
 void Population::write_activity(std::ostream& ost, const size_t time, const bool header) const {

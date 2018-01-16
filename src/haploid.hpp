@@ -57,9 +57,6 @@ class Haploid {
     */
     double fitness(const Haploid&) const;
 
-    //! !sites_.empty()
-    bool has_transposon() const {return !sites_.empty();}
-
     //! return vector of Transposon summaries
     std::vector<std::string> summarize() const;
     //! write positions
@@ -68,6 +65,8 @@ class Haploid {
     std::ostream& write_fasta(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
 
+    //! shortcut of sites_.empty()
+    bool empty() const {return sites_.empty();}
     //! shortcut of sites_.begin()
     auto begin() const {return sites_.begin();}
     //! shortcut of sites_.end()
