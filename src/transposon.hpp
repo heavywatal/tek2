@@ -96,16 +96,16 @@ class Transposon {
     }
     //! interaction coefficient between species
     /*! \f[
-            f(d) = \frac {L - d} {L - d _c}
+            f(d) = 1 - \frac d L
         \f]
     */
     double operator*(const Transposon& other) const {
-        const static double over_LEN_MIN_D = 1.0 / (LENGTH - MIN_DISTANCE());
+        const static double over_LENGTH = 1.0 / LENGTH;
         const auto dist = (*this - other);
         if (dist < MIN_DISTANCE()) {
             return 1.0;
         } else {
-            return (LENGTH - dist) * over_LEN_MIN_D;
+            return (LENGTH - dist) * over_LENGTH;
         }
     }
     //! clear #INTERACTION_COEFS_
