@@ -2,7 +2,6 @@
     @brief Implementation of Population class
 */
 #include "population.hpp"
-#include "haploid.hpp"
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
@@ -23,6 +22,7 @@ namespace tek {
 
 Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
 : concurrency_(concurrency) {HERE;
+    Haploid::initialize(size, THETA, RHO);
     gametes_.reserve(size * 2u);
     for (size_t i=0u; i<num_founders; ++i) {
         gametes_.push_back(Haploid::copy_founder());

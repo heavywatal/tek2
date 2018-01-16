@@ -42,11 +42,15 @@ po::options_description Transposon::options_desc() {HERE;
     return description;
 }
 
-void Transposon::set_parameters() {HERE;
+void Transposon::initialize() {HERE;
+    static bool has_been_executed = false;
+    NUM_SPECIES_ = 1u;
+    if (has_been_executed) return;
     THRESHOLD_ = 1.0 - ALPHA_;
     for (size_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         ACTIVITY_[i] = calc_activity(i);
     }
+    has_been_executed = true;
 }
 
 double Transposon::calc_activity(const size_t num_mutations) {
@@ -87,14 +91,11 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
 }
 
 void Transposon::write_activity(std::ostream& ost, const double alpha, const unsigned int beta) {
-    ALPHA_ = alpha;
-    BETA_ = beta;
-    set_parameters();
     for (size_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
         if (identity < 0.7) continue;
         ost << alpha << "\t" << beta << "\t"
-            << identity << "\t" << ACTIVITY_[i] << "\n";
+            << identity << "\t" << calc_activity(i) << "\n";
     }
 }
 

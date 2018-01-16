@@ -5,6 +5,8 @@
 #ifndef TEK_POPULATION_HPP_
 #define TEK_POPULATION_HPP_
 
+#include "haploid.hpp"
+
 #include <iosfwd>
 #include <vector>
 #include <map>
@@ -30,9 +32,6 @@ constexpr Recording operator&(Recording x, Recording y) {
 constexpr Recording operator|(Recording x, Recording y) {
     return static_cast<Recording>(static_cast<int>(x) | static_cast<int>(y));
 }
-
-class Haploid;
-class Transposon;
 
 /*! @brief Population class
 */

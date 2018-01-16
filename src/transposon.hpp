@@ -145,8 +145,8 @@ class Transposon {
     static void write_activity(std::ostream&, const double alpha, const unsigned int beta);
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
-    //! set #THRESHOLD_ and #ACTIVITY_
-    static void set_parameters();
+    //! set dependent variables once, and reset non-parameter variables
+    static void initialize();
     //! options description for Transposon class
     static boost::program_options::options_description options_desc();
 

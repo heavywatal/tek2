@@ -53,7 +53,7 @@ inline void recombination() {
 }
 
 int main() {
-    tek::Haploid::set_parameters(500u, 0.01, 200);
+    tek::Haploid::initialize(500u, 0.01, 200);
     tek::Haploid x = tek::Haploid::copy_founder();
     std::cout << x << std::endl;
     x.write_fasta(std::cout);

@@ -53,7 +53,9 @@ Haploid::Haploid(const size_t n) {
     }
 }
 
-void Haploid::set_parameters(const size_t popsize, const double theta, const double rho) {HERE;
+void Haploid::initialize(const size_t popsize, const double theta, const double rho) {HERE;
+    Transposon::initialize();
+    SELECTION_COEFS_GP_.clear();
     const double four_n = 4.0 * popsize;
     MUTATION_RATE_ = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = MUTATION_RATE_ * INDEL_RATIO_;

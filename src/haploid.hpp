@@ -75,7 +75,7 @@ class Haploid {
     //! return a Haploid with an #ORIGINAL_TE_ on the same site
     static Haploid copy_founder();
     //! set static member variables
-    static void set_parameters(const size_t popsize, const double theta, const double rho);
+    static void initialize(const size_t popsize, const double theta, const double rho);
     //! testing function to check distribution of #SELECTION_COEFS_GP_
     static void insert_coefs_gp(const size_t);
     //! getter of #SELECTION_COEFS_GP_

@@ -87,8 +87,6 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
               options(description).run(), vm);
     if (vm["help"].as<bool>()) {help_and_exit();}
     po::notify(vm);
-    Transposon::set_parameters();
-    Haploid::set_parameters(popsize_, Population::THETA, Population::RHO);
 
     config_string_ = wtl::flags_into_string(vm);
     if (vm["verbose"].as<bool>()) {

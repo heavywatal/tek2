@@ -21,6 +21,7 @@ void activity_function() {
 
 int main() {
     std::mt19937 mt(std::random_device{}());
+    tek::Transposon::initialize();
     tek::Transposon wt, mut;
     mut.mutate(mt);
     mut.mutate(mt);

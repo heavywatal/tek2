@@ -1,5 +1,4 @@
 #include "population.hpp"
-#include "haploid.hpp"
 
 #include <iostream>
 
