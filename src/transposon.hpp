@@ -96,17 +96,31 @@ class Transposon {
     }
     //! interaction coefficient between species
     /*! \f[
-            f(d) = 1 - \frac d L
+            f(d) = \begin{cases}
+            1                            &         d \lt d_l \\
+            \frac {d_u - d}{d_u - d_l}   & d_l \le d \lt d_u \\
+            0                            & d_u \le d
+            \end{cases}
         \f]
     */
     double operator*(const Transposon& other) const {
-        const static double over_LENGTH = 1.0 / LENGTH;
-        const auto dist = (*this - other);
-        if (dist < MIN_DISTANCE()) {
+        const static double over_x = 1.0 / (UPPER_THRESHOLD_ - LOWER_THRESHOLD_);
+        const auto distance = (*this - other);
+        if (distance < LOWER_THRESHOLD_) {
             return 1.0;
+        } else if (distance < UPPER_THRESHOLD_) {
+            return (UPPER_THRESHOLD_ - distance) * over_x;
         } else {
-            return (LENGTH - dist) * over_LENGTH;
+            return 0.0;
         }
+    }
+    //! check if distance is large enough for speciation
+    bool is_far_enough_from(const Transposon& other) const {
+        return (*this - other) >= LOWER_THRESHOLD_;
+    }
+    //! check if speciation is allowed under the condition
+    static bool can_speciate() {
+        return LOWER_THRESHOLD_ < LENGTH;
     }
     //! clear #INTERACTION_COEFS_
     static void INTERACTION_COEFS_clear() {INTERACTION_COEFS_.clear();}
@@ -120,8 +134,6 @@ class Transposon {
     }
     //! getter of #INTERACTION_COEFS_
     static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS() {return INTERACTION_COEFS_;}
-    //! getter of #MIN_DISTANCE_
-    static size_t MIN_DISTANCE() {return MIN_DISTANCE_;}
     //! getter of #nonsynonymous_sites_
     const DNA& nonsynonymous_sites() const {return nonsynonymous_sites_;}
     //! getter of #synonymous_sites_
@@ -169,8 +181,10 @@ class Transposon {
     static unsigned int BETA_;
     //! speciation rate per mutation
     static double SPECIATION_RATE_;
-    //! distance required for speciation
-    static size_t MIN_DISTANCE_;
+    //! threshold distance required for speciation
+    static size_t LOWER_THRESHOLD_;
+    //! threshold distance that interaction between sepecies becomes zero
+    static size_t UPPER_THRESHOLD_;
     //! @} params
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

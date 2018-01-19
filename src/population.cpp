@@ -40,7 +40,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         max_fitness = std::min(max_fitness + margin, 1.0);
         if (is_recording) {
             std::cerr << "*" << std::flush;
-            if (Transposon::MIN_DISTANCE() < Transposon::LENGTH) {
+            if (Transposon::can_speciate()) {
                 supply_new_species();
             }
             if (static_cast<bool>(flags & Recording::activity)) {
@@ -158,7 +158,7 @@ void Population::supply_new_species() {
 
     if (farthest &&
         std::all_of(centers.begin(), centers.end(), [farthest](const auto& p) {
-            return (p.second - *farthest) >= Transposon::MIN_DISTANCE();
+            return farthest->is_far_enough_from(p.second);
         })) {
         farthest->speciate();
         DCERR(*farthest);

@@ -14,7 +14,8 @@ namespace tek {
 double Transposon::ALPHA_ = 0.7;
 unsigned int Transposon::BETA_ = 6u;
 double Transposon::SPECIATION_RATE_ = 0.0;
-size_t Transposon::MIN_DISTANCE_ = Transposon::LENGTH;
+size_t Transposon::LOWER_THRESHOLD_ = Transposon::LENGTH;
+size_t Transposon::UPPER_THRESHOLD_ = Transposon::LENGTH;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 uint_fast32_t Transposon::NUM_SPECIES_ = 1u;
@@ -38,7 +39,8 @@ po::options_description Transposon::options_desc() {HERE;
       ("alpha,a", po::value(&ALPHA_)->default_value(ALPHA_))
       ("beta,b", po::value(&BETA_)->default_value(BETA_))
       ("spec", po::value(&SPECIATION_RATE_)->default_value(SPECIATION_RATE_))
-      ("mindist,d", po::value(&MIN_DISTANCE_)->default_value(MIN_DISTANCE_));
+      ("lower,l", po::value(&LOWER_THRESHOLD_)->default_value(LOWER_THRESHOLD_))
+      ("upper,u", po::value(&UPPER_THRESHOLD_)->default_value(UPPER_THRESHOLD_));
     return description;
 }
 
