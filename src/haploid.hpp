@@ -30,7 +30,7 @@ class Transposon;
 class Haploid {
   public:
     //! random number generator class
-    using URBG = wtl::sfmt19937;
+    using URBG = wtl::sfmt19937_64;
     //! unsigned integer type for TE position
     using position_t = URBG::result_type;
 

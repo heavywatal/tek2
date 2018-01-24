@@ -71,7 +71,7 @@ Haploid::position_t Haploid::new_position(URBG& engine) {
     auto coef = BERN_FUNCTIONAL(engine) ? EXPO_DIST(engine) : 0.0;
     position_t j = 0u;
     std::lock_guard<std::shared_timed_mutex> lock(MTX_);
-    while (!SELECTION_COEFS_GP_.emplace(j = engine(), coef).second) {;}
+    while (!SELECTION_COEFS_GP_.emplace(j = static_cast<uint_fast32_t>(engine()), coef).second) {;}
     return j;
 }
 

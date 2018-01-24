@@ -3,7 +3,7 @@
 #include <random>
 
 int main() {
-    std::mt19937 engine;
+    std::mt19937_64 engine;
     constexpr size_t n = 30u;
     tek::DNA x(n);
     tek::DNA y(n);
