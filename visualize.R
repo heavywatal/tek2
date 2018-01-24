@@ -4,7 +4,7 @@ library(wtl)
 loadNamespace("cowplot")
 
 
-extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "nu", "mindist")) {
+extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "nu", "lower", "upper")) {
   patterns = sprintf("_%s([^_]+)_", params)
   str_match(paste0("_", filename), patterns)[, 2] %>%
     parse_double() %>%
@@ -40,13 +40,12 @@ plot_copynumber_generation = function(data) {
   print()
 
 .counted = .histories %>%
-  dplyr::group_by(mindist) %>%
+  dplyr::group_by(lower, upper) %>%
   dplyr::mutate(repl = seq_len(n())) %>%
   dplyr::ungroup() %>%
   tidyr::unnest() %>%
   dplyr::mutate(copy_number = copy_number / 500) %>%
   print()
-
 
 .levels = sort.int(unique(.counted$species), decreasing=TRUE)
 .p = .counted %>%
@@ -54,12 +53,23 @@ plot_copynumber_generation = function(data) {
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
   scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)) +
-  facet_grid(mindist ~ repl) +
+  facet_grid(lower ~ upper * repl) +
   wtl::theme_wtl() +
   theme(legend.position = "bottom")
 .p
 ggsave("copynumber-activity-species.png", .p, width = 7, height = 7)
 
+.p = .counted %>%
+  dplyr::distinct(lower, upper, repl, generation, species) %>%
+  dplyr::count(lower, upper, repl, species) %>%
+  dplyr::mutate(n = n * 50L) %>%
+  ggplot(aes(species, n)) +
+  geom_col() +
+  facet_grid(lower ~ upper * repl) +
+  labs(x = "species ID", y = "sojourn time") +
+  wtl::theme_wtl()
+.p
+ggsave("species-sojourn-time.png", .p, width = 7, height = 7)
 
 .nested = .counted %>%
   tidyr::nest(-xi) %>%
