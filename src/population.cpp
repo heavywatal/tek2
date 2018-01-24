@@ -92,20 +92,20 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     std::mutex mtx;
     auto task = [&,this](const Haploid::URBG::result_type seed) {
         std::uniform_int_distribution<size_t> dist_idx(0u, num_gametes / 2u - 1u);
-        Haploid::URBG rng(seed);
+        Haploid::URBG engine(seed);
         while (true) {
-            const size_t mother_idx = dist_idx(rng);
+            const size_t mother_idx = dist_idx(engine);
             size_t father_idx = 0u;
-            while ((father_idx = dist_idx(rng)) == mother_idx) {;}
+            while ((father_idx = dist_idx(engine)) == mother_idx) {;}
             const auto& mother_lchr = gametes_[2u * mother_idx];
             const auto& mother_rchr = gametes_[2u * mother_idx + 1u];
             const auto& father_lchr = gametes_[2u * father_idx];
             const auto& father_rchr = gametes_[2u * father_idx + 1u];
-            auto egg   = mother_lchr.gametogenesis(mother_rchr, rng);
-            auto sperm = father_lchr.gametogenesis(father_rchr, rng);
+            auto egg   = mother_lchr.gametogenesis(mother_rchr, engine);
+            auto sperm = father_lchr.gametogenesis(father_rchr, engine);
             const double fitness = egg.fitness(sperm);
-            if (fitness < wtl::generate_canonical(rng) * previous_max_fitness) continue;
-            egg.transpose_mutate(sperm, rng);
+            if (fitness < wtl::generate_canonical(engine) * previous_max_fitness) continue;
+            egg.transpose_mutate(sperm, engine);
             std::lock_guard<std::mutex> lock(mtx);
             if (nextgen.size() >= num_gametes) break;
             fitness_record.push_back(fitness);

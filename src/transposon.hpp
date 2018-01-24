@@ -54,16 +54,16 @@ class Transposon {
 
     //! make one point mutation
     template <class URBG>
-    void mutate(URBG& generator) {
+    void mutate(URBG& engine) {
         thread_local std::uniform_int_distribution<size_t> UNIF_LEN(0u, LENGTH - 1u);
         thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
-        size_t pos = UNIF_LEN(generator);
+        size_t pos = UNIF_LEN(engine);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
-            synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, generator);
+            synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, engine);
         } else {
-            nonsynonymous_sites_.flip(pos, generator);
+            nonsynonymous_sites_.flip(pos, engine);
         }
-        if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(generator)) {
+        if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(engine)) {
             speciate();
         }
     }

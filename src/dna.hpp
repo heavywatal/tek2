@@ -33,9 +33,9 @@ class DNA {
 
     //! mutate i-th site
     template <class URBG> inline
-    void flip(const size_t i, URBG& generator) {
+    void flip(const size_t i, URBG& engine) {
         typename URBG::result_type random_bits = 0u;
-        while ((random_bits = generator()) == 0u) {;}
+        while ((random_bits = engine()) == 0u) {;}
         while ((0b00000011u & random_bits) == 0u) {
             random_bits >>= 2;
         }

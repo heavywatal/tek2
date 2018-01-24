@@ -65,13 +65,13 @@ void Haploid::initialize(const size_t popsize, const double theta, const double 
     DCERR("RECOMBINATION_RATE_ = " << RECOMBINATION_RATE_ << std::endl);
 }
 
-Haploid::position_t Haploid::new_position(URBG& rng) {
+Haploid::position_t Haploid::new_position(URBG& engine) {
     thread_local std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
     thread_local std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
-    auto coef = BERN_FUNCTIONAL(rng) ? EXPO_DIST(rng) : 0.0;
+    auto coef = BERN_FUNCTIONAL(engine) ? EXPO_DIST(engine) : 0.0;
     position_t j = 0u;
     std::lock_guard<std::shared_timed_mutex> lock(MTX_);
-    while (!SELECTION_COEFS_GP_.emplace(j = rng(), coef).second) {;}
+    while (!SELECTION_COEFS_GP_.emplace(j = engine(), coef).second) {;}
     return j;
 }
 
@@ -85,10 +85,10 @@ Haploid Haploid::copy_founder() {
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
-Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
+Haploid Haploid::gametogenesis(const Haploid& other, URBG& engine) const {
     constexpr position_t max_pos = std::numeric_limits<position_t>::max();
     Haploid gamete(*this);
-    bool flg = (wtl::generate_canonical(rng) < 0.5);
+    bool flg = (wtl::generate_canonical(engine) < 0.5);
     auto gamete_it = gamete.sites_.begin();
     auto gamete_end = gamete.sites_.end();
     auto other_it = other.sites_.cbegin();
@@ -101,11 +101,11 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
         const double lambda = (here - prev) * RECOMBINATION_RATE_;
         if (lambda < 10.0) {
             std::poisson_distribution<position_t> poisson(lambda);
-            if (poisson(rng) % 2u != 0u) {
+            if (poisson(engine) % 2u != 0u) {
                 flg = !flg;
             }
         } else {
-            if (wtl::generate_canonical(rng) < 0.5) {
+            if (wtl::generate_canonical(engine) < 0.5) {
                 flg = !flg;
             }
         }
@@ -136,13 +136,13 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& rng) const {
     return gamete;
 }
 
-std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& rng) {
+std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& engine) {
     std::vector<std::shared_ptr<Transposon>> copying_transposons;
     for (auto it=sites_.cbegin(); it!=sites_.cend();) {
-        if (wtl::generate_canonical(rng) < it->second->transposition_rate()) {
+        if (wtl::generate_canonical(engine) < it->second->transposition_rate()) {
             copying_transposons.push_back(it->second);
         }
-        if (wtl::generate_canonical(rng) < EXCISION_RATE_) {
+        if (wtl::generate_canonical(engine) < EXCISION_RATE_) {
             it = sites_.erase(it);
         } else {
             ++it;
@@ -151,36 +151,36 @@ std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& rng) {
     return copying_transposons;
 }
 
-void Haploid::transpose_mutate(Haploid& other, URBG& rng) {
-    auto copying_transposons = this->transpose(rng);
+void Haploid::transpose_mutate(Haploid& other, URBG& engine) {
+    auto copying_transposons = this->transpose(engine);
     {
-        auto tmp = other.transpose(rng);
+        auto tmp = other.transpose(engine);
         copying_transposons.insert(copying_transposons.end(),
             std::make_move_iterator(tmp.begin()),
             std::make_move_iterator(tmp.end()));
     }
     for (auto& p: copying_transposons) {
         auto target_haploid = this;
-        if (wtl::generate_canonical(rng) < 0.5) {
+        if (wtl::generate_canonical(engine) < 0.5) {
             target_haploid = &other;
         }
-        target_haploid->sites_.emplace(new_position(rng), std::move(p));
+        target_haploid->sites_.emplace(new_position(engine), std::move(p));
     }
-    this->mutate(rng);
-    other.mutate(rng);
+    this->mutate(engine);
+    other.mutate(engine);
 }
 
-void Haploid::mutate(URBG& rng) {
+void Haploid::mutate(URBG& engine) {
     thread_local std::poisson_distribution<uint_fast32_t> POISSON_MUT(MUTATION_RATE_);
     thread_local std::bernoulli_distribution BERN_INDEL(INDEL_RATE_);
     for (auto& p: sites_) {
-        const uint_fast32_t num_mutations = POISSON_MUT(rng);
-        const bool is_deactivating = BERN_INDEL(rng);
+        const uint_fast32_t num_mutations = POISSON_MUT(engine);
+        const bool is_deactivating = BERN_INDEL(engine);
         if (num_mutations > 0u || is_deactivating) {
             p.second = std::make_shared<Transposon>(*p.second);
         }
         for (uint_fast32_t i=0u; i<num_mutations; ++i) {
-            p.second->mutate(rng);
+            p.second->mutate(engine);
         }
         if (is_deactivating) {
             p.second->indel();
@@ -249,9 +249,9 @@ std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
 }
 
 void Haploid::insert_coefs_gp(const size_t n) {
-    URBG rng(std::random_device{}());
+    URBG engine(std::random_device{}());
     for (size_t i=SELECTION_COEFS_GP_.size(); i<n; ++i) {
-        new_position(rng);
+        new_position(engine);
     }
 }
 

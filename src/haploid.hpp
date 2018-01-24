@@ -46,9 +46,9 @@ class Haploid {
     Haploid& operator=(Haploid&&) = default;
 
     //! return a Haploid object after recombination
-    Haploid gametogenesis(const Haploid& other, URBG& rng) const;
+    Haploid gametogenesis(const Haploid& other, URBG& engine) const;
     //! mutation process within an individual
-    void transpose_mutate(Haploid& other, URBG& rng);
+    void transpose_mutate(Haploid& other, URBG& engine);
     //! evaluate and return fitness
     /*! \f[\begin{split}
             s_{CN,k} &= \xi n_k ^\tau \\

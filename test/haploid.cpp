@@ -45,10 +45,10 @@ inline void selection_coefs_cn() {
 }
 
 inline void recombination() {
-    tek::Haploid::URBG rng(std::random_device{}());
+    tek::Haploid::URBG engine(std::random_device{}());
     tek::Haploid zero;
     tek::Haploid one(60u);
-    auto gamete = zero.gametogenesis(one, rng);
+    auto gamete = zero.gametogenesis(one, engine);
     gamete.write_positions(std::cerr) << std::endl;
 }
 
