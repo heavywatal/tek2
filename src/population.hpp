@@ -21,6 +21,7 @@ enum class Recording: int {
     activity = 0b00000001,
     fitness  = 0b00000010,
     sequence = 0b00000100,
+    summary  = 0b00001000,
 };
 
 //! operator OR
@@ -61,8 +62,6 @@ class Population {
     std::ostream& write_summary(std::ostream&) const;
     //! count identicals and write FASTA
     std::ostream& write_fasta(std::ostream&) const;
-    //! write_fasta() for i-th individual
-    std::ostream& write_individual(std::ostream&, const size_t i=0) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
   private:
     //! proceed one generation and return fitness record
@@ -76,6 +75,7 @@ class Population {
 
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;
+    std::map<size_t, std::string> history_activity_;
     //! number of threads
     const unsigned int concurrency_;
 };

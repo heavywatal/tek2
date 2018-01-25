@@ -7,14 +7,12 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/zfstream.hpp>
-#include <wtl/filesystem.hpp>
 #include <wtl/concurrent.hpp>
 #include <wtl/random.hpp>
 
 #include <json.hpp>
 
 #include <unordered_map>
-#include <iostream>
 #include <algorithm>
 #include <mutex>
 
@@ -59,14 +57,11 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 }
             }
             if (static_cast<bool>(flags & Recording::sequence)) {
-                std::ostringstream outdir;
-                outdir << "generation_" << t;
-                wtl::ChDir cd(outdir.str(), true);
-                for (size_t i=0u; i<10u; ++i) {
-                    std::ostringstream outfile;
-                    outfile << "individual_" << i << ".fa.gz";
-                    wtl::ozfstream ozf(outfile.str());
-                    write_individual(ozf, i);
+                std::ostringstream outfile;
+                outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
+                wtl::ozfstream ozf(outfile.str());
+                for (size_t i=0u; i<20u; ++i) {
+                    gametes_[i].write_fasta(ozf);
                 }
             }
         } else {
@@ -211,16 +206,9 @@ std::ostream& Population::write_fasta(std::ostream& ost) const {HERE;
         }
     }
     for (const auto& p: counter) {
-        p.first->write_fasta(ost, p.second);
-    }
-    return ost;
-}
-
-std::ostream& Population::write_individual(std::ostream& ost, const size_t i) const {
-    for (const size_t x: {2u * i, 2u * i + 1u}) {
-        for (const auto& p: gametes_.at(x)) {
-            p.second->write_fasta(ost);
-        }
+        p.first->write_metadata(ost << ">");
+        ost << " copy_number=" << p.second << "\n";
+        p.first->write_sequence(ost) << "\n";
     }
     return ost;
 }

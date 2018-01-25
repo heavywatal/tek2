@@ -150,7 +150,9 @@ class Transposon {
     //! write summary
     std::ostream& write_summary(std::ostream&) const;
     //! write sequqnce with header in FASTA format
-    std::ostream& write_fasta(std::ostream&, const uint_fast32_t copy_number=0u) const;
+    std::ostream& write_fasta(std::ostream&) const;
+    //! write metadata for FASTA header
+    std::ostream& write_metadata(std::ostream&) const;
     //! write sequence
     std::ostream& write_sequence(std::ostream&) const;
     //! calculate and write activity for the given alpha and beta

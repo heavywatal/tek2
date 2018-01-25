@@ -4,10 +4,8 @@
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
-#include <wtl/iostr.hpp>
 
 #include <cmath>
-#include <iostream>
 
 namespace tek {
 
@@ -69,13 +67,17 @@ std::ostream& Transposon::write_summary(std::ostream& ost) const {
                << activity();
 }
 
-std::ostream& Transposon::write_fasta(std::ostream& ost, const uint_fast32_t copy_number) const {
-    ost << ">" << this
+std::ostream& Transposon::write_fasta(std::ostream& ost) const {
+    write_metadata(ost << ">");
+    write_sequence(ost << "\n");
+    return ost << "\n";
+}
+
+std::ostream& Transposon::write_metadata(std::ostream& ost) const {
+    return ost << "te=" << this
         << " species=" << species_ << " indel=" << has_indel_
         << " dn=" << dn() << " ds=" << ds()
         << " activity=" << activity();
-    if (copy_number > 0u) ost << " copy_number=" << copy_number;
-    return write_sequence(ost << "\n") << "\n";
 }
 
 std::ostream& Transposon::write_sequence(std::ostream& ost) const {

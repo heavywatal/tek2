@@ -49,7 +49,7 @@ inline void recombination() {
     tek::Haploid zero;
     tek::Haploid one(60u);
     auto gamete = zero.gametogenesis(one, engine);
-    gamete.write_positions(std::cerr) << std::endl;
+    gamete.write_positions(std::cout) << std::endl;
 }
 
 int main() {

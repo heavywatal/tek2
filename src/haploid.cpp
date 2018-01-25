@@ -9,7 +9,6 @@
 #include <wtl/random.hpp>
 
 #include <cmath>
-#include <iostream>
 #include <numeric>
 
 namespace tek {
@@ -233,12 +232,14 @@ std::vector<std::string> Haploid::summarize() const {
 }
 
 std::ostream& Haploid::write_positions(std::ostream& ost) const {
-    return ost << wtl::str_join(sites_, ",", wtl::make_oss(), [](const auto& p){return p.first;});
+    return wtl::join(sites_, ost, ",", [](const auto& p){return p.first;});
 }
 
 std::ostream& Haploid::write_fasta(std::ostream& ost) const {
     for (const auto& p: sites_) {
-        p.second->write_fasta(ost << ">" << this);
+        ost << ">chr=" << this << " ";
+        p.second->write_metadata(ost) << "\n";
+        p.second->write_sequence(ost) << "\n";
     }
     return ost;
 }

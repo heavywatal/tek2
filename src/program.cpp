@@ -17,11 +17,11 @@
 #include <wtl/chrono.hpp>
 #include <wtl/getopt.hpp>
 
-#include <iostream>
-
 namespace tek {
 
 namespace po = boost::program_options;
+
+const std::string OUT_DIR = wtl::strftime("tek_%Y%m%d_%H%M%S");
 
 //! options description for general arguments
 inline po::options_description general_desc() {HERE;
@@ -56,7 +56,7 @@ po::options_description Program::options_desc() {HERE;
       ("interval,i", po::value(&record_interval_)->default_value(record_interval_))
       ("record,r", po::value(&record_flags_)->default_value(record_flags_))
       ("parallel,j", po::value(&concurrency_)->default_value(concurrency_))
-      ("outdir,o", po::value(&outdir_)->default_value(outdir_));
+      ("outdir,o", po::value(&outdir_)->default_value(OUT_DIR));
     description.add(Haploid::options_desc());
     description.add(Transposon::options_desc());
     return description;
@@ -111,13 +111,13 @@ void Program::main() {HERE;
         bool good = pop.evolve(num_generations_, record_interval_, flags);
         if (!good) continue;
         wtl::make_ofs("program_options.conf") << config_string_;
-        {
-          wtl::ozfstream ost("summary.json.gz");
-          pop.write_summary(ost);
+        if (static_cast<bool>(flags & Recording::sequence)) {
+            wtl::ozfstream ost("sequence.fa.gz");
+            pop.write_fasta(ost);
         }
-        {
-          wtl::ozfstream ost("sequence.fa.gz");
-          pop.write_fasta(ost);
+        if (static_cast<bool>(flags & Recording::summary)) {
+            wtl::ozfstream ost("summary.json.gz");
+            pop.write_summary(ost);
         }
         if (num_generations_after_split_ == 0u) break;
         Population pop2(pop);

@@ -7,5 +7,6 @@ int main() {
     std::cout << pop << std::endl;
     pop.evolve(1u, -1u);
     std::cout << pop << std::endl;
-    pop.write_individual(std::cout, 2);
+    pop.write_summary(std::cout);
+    pop.write_fasta(std::cout);
 }

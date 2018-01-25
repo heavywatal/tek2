@@ -55,7 +55,7 @@ class Program {
     //! number of threads
     unsigned int concurrency_ = 1u;
     //! name of output directory
-    std::string outdir_ = "";
+    std::string outdir_;
     //! writen to "program_options.conf"
     std::string config_string_;
 };
