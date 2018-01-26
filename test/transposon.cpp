@@ -5,7 +5,7 @@
 #include <random>
 #include <iostream>
 
-void activity_function() {
+inline void activity_function() {
     auto ost = wtl::make_ofs("tek-activity_function.tsv");
     ost << "alpha\tbeta\tidentity\tactivity\n";
     tek::Transposon::write_activity(ost, 0.70,  6);
