@@ -32,7 +32,7 @@ class Haploid {
     //! random number generator class
     using URBG = wtl::sfmt19937_64;
     //! unsigned integer type for TE position
-    using position_t = URBG::result_type;
+    using position_t = int32_t;
 
     //! default constructor
     Haploid() = default;

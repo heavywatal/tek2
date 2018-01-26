@@ -21,7 +21,7 @@ namespace tek {
 class DNA {
   public:
     //! construct
-    DNA(const size_t n): sequence_(n) {}
+    DNA(size_t n): sequence_(n) {}
     //! construct from sequence
     DNA(std::valarray<uint_fast8_t>&& s)
     : sequence_(std::forward<std::valarray<uint_fast8_t>>(s)) {}
@@ -33,7 +33,7 @@ class DNA {
 
     //! mutate i-th site
     template <class URBG> inline
-    void flip(const size_t i, URBG& engine) {
+    void flip(size_t i, URBG& engine) {
         typename URBG::result_type random_bits = 0u;
         while ((random_bits = engine()) == 0u) {;}
         while ((0b00000011u & random_bits) == 0u) {
@@ -43,18 +43,18 @@ class DNA {
     }
 
     //! get i-th nucleotide
-    uint_fast8_t operator[](const size_t i) const {
+    uint_fast8_t operator[](size_t i) const {
         return sequence_[i];
     }
 
     //! get i-th nucleotide as char
-    const char& at(const size_t i) const {
+    const char& at(size_t i) const {
         return translate(sequence_[i]);
     }
 
     //! translate integer to nucleotide character and print
     std::ostream& write(std::ostream& ost) const {
-        for (const auto x: sequence_) {
+        for (auto x: sequence_) {
             ost << translate(x);
         }
         return ost;
@@ -72,7 +72,7 @@ class DNA {
 
   private:
     //! translate integer to character
-    static const char& translate(const uint_fast8_t x) {
+    static const char& translate(uint_fast8_t x) {
         static const std::string NUCLEOTIDE = "ACGT";
         return NUCLEOTIDE[x];
     }

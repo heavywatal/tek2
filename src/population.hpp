@@ -9,7 +9,6 @@
 
 #include <iosfwd>
 #include <vector>
-#include <map>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -75,7 +74,6 @@ class Population {
 
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;
-    std::map<size_t, std::string> history_activity_;
     //! number of threads
     const unsigned int concurrency_;
 };

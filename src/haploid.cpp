@@ -46,8 +46,8 @@ po::options_description Haploid::options_desc() {HERE;
     return description;
 }
 
-Haploid::Haploid(const size_t n) {
-    for (uint_fast32_t i=0u; i<n; ++i) {
+Haploid::Haploid(size_t n) {
+    for (position_t i=0; i<static_cast<position_t>(n); ++i) {
         sites_.emplace(i, ORIGINAL_TE_);
     }
 }
@@ -68,17 +68,16 @@ Haploid::position_t Haploid::new_position(URBG& engine) {
     thread_local std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
     thread_local std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
     auto coef = BERN_FUNCTIONAL(engine) ? EXPO_DIST(engine) : 0.0;
-    position_t j = 0u;
+    position_t j = 0;
     std::lock_guard<std::shared_timed_mutex> lock(MTX_);
-    while (!SELECTION_COEFS_GP_.emplace(j = static_cast<uint_fast32_t>(engine()), coef).second) {;}
+    while (!SELECTION_COEFS_GP_.emplace(j = static_cast<position_t>(engine()), coef).second) {;}
     return j;
 }
 
 Haploid Haploid::copy_founder() {
-    constexpr position_t pos = std::numeric_limits<position_t>::max() / 2u;
-    SELECTION_COEFS_GP_.emplace(pos, 0.0);
+    SELECTION_COEFS_GP_.emplace(0, 0.0);
     Haploid founder;
-    founder.sites_[pos] = ORIGINAL_TE_;
+    founder.sites_.emplace(0, ORIGINAL_TE_);
     return founder;
 }
 
@@ -94,12 +93,12 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& engine) const {
     auto other_end = other.sites_.cend();
     position_t gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : max_pos;
     position_t other_pos = (other_it != other_end) ? other_it->first : max_pos;
-    position_t here = 0u;
-    position_t prev = 0u;
+    position_t here = 0;
+    position_t prev = 0;
     while ((here = std::min(gamete_pos, other_pos)) < max_pos) {
         const double lambda = (here - prev) * RECOMBINATION_RATE_;
         if (lambda < 10.0) {
-            std::poisson_distribution<position_t> poisson(lambda);
+            std::poisson_distribution<uint_fast32_t> poisson(lambda);
             if (poisson(engine) % 2u != 0u) {
                 flg = !flg;
             }
