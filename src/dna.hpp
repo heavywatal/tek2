@@ -28,11 +28,7 @@ class DNA {
 
     //! diviation from the original
     uint_fast32_t count() const {
-        std::valarray<bool> v = (sequence_ > 0u);
-        return std::accumulate(std::begin(v), std::end(v), 0u,
-          [](uint_fast32_t x, bool b) {
-              if (b) {return ++x;} else {return x;}
-          });
+        return count<uint_fast32_t>(sequence_ > 0u);
     }
 
     //! mutate i-th site
@@ -73,12 +69,24 @@ class DNA {
     std::valarray<bool> operator!=(const DNA& other) const {
         return this->sequence_ != other.sequence_;
     }
+    //! comparison of sequence
+    size_t operator-(const DNA& other) const {
+        return count<size_t>(this->sequence_ != other.sequence_);
+    }
 
   private:
     //! translate integer to character
     static const char& translate(uint_fast8_t x) {
         static const std::string NUCLEOTIDE = "ACGT";
         return NUCLEOTIDE[x];
+    }
+
+    template <class T> inline
+    static T count(const std::valarray<bool>& v) {
+        return std::accumulate(std::begin(v), std::end(v), T{0},
+          [](T x, bool b) {
+              if (b) {return ++x;} else {return x;}
+          });
     }
 
     //! sequence as integer array
