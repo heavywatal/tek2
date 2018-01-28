@@ -5,10 +5,10 @@
 #ifndef TEK_DNA_HPP_
 #define TEK_DNA_HPP_
 
-#include <wtl/numeric.hpp>
-
 #include <cstdint>
 #include <valarray>
+#include <vector>
+#include <numeric>
 #include <string>
 #include <iostream>
 
@@ -28,7 +28,11 @@ class DNA {
 
     //! diviation from the original
     uint_fast32_t count() const {
-        return static_cast<uint_fast32_t>(wtl::count(sequence_ > 0u));
+        std::valarray<bool> v = (sequence_ > 0u);
+        return std::accumulate(std::begin(v), std::end(v), 0u,
+          [](uint_fast32_t x, bool b) {
+              if (b) {return ++x;} else {return x;}
+          });
     }
 
     //! mutate i-th site

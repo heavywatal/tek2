@@ -9,7 +9,7 @@
 #include <wtl/zfstream.hpp>
 #include <wtl/concurrent.hpp>
 #include <wtl/random.hpp>
-
+#include <sfmt.hpp>
 #include <json.hpp>
 
 #include <unordered_map>

@@ -90,10 +90,7 @@ class Transposon {
     }
 
     //! Hamming distance
-    size_t operator-(const Transposon& other) const {
-        return wtl::count(nonsynonymous_sites() != other.nonsynonymous_sites()) +
-               wtl::count(synonymous_sites() != other.synonymous_sites());
-    }
+    size_t operator-(const Transposon&) const;
     //! interaction coefficient between species
     /*! \f[
             f(d) = \begin{cases}

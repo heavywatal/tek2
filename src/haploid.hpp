@@ -5,8 +5,6 @@
 #ifndef TEK_HAPLOID_HPP_
 #define TEK_HAPLOID_HPP_
 
-#include <sfmt.hpp>
-
 #include <cstdint>
 #include <iosfwd>
 #include <string>
@@ -16,6 +14,8 @@
 #include <memory>
 #include <random>
 #include <shared_mutex>
+
+namespace wtl {class sfmt19937_64;}
 
 namespace boost {namespace program_options {class options_description;}}
 

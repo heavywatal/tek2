@@ -4,6 +4,7 @@
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
+#include <wtl/numeric.hpp>
 #include <boost/program_options.hpp>
 
 #include <cmath>
@@ -41,6 +42,11 @@ po::options_description Transposon::options_desc() {HERE;
       ("lower,l", po::value(&LOWER_THRESHOLD_)->default_value(LOWER_THRESHOLD_))
       ("upper,u", po::value(&UPPER_THRESHOLD_)->default_value(UPPER_THRESHOLD_));
     return description;
+}
+
+size_t Transposon::operator-(const Transposon& other) const {
+    return wtl::count(nonsynonymous_sites() != other.nonsynonymous_sites()) +
+           wtl::count(synonymous_sites() != other.synonymous_sites());
 }
 
 void Transposon::initialize() {HERE;

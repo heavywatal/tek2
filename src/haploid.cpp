@@ -7,6 +7,7 @@
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
 #include <wtl/random.hpp>
+#include <sfmt.hpp>
 #include <boost/program_options.hpp>
 
 #include <cmath>
