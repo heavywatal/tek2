@@ -1,13 +1,15 @@
 #include "haploid.hpp"
 
-#include <wtl/iostr.hpp>
+#include <sfmt.hpp>
 
 #include <random>
 #include <iostream>
+#include <fstream>
 
 inline void selection_coefs_gp() {
     tek::Haploid::insert_coefs_gp(2000u);
-    auto ofs = wtl::make_ofs("tek-selection_coefs_gp.tsv");
+    std::ofstream ofs("tek-selection_coefs_gp.tsv");
+    ofs.exceptions(std::ios_base::failbit | std::ios_base::badbit);
     ofs << "s_gp\n";
     for (const auto& p: tek::Haploid::SELECTION_COEFS_GP()) {
         ofs << p.second << "\n";
@@ -23,15 +25,16 @@ inline void selection_coefs_gp() {
 }
 
 inline void selection_coefs_cn() {
-    auto ost = wtl::make_ofs("tek-selection_coefs_cn.tsv");
-    ost << "xi\tcopy_number\ts_cn\n";
+    std::ofstream ofs("tek-selection_coefs_cn.tsv");
+    ofs.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+    ofs << "xi\tcopy_number\ts_cn\n";
     constexpr uint_fast32_t n = 10'000u;
     constexpr double tau = 1.5;
     for (const double xi: {1e-5, 1e-4, 1e-3}) {
         for (uint_fast32_t i=0u; i<n; ++i) {
             const double s_cn = xi * std::pow(i, tau);
             if (s_cn > 1.0) break;
-            ost << xi << "\t" << i << "\t" << s_cn << "\n";
+            ofs << xi << "\t" << i << "\t" << s_cn << "\n";
         }
     }
     /*R

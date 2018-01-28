@@ -1,17 +1,17 @@
 #include "transposon.hpp"
 
-#include <wtl/iostr.hpp>
-
 #include <random>
 #include <iostream>
+#include <fstream>
 
 inline void activity_function() {
-    auto ost = wtl::make_ofs("tek-activity_function.tsv");
-    ost << "alpha\tbeta\tidentity\tactivity\n";
-    tek::Transposon::write_activity(ost, 0.70,  6);
-    tek::Transposon::write_activity(ost, 0.75, 12);
-    tek::Transposon::write_activity(ost, 0.80, 24);
-    tek::Transposon::write_activity(ost, 0.85, 48);
+    std::ofstream ofs("tek-activity_function.tsv");
+    ofs.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+    ofs << "alpha\tbeta\tidentity\tactivity\n";
+    tek::Transposon::write_activity(ofs, 0.70,  6);
+    tek::Transposon::write_activity(ofs, 0.75, 12);
+    tek::Transposon::write_activity(ofs, 0.80, 24);
+    tek::Transposon::write_activity(ofs, 0.85, 48);
     /* R
     read_tsv('tek-activity_function.tsv') %>%
     {ggplot(., aes(identity, activity, group=alpha, colour=alpha)) + geom_line()} %>%

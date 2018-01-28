@@ -12,7 +12,7 @@ int main() {
         y.flip(i, engine);
     }
     std::cerr << y << std::endl;
-    std::cerr << wtl::count(x != y) << std::endl;
+    std::cerr << (x - y) << std::endl;
 
     tek::Homolog counter(n);
     counter += x;
