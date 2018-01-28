@@ -14,8 +14,8 @@ namespace tek {
 double Transposon::ALPHA_ = 0.7;
 unsigned int Transposon::BETA_ = 6u;
 double Transposon::SPECIATION_RATE_ = 0.0;
-size_t Transposon::LOWER_THRESHOLD_ = Transposon::LENGTH;
-size_t Transposon::UPPER_THRESHOLD_ = Transposon::LENGTH;
+uint_fast32_t Transposon::LOWER_THRESHOLD_ = Transposon::LENGTH;
+uint_fast32_t Transposon::UPPER_THRESHOLD_ = Transposon::LENGTH;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 uint_fast32_t Transposon::NUM_SPECIES_ = 1u;
@@ -44,23 +44,18 @@ po::options_description Transposon::options_desc() {HERE;
     return description;
 }
 
-size_t Transposon::operator-(const Transposon& other) const {
-    return wtl::count(nonsynonymous_sites() != other.nonsynonymous_sites()) +
-           wtl::count(synonymous_sites() != other.synonymous_sites());
-}
-
 void Transposon::initialize() {HERE;
     static bool has_been_executed = false;
     NUM_SPECIES_ = 1u;
     if (has_been_executed) return;
     THRESHOLD_ = 1.0 - ALPHA_;
-    for (size_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+    for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         ACTIVITY_[i] = calc_activity(i);
     }
     has_been_executed = true;
 }
 
-double Transposon::calc_activity(const size_t num_mutations) {
+double Transposon::calc_activity(const uint_fast32_t num_mutations) {
     const double diff = num_mutations * OVER_NONSYNONYMOUS_SITES;
     if (diff >= THRESHOLD_) return 0.0;
     return std::pow(1.0 - diff / THRESHOLD_, BETA_);
@@ -88,7 +83,7 @@ std::ostream& Transposon::write_metadata(std::ostream& ost) const {
 }
 
 std::ostream& Transposon::write_sequence(std::ostream& ost) const {
-    for (size_t in=0u, is=0u; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
+    for (uint_fast32_t in=0u, is=0u; in<NUM_NONSYNONYMOUS_SITES; ++in, ++is) {
         ost << nonsynonymous_sites_.at(in);
         ost << nonsynonymous_sites_.at(++in);
         ost <<    synonymous_sites_.at(is);
@@ -102,7 +97,7 @@ std::ostream& operator<<(std::ostream& ost, const Transposon& x) {
 }
 
 void Transposon::write_activity(std::ostream& ost, const double alpha, const unsigned int beta) {
-    for (size_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
+    for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         double identity = (NUM_NONSYNONYMOUS_SITES - i) * OVER_NONSYNONYMOUS_SITES;
         if (identity < 0.7) continue;
         ost << alpha << "\t" << beta << "\t"

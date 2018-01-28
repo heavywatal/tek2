@@ -28,11 +28,11 @@ class Transposon {
     //! @{
 
     //! \f$L\f$, sequence length of TE (bp)
-    static constexpr size_t LENGTH = 300u;
+    static constexpr uint_fast32_t LENGTH = 300u;
     //! number of synonymous sites
-    static constexpr size_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
+    static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
     //! number of nonsynonymous sites
-    static constexpr size_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
+    static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
     //! \f$u_0\f$, maximum transposition rate
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
     //! @} params
@@ -55,9 +55,9 @@ class Transposon {
     //! make one point mutation
     template <class URBG>
     void mutate(URBG& engine) {
-        thread_local std::uniform_int_distribution<size_t> UNIF_LEN(0u, LENGTH - 1u);
+        thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
         thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
-        size_t pos = UNIF_LEN(engine);
+        auto pos = UNIF_LEN(engine);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, engine);
         } else {
@@ -90,7 +90,10 @@ class Transposon {
     }
 
     //! Hamming distance
-    size_t operator-(const Transposon&) const;
+    uint_fast32_t operator-(const Transposon& other) const {
+        return (nonsynonymous_sites() - other.nonsynonymous_sites()) +
+               (synonymous_sites() - other.synonymous_sites());
+    }
     //! interaction coefficient between species
     /*! \f[
             f(d) = \begin{cases}
@@ -168,7 +171,7 @@ class Transposon {
             a = \left(\frac {1 - d - \alpha} {1 - \alpha} \right)^\beta
         \f]
     */
-    static double calc_activity(const size_t num_mutations);
+    static double calc_activity(uint_fast32_t num_mutations);
 
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params
@@ -181,9 +184,9 @@ class Transposon {
     //! speciation rate per mutation
     static double SPECIATION_RATE_;
     //! threshold distance required for speciation
-    static size_t LOWER_THRESHOLD_;
+    static uint_fast32_t LOWER_THRESHOLD_;
     //! threshold distance that interaction between sepecies becomes zero
-    static size_t UPPER_THRESHOLD_;
+    static uint_fast32_t UPPER_THRESHOLD_;
     //! @} params
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
