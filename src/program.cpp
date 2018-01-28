@@ -16,6 +16,7 @@
 #include <wtl/filesystem.hpp>
 #include <wtl/chrono.hpp>
 #include <wtl/getopt.hpp>
+#include <boost/program_options.hpp>
 
 namespace tek {
 

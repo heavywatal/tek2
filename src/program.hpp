@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-#include <boost/program_options.hpp>
+namespace boost {namespace program_options {class options_description;}}
 
 namespace tek {
 

@@ -4,6 +4,7 @@
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
+#include <boost/program_options.hpp>
 
 #include <cmath>
 

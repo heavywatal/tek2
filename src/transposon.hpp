@@ -7,13 +7,13 @@
 
 #include "dna.hpp"
 
-#include <boost/program_options.hpp>
-
 #include <iosfwd>
 #include <array>
 #include <unordered_map>
 #include <random>
 #include <mutex>
+
+namespace boost {namespace program_options {class options_description;}}
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

@@ -7,8 +7,6 @@
 
 #include <sfmt.hpp>
 
-#include <boost/program_options.hpp>
-
 #include <cstdint>
 #include <iosfwd>
 #include <string>
@@ -18,6 +16,8 @@
 #include <memory>
 #include <random>
 #include <shared_mutex>
+
+namespace boost {namespace program_options {class options_description;}}
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
