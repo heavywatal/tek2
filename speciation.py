@@ -9,8 +9,8 @@ program = 'tek'
 
 def iter_values(rest):
     crossing_axes = wopt.OrderedDict()
-    crossing_axes['lower'] = ['9', '12', '15']
-    crossing_axes['upper'] = ['30', '45', '60']
+    crossing_axes['lower'] = ['10', '12', '15']
+    crossing_axes['upper'] = ['30', '60']
     for d in wopt.product(crossing_axes):
         yield wopt.OrderedDict(**d)
 

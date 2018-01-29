@@ -173,27 +173,3 @@ ggsave("selection_methods.pdf", .p, width = 4, height = 4)
   coord_cartesian(xlim = c(0, 1)) +
   labs(x = "TE frequency", y = "Site number") +
   theme_bw()
-
-# #######1#########2#########3#########4#########5#########6#########7#########
-
-library(Biostrings)
-library(ape)
-
-.fa = Biostrings::readBStringSet("sequence.fa.gz") %>%
-  {
-    setNames(., str_extract(names(.), "^\\S+"))
-  } %>%
-  print()
-
-.mat = .fa %>% sample(16L) %>% stringDist("hamming")
-.cl = hclust(.mat, "single")
-plot(.cl)
-.cl = hclust(.mat, "complete")
-plot(.cl)
-.cl = hclust(.mat, "average")
-plot(.cl)
-.cl = hclust(.mat, "mcquitty")
-plot(.cl)
-
-.tree = nj(.mat)
-plot(.tree, type = "u")
