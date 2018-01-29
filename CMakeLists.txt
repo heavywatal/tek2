@@ -68,9 +68,9 @@ target_include_directories(${PROJECT_NAME} BEFORE
 target_link_libraries(${PROJECT_NAME} PRIVATE wtl sfmt ${Boost_LIBRARIES})
 
 add_executable(${PROJECT_NAME}-exe main.cpp)
-target_link_libraries(${PROJECT_NAME}-exe ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}-exe PRIVATE ${PROJECT_NAME})
 if(PROFILE)
-  target_link_libraries(${PROJECT_NAME}-exe profiler)
+  target_link_libraries(${PROJECT_NAME}-exe PRIVATE profiler)
 endif()
 set_target_properties(${PROJECT_NAME}-exe PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}
