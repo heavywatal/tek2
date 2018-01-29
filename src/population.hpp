@@ -60,7 +60,7 @@ class Population {
     //! write summary in JSON format
     std::ostream& write_summary(std::ostream&) const;
     //! count identicals and write FASTA
-    std::ostream& write_fasta(std::ostream&) const;
+    std::ostream& write_fasta(std::ostream&, size_t n=0u) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
   private:
     //! proceed one generation and return fitness record

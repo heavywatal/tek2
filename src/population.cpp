@@ -60,9 +60,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 std::ostringstream outfile;
                 outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
                 wtl::ozfstream ozf(outfile.str());
-                for (size_t i=0u; i<20u; ++i) {
-                    gametes_[i].write_fasta(ozf);
-                }
+                write_fasta(ozf, 20u);
             }
         } else {
             DCERR("." << std::flush);
@@ -198,10 +196,11 @@ std::ostream& Population::write_summary(std::ostream& ost) const {HERE;
     return ost << record;
 }
 
-std::ostream& Population::write_fasta(std::ostream& ost) const {HERE;
+std::ostream& Population::write_fasta(std::ostream& ost, size_t n) const {
     std::unordered_map<Transposon*, unsigned int> counter;
-    for (const auto& chr: gametes_) {
-        for (const auto& p: chr) {
+    if (n == 0u) {n = gametes_.size();}
+    for (size_t i=0u; i<n; ++i) {
+        for (const auto& p: gametes_.at(i)) {
             ++counter[p.second.get()];
         }
     }
