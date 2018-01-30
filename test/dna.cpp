@@ -4,11 +4,11 @@
 
 int main() {
     std::mt19937_64 engine;
-    constexpr size_t n = 30u;
+    constexpr uint_fast32_t n = 30u;
     tek::DNA x(n);
     tek::DNA y(n);
     std::cerr << x << std::endl;
-    for (size_t i=0u; i<n; ++i) {
+    for (uint_fast32_t i=0u; i<n; ++i) {
         y.flip(i, engine);
     }
     std::cerr << y << std::endl;

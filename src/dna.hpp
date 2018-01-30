@@ -99,7 +99,7 @@ class Homolog {
     Homolog(uint_fast32_t length): counts_(length, {0u, 0u, 0u, 0u}) {}
 
     Homolog& operator+=(const DNA& seq) {
-        const uint_fast32_t n = counts_.size();
+        const uint_fast32_t n = static_cast<uint_fast32_t>(counts_.size());
         for (uint_fast32_t i=0; i<n; ++i) {
             ++counts_[i][seq[i]];
         }
@@ -107,7 +107,7 @@ class Homolog {
     }
 
     DNA majority() const {
-        const uint_fast32_t n = counts_.size();
+        const uint_fast32_t n = static_cast<uint_fast32_t>(counts_.size());
         std::valarray<uint_fast8_t> result(n);
         for (uint_fast32_t i=0; i<n; ++i) {
             const auto& v = counts_[i];
