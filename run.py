@@ -7,7 +7,7 @@ import wtl.options as wopt
 program = 'tek'
 
 
-def iter_values(rest):
+def iter_values():
     parallel_axes = wopt.OrderedDict()
     parallel_axes['alpha'] = ['0.70', '0.75', '0.80', '0.85']
     parallel_axes['beta'] = [6, 12, 24, 48]
@@ -23,7 +23,7 @@ def iter_values(rest):
 def iter_args(rest, concurrency, repeat, skip):
     const = [program, '-j{}'.format(concurrency)] + rest
     suffix = '_{}'.format(wopt.now())
-    for i, v in enumerate(wopt.cycle(iter_values(rest), repeat)):
+    for i, v in enumerate(wopt.cycle(iter_values(), repeat)):
         if i < skip:
             continue
         args = wopt.make_args(v)

@@ -7,15 +7,22 @@ import wtl.options as wopt
 program = 'tek'
 
 
-def iter_values(rest):
+def iter_values():
     crossing_axes = wopt.OrderedDict()
-    crossing_axes['lower'] = ['10', '12', '15']
-    crossing_axes['upper'] = ['30', '60']
+    crossing_axes['xi'] = ['10e-4', '5e-4', '1e-4']
+    crossing_axes['lower'] = ['10', '15', '300']
+    crossing_axes['upper'] = ['30', '45', '60', '300']
     for d in wopt.product(crossing_axes):
+        if (d['lower'] == '300'):
+            if (d['upper'] != '300'):
+                continue
+        else:
+            if (d['upper'] == '300'):
+                continue
         yield wopt.OrderedDict(**d)
 
 
-def iter_values_spec(rest):
+def iter_values_spec():
     crossing_axes = wopt.OrderedDict()
     crossing_axes['xi'] = ['1e-4', '5e-4']
     crossing_axes['spec'] = ['1e-4', '1e-3']
@@ -24,9 +31,9 @@ def iter_values_spec(rest):
 
 
 def iter_args(rest, concurrency, repeat, skip):
-    const = [program, '-j{}'.format(concurrency)] + rest
+    const = [program, '-j{}'.format(concurrency), '-r7'] + rest
     suffix = '_{}'.format(wopt.now())
-    for i, v in enumerate(wopt.cycle(iter_values(rest), repeat)):
+    for i, v in enumerate(wopt.cycle(iter_values(), repeat)):
         if i < skip:
             continue
         args = wopt.make_args(v)
