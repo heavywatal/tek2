@@ -1,55 +1,70 @@
 library(tidyverse)
 library(Biostrings)
+library(ggtree)
 library(ape)
-library(apTreeshape)
+library(aptree)  # library(apTreeshape)
+wtl::refresh('aptree')
 
-.fastas = fs::dir_ls(glob='generation_*.fa.gz')
-# Biostrings::readBStringSet(.fastas[[3L]])
-
-.tbl = tibble::tibble(
-    infile = .fastas,
-    seqset = purrr::map(infile, ~{
+read_fastas = function(dir, interval = 1000L) {
+  .fastas = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$')
+  tibble::tibble(
+    path = .fastas,
+    infile = fs::path_file(path),
+    generation = as.integer(readr::parse_number(infile))) %>%
+  dplyr::filter((generation %% interval) == 0L) %>%
+  dplyr::transmute(
+    generation,
+    seqs = purrr::map(path, ~{
       Biostrings::readBStringSet(.x) %>%
       setNames(str_extract(names(.), "te=\\S+"))
     })
-  ) %>% print()
-# .tbl$seqset[[3L]] %>% Biostrings::stringDist(method='hamming')
-
-.tblphy = .tbl %>%
-  # tail(-1L) %>%  # to few nodes
-  dplyr::mutate(distmat = purrr::map(seqset, Biostrings::stringDist, method='hamming')) %>%
-  print() %>%
-  dplyr::mutate(phy = purrr::map(distmat, ape::nj)) %>%
-  print()
-
-# .phy = .tblphy$phy[[3L]]
-# plot(.phy, type = "u")
-# .ts = apTreeshape::as.treeshape(.phy, model = 'pda') %>% print()
-# apTreeshape::shape.statistic(.ts, norm = 'pda')
-
-crossing_model_norm = function(.phy) {
-  .shapes = tibble::tibble(
-    model = c('biased', 'pda', 'yule'),
-    tree_shape = purrr::map(model, ~{apTreeshape::as.treeshape(.phy, .x)})
   )
-  tidyr::crossing(model = .shapes$model, norm = c('null', 'pda', 'yule')) %>%
-    dplyr::left_join(.shapes, by = 'model') %>%
-    dplyr::mutate(shape_stat = purrr::map2_dbl(tree_shape, norm, ~{
-      if (.y == 'null') .y = NULL
-      apTreeshape::shape.statistic(.x, norm=.y)
-    }))
 }
-# crossing_model_norm(.tblphy$phy[[1]])
+# .tbl = read_fastas('lower10_upper30_20180130T172206_00') %>% print()
 
-.tblstats = .tblphy %>%
-  dplyr::mutate(sstat = purrr::map(phy, crossing_model_norm)) %>%
-  dplyr::transmute(generation = as.integer(readr::parse_number(infile)), sstat) %>%
-  tidyr::unnest() %>%
-  print()
+add_phylo = function(.tbl) {
+  .tbl %>%
+    dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method='hamming')) %>%
+    dplyr::mutate(phylo = purrr::map(distmat, ape::fastme.ols))
+}
+# .tblphy = .tbl %>% add_phylo() %>% print()
+# .phy = .tblphy$phylo[[5L]]
+# ggtree(.phy)
 
-.tblstats %>%
-  dplyr::select(-tree_shape) %>%
-  ggplot(aes(generation, shape_stat, colour=model))+
+eval_treeshape = function(.tblphy) {
+  .tblphy %>%
+    dplyr::mutate(sstat = purrr::map(phylo, ~{
+      aptree::as.treeshape(.x, 'pda') %>%
+      aptree::calc_stat_all()
+    })) %>%
+    dplyr::select(generation, sstat) %>%
+    tidyr::unnest()
+}
+# .tblstats = .tblphy %>% eval_treeshape() %>% print()
+
+ggplot_evolution = function(.tblstats) {
+  ggplot(.tblstats, aes(generation, stat))+
   geom_line()+
-  facet_grid(norm ~ ., scale='free_y')+
+  facet_grid(norm ~ index, scale='free_y')+
   theme_bw()
+}
+# .tblstats %>% ggplot_evolution()
+
+# library(doParallel)
+main = function(root, interval = 2000L) {
+  indirs = fs::dir_ls(root, regexp="\\d+$", type="directory")
+  # purrr::walk(indirs, ~{
+  # wtl::map_par(indirs, ~{
+    message(.x)
+    label = fs::path_file(.x)
+    outfile = paste0("shapestats-", label, ".png")
+    .p = read_fastas(.x, interval) %>%
+      add_phylo() %>%
+      eval_treeshape() %>%
+      ggplot_evolution()
+    ggsave(outfile, .p, width=7, height=7)
+  })
+}
+
+root = '~/working/tek-spec-0130'
+main(root, 500L)
