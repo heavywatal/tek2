@@ -44,7 +44,7 @@ class Population {
     //! \f$\theta = 4N\mu\f$, population mutation rate
     static constexpr double THETA = 0.01;
     //! \f$\rho = 4Nc\f$, population recombination rate
-    static constexpr double RHO = 200;
+    static constexpr double RHO = 20000;
     //! @} params
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

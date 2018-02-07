@@ -48,9 +48,9 @@ po::options_description Haploid::options_desc() {HERE;
     return description;
 }
 
-Haploid::Haploid(size_t n) {
-    for (position_t i=0; i<static_cast<position_t>(n); ++i) {
-        sites_.emplace(i, ORIGINAL_TE_);
+Haploid::Haploid(size_t n) {HERE;
+    for (size_t i=0; i<n; ++i) {
+        sites_.emplace(static_cast<position_t>(wtl::sfmt64()()), ORIGINAL_TE_);
     }
 }
 
@@ -96,20 +96,13 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& engine) const {
     position_t gamete_pos = (gamete_it != gamete_end) ? gamete_it->first : max_pos;
     position_t other_pos = (other_it != other_end) ? other_it->first : max_pos;
     position_t here = 0;
-    position_t prev = 0;
+    const auto chiasmata = sample_chiasmata(engine);
+    auto xit = chiasmata.begin();
     while ((here = std::min(gamete_pos, other_pos)) < max_pos) {
-        const double lambda = (here - prev) * RECOMBINATION_RATE_;
-        if (lambda < 10.0) {
-            std::poisson_distribution<uint_fast32_t> poisson(lambda);
-            if (poisson(engine) % 2u != 0u) {
-                flg = !flg;
-            }
-        } else {
-            if (wtl::generate_canonical(engine) < 0.5) {
-                flg = !flg;
-            }
+        while (*xit < here) {
+            flg = !flg;
+            ++xit;
         }
-        prev = here;
         if (gamete_pos < other_pos) {
             if (flg) {
                 gamete_it = gamete.sites_.erase(gamete_it);
@@ -134,6 +127,18 @@ Haploid Haploid::gametogenesis(const Haploid& other, URBG& engine) const {
         }
     }
     return gamete;
+}
+
+std::set<Haploid::position_t> Haploid::sample_chiasmata(URBG& engine) {
+    thread_local std::poisson_distribution<uint_fast32_t> POISSON(RECOMBINATION_RATE_);
+    const uint_fast32_t n = POISSON(engine);
+    std::set<position_t> existing;
+    for (uint_fast32_t i = 0; i < n; ++i) {
+        while (!existing.emplace(static_cast<position_t>(engine())).second) {;}
+    }
+    // sentinel for ending and safety in case n = 0
+    existing.emplace_hint(existing.end(), std::numeric_limits<position_t>::max());
+    return existing;
 }
 
 std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& engine) {
@@ -230,10 +235,6 @@ std::vector<std::string> Haploid::summarize() const {
         v.push_back(oss.str());
     }
     return v;
-}
-
-std::ostream& Haploid::write_positions(std::ostream& ost) const {
-    return wtl::join(sites_, ost, ",", [](const auto& p){return p.first;});
 }
 
 std::ostream& Haploid::write_fasta(std::ostream& ost) const {

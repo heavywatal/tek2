@@ -9,6 +9,7 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include <unordered_map>
 #include <memory>
@@ -59,8 +60,6 @@ class Haploid {
 
     //! return vector of Transposon summaries
     std::vector<std::string> summarize() const;
-    //! write positions
-    std::ostream& write_positions(std::ostream&) const;
     //! write sequence with address as name
     std::ostream& write_fasta(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream&, const Haploid&);
@@ -100,6 +99,8 @@ class Haploid {
 
     //! insert a new element into #SELECTION_COEFS_GP_ and return its key
     static position_t new_position(URBG&);
+    //! sample integers for recombination
+    static std::set<position_t> sample_chiasmata(URBG&);
 
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params
@@ -122,7 +123,7 @@ class Haploid {
     static double MUTATION_RATE_;
     //! \f$L\phi\mu\f$, absolute indel rate per TE
     static double INDEL_RATE_;
-    //! \f$c = \rho / 4N\f$, recombination rate per TE site
+    //! \f$c = \rho / 4N\f$, recombination rate per genome
     static double RECOMBINATION_RATE_;
     //! @} params
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////

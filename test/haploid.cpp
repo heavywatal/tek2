@@ -1,6 +1,7 @@
 #include "haploid.hpp"
 
 #include <sfmt.hpp>
+#include <wtl/iostr.hpp>
 
 #include <random>
 #include <iostream>
@@ -47,16 +48,41 @@ inline void selection_coefs_cn() {
     */
 }
 
+template <class Iter> inline
+std::vector<tek::Haploid::position_t> positions(Iter begin, Iter end, size_t n=0) {
+    std::vector<tek::Haploid::position_t> x;
+    x.reserve(n);
+    while (begin != end) {
+        x.push_back(begin->first);
+        ++begin;
+    }
+    return x;
+}
+
 inline void recombination() {
+    constexpr size_t n = 60u;
     tek::Haploid::URBG engine(std::random_device{}());
     tek::Haploid zero;
-    tek::Haploid one(60u);
+    tek::Haploid one(n);
     auto gamete = zero.gametogenesis(one, engine);
-    gamete.write_positions(std::cout) << std::endl;
+    const auto one_pos = positions(one.begin(), one.end(), n);
+    const auto gam_pos = positions(gamete.begin(), gamete.end(), n);
+    std::cout << one_pos << std::endl;
+    std::cout << gam_pos << std::endl;
+    auto it = gam_pos.begin();
+    for (const auto x: one_pos) {
+        if (it != gam_pos.end() && x == *it) {
+          std::cout << 1;
+          ++it;
+        } else {
+          std::cout << 0;
+        }
+    }
+    std::cout << "\n";
 }
 
 int main() {
-    tek::Haploid::initialize(500u, 0.01, 200);
+    tek::Haploid::initialize(500u, 0.01, 20000);
     tek::Haploid x = tek::Haploid::copy_founder();
     std::cout << x << std::endl;
     x.write_fasta(std::cout);
