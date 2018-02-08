@@ -40,7 +40,7 @@ plot_copynumber_generation = function(data) {
   print()
 
 .counted = .histories %>%
-  dplyr::group_by(lower, upper) %>%
+  dplyr::group_by(xi, lower, upper) %>%
   dplyr::mutate(repl = seq_len(n())) %>%
   dplyr::ungroup() %>%
   tidyr::unnest() %>%
@@ -49,15 +49,16 @@ plot_copynumber_generation = function(data) {
 
 .levels = sort.int(unique(.counted$species), decreasing=TRUE)
 .p = .counted %>%
+  dplyr::filter(xi > 2e-4) %>%
   dplyr::mutate(species = factor(species, levels=.levels)) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
   scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)) +
-  facet_grid(lower ~ upper * repl) +
+  facet_grid(xi * lower ~ upper * repl) +
   wtl::theme_wtl() +
   theme(legend.position = "bottom")
 .p
-ggsave("copynumber-activity-species.png", .p, width = 7, height = 7)
+ggsave("copynumber-activity-species.png", .p, width = 10, height = 10)
 
 .p = .counted %>%
   dplyr::distinct(lower, upper, repl, generation, species) %>%
