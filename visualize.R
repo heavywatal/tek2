@@ -25,38 +25,75 @@ plot_copynumber_generation = function(data) {
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
+popsize = 500
 .indirs = list.dirs(full.names = FALSE, recursive = FALSE)
 .indirs = wtl::command_args()$args
 .indirs = "."
 
-.infiles = file.path(.indirs, "activity.tsv.gz") %>%
-  purrr::keep(file.exists) %>%
-  print()
-
-.histories = .infiles %>%
+metadata = .indirs %>%
+  str_subset("_\\d+$") %>%
   set_names() %>%
-  purrr::map_dfr(extract_params, .id = "infile") %>%
-  dplyr::mutate(data = purrr::map(infile, read_tsv)) %>%
-  print()
-
-.counted = .histories %>%
+  purrr::map_dfr(extract_params, .id = "indir") %>%
   dplyr::group_by(xi, lower, upper) %>%
   dplyr::mutate(repl = seq_len(n())) %>%
   dplyr::ungroup() %>%
-  tidyr::unnest() %>%
-  dplyr::mutate(copy_number = copy_number / 500) %>%
   print()
 
-.levels = sort.int(unique(.counted$species), decreasing=TRUE)
-.p = .counted %>%
-  dplyr::filter(xi > 2e-4) %>%
-  dplyr::mutate(species = factor(species, levels=.levels)) %>%
+read_activity = function(indir) {
+  file.path(indir, "activity.tsv.gz") %>%
+  read_tsv() %>%
+  dplyr::mutate(copy_number = copy_number / popsize)
+}
+
+ggplot_activity = function(data) {
+  dplyr::mutate(data, species = factorize_species(species)) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
   scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)) +
-  facet_grid(xi * lower ~ upper * repl) +
   wtl::theme_wtl() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
+}
+
+factorize_species = function(x) {
+  factor(x, levels=sort.int(unique(x), decreasing=TRUE))
+}
+# metadata$indir[[1]] %>% read_activity() %>% ggplot_activity()
+
+source('~/git/tek-evolution/treestats.R')
+
+.out = metadata %>%
+  dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
+  # head(3L) %>%
+  dplyr::mutate(
+    title = sprintf('xi=%.0e l=%d u=%d (%d)', xi, lower, upper, repl),
+    adata = purrr::map(indir, read_activity),
+    aplot = purrr::map(adata, ggplot_activity),
+    tplot = purrr::map2(indir, title, ~{
+      read_ggplot_treestats(.x, interval=500L, title=.y)+theme(
+        axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      )
+    })
+  ) %>%
+  print()
+
+.out2 = .out %>%
+  dplyr::mutate(plt = purrr::map2(aplot, tplot, ~{
+    cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
+  }))
+
+# cowplot::plot_grid(plotlist=.out2$plt)
+.gtable = gridExtra::marrangeGrob(.out2$plt, nrow=1, ncol=3, top=NULL)
+ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
+
+.p = metadata %>%
+  dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
+  # sample_n(6L) %>%
+  dplyr::mutate(adata = purrr::map(indir, read_activity)) %>%
+  tidyr::unnest() %>%
+  ggplot_activity()+
+  facet_grid(xi * lower ~ upper * repl)
 .p
 ggsave("copynumber-activity-species.png", .p, width = 10, height = 10)
 

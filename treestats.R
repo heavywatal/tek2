@@ -3,7 +3,7 @@ library(Biostrings)
 library(ggtree)
 library(ape)
 library(aptree)  # library(apTreeshape)
-wtl::refresh('aptree')
+# wtl::refresh('aptree')
 
 read_fastas = function(dir, interval = 1000L) {
   .fastas = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$')
@@ -57,21 +57,34 @@ ggplot_evolution = function(.tblstats) {
   ggplot(.x, aes(generation, value))+
   geom_blank(data=range_stats)+
   geom_line()+
-  facet_grid(stat ~ ., scale='free_y')+
-  theme_bw()
+  facet_grid(stat ~ ., scale='free_y', switch='y')+
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank(),
+    strip.placement = "outside",
+    strip.background = element_blank()
+  )
 }
 # .tblstats %>% ggplot_evolution()
 
-main = function(.x, interval=2000L) {
-  message(.x)
-  label = fs::path_file(.x)
-  outfile = paste0("shapestats-", label, ".png")
-  .p = read_fastas(.x, interval) %>%
+read_ggplot_treestats = function(indir, interval=2000L, title='') {
+  read_fastas(indir, interval=interval) %>%
     add_phylo() %>%
     eval_treeshape() %>%
-    ggplot_evolution()
+    ggplot_evolution()+
+    labs(title=title)
+}
+
+main = function(indir, interval=2000L) {
+  message(indir)
+  label = fs::path_file(indir)
+  outfile = paste0("shapestats-", label, ".png")
+  .p = read_ggplot_treestats(indir, interval)
   ggsave(outfile, .p, width=7, height=7)
 }
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+if (FALSE) {
 
 root = '~/working/te2-0207'
 indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
@@ -80,7 +93,6 @@ indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
 # indirs[1] %>% main()
 purrr::walk(indirs, main, interval = 500L)
 
-# #######1#########2#########3#########4#########5#########6#########7#########
 
 eval_treeshape = function(.tblphy) {
   .tblphy %>%
@@ -108,3 +120,5 @@ indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
     str_subset('xi10e|xi5e') %>%
     print()
 wtl::map_par(indirs, main, interval = 500L)
+
+}
