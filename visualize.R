@@ -87,6 +87,37 @@ source('~/git/tek-evolution/treestats.R')
 .gtable = gridExtra::marrangeGrob(.out2$plt, nrow=1, ncol=3, top=NULL)
 ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+.tbl = read_fastas(metadata$indir[1], interval = 10000L) %>%
+  add_phylo()
+.phylo = .tbl$phylo[[4]]
+
+.fagz = fs::path(metadata$indir[1], "generation_10000.fa.gz")
+.seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
+mcols(.seqs)
+
+.distmat = Biostrings::stringDist(.seqs, method='hamming')
+.phylo = ape::fastme.ols(.distmat)
+.tt = .phylo %>% tidytree::as_data_frame()
+.ttd = .tt %>% dplyr::left_join(mcols(.seqs) %>% as_tibble(), by=c(label='te'))
+
+str(.phylo)
+
+.phylod = .ttd %>% as.phylo()
+.phylod %>% tidytree::as_data_frame()
+wtl::refresh('ggtree')
+# library(ggtree)
+plot.phylo(.phylo, type='unrooted')
+
+ggtree(.tt)
+.daylight = ggtree(.phylo, layout='daylight')
+.daylight
+.eqan = ggtree(.phylo, layout='equal_angle')
+.eqan
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
 .p = metadata %>%
   dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
   # sample_n(6L) %>%
