@@ -26,6 +26,12 @@ read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
   .dss
 }
 
+#' @param x BStringSet with metadata
+tidy_mcols = function(x) {
+  mcols(x) %>% as.data.frame() %>% as_tibble() %>%
+    dplyr::select(label=te, everything())
+}
+
 read_fastas = function(dir, interval = 1000L) {
   .fastas = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$')
   tibble::tibble(

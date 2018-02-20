@@ -30,14 +30,17 @@ popsize = 500
 .indirs = wtl::command_args()$args
 .indirs = "."
 
-metadata = .indirs %>%
+.metadata = .indirs %>%
   str_subset("_\\d+$") %>%
   set_names() %>%
   purrr::map_dfr(extract_params, .id = "indir") %>%
   dplyr::group_by(xi, lower, upper) %>%
   dplyr::mutate(repl = seq_len(n())) %>%
   dplyr::ungroup() %>%
+  dplyr::arrange(xi, lower, upper, repl) %>%
   print()
+
+.metadata %>% distinct(xi, lower, upper)
 
 read_activity = function(indir) {
   file.path(indir, "activity.tsv.gz") %>%
@@ -57,15 +60,15 @@ ggplot_activity = function(data) {
 factorize_species = function(x) {
   factor(x, levels=sort.int(unique(x), decreasing=TRUE))
 }
-# metadata$indir[[1]] %>% read_activity() %>% ggplot_activity()
+# .metadata$indir[[1]] %>% read_activity() %>% ggplot_activity()
 
 source('~/git/tek-evolution/treestats.R')
 
-.out = metadata %>%
-  dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
+.out = .metadata %>%
+  # dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
   # head(3L) %>%
   dplyr::mutate(
-    title = sprintf('xi=%.0e l=%d u=%d (%d)', xi, lower, upper, repl),
+    title = sprintf('xi=%.0e lower=%d upper=%d (%d)', xi, lower, upper, repl),
     adata = purrr::map(indir, read_activity),
     aplot = purrr::map(adata, ggplot_activity),
     tplot = purrr::map2(indir, title, ~{
@@ -89,41 +92,43 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-.tbl = read_fastas(metadata$indir[1], interval = 10000L) %>%
-  add_phylo()
-.phylo = .tbl$phylo[[4]]
-
-.fagz = fs::path(metadata$indir[1], "generation_10000.fa.gz")
-.seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
-mcols(.seqs)
-
-.distmat = Biostrings::stringDist(.seqs, method='hamming')
-.phylo = ape::fastme.ols(.distmat)
-.tt = .phylo %>% tidytree::as_data_frame()
-.ttd = .tt %>% dplyr::left_join(mcols(.seqs) %>% as_tibble(), by=c(label='te'))
-
-str(.phylo)
-
-.phylod = .ttd %>% as.phylo()
-.phylod %>% tidytree::as_data_frame()
-wtl::refresh('ggtree')
 # library(ggtree)
-plot.phylo(.phylo, type='unrooted')
+wtl::refresh('ggtree')
 
-ggtree(.tt)
+.focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
+
+.fagz = fs::path(.focus$indir[1], "generation_30000.fa.gz")
+.seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
+
+.dd1 = tidy_mcols(.seqs) %>% dplyr::filter(individual == 1L) %>% print()
+.seq1 = .seqs[.dd1$label] %>% print()
+
+.distmat = Biostrings::stringDist(.seq1, method='hamming')
+.phylo = ape::fastme.ols(.distmat)
+.phylo
+
+.eqan = ggtree(.phylo, layout='equal_angle')
+.eqan %<+% .dd1 +
+  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.7) +
+  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1))+
+  scale_size(range=c(3, 10))
+
+plot.phylo(.phylo, type='unrooted', show.tip.label=FALSE)
+
 .daylight = ggtree(.phylo, layout='daylight')
 .daylight
-.eqan = ggtree(.phylo, layout='equal_angle')
-.eqan
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-.p = metadata %>%
-  dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
+.tbl_act = .metadata %>%
+  # dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
+  dplyr::filter(lower < 300, upper < 300) %>%
   # sample_n(6L) %>%
   dplyr::mutate(adata = purrr::map(indir, read_activity)) %>%
   tidyr::unnest() %>%
-  ggplot_activity()+
+  print()
+
+.p = ggplot_activity(.tbl_act)+
   facet_grid(xi * lower ~ upper * repl)
 .p
 ggsave("copynumber-activity-species.png", .p, width = 10, height = 10)
