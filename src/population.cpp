@@ -60,7 +60,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 std::ostringstream outfile;
                 outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
                 wtl::ozfstream ozf(outfile.str());
-                write_fasta(ozf, 20u);
+                write_fasta(ozf, 10u);
             }
         } else {
             DCERR("." << std::flush);
@@ -196,18 +196,26 @@ std::ostream& Population::write_summary(std::ostream& ost) const {HERE;
     return ost << record;
 }
 
-std::ostream& Population::write_fasta(std::ostream& ost, size_t n) const {
+std::ostream& Population::write_fasta_individual(std::ostream& ost, size_t i) const {
+    const size_t idx = 2u * i;
     std::unordered_map<Transposon*, unsigned int> counter;
-    if (n == 0u) {n = gametes_.size();}
-    for (size_t i=0u; i<n; ++i) {
-        for (const auto& p: gametes_.at(i)) {
+    for (size_t j: {0u, 1u}) {
+        for (const auto& p: gametes_.at(idx + j)) {
             ++counter[p.second.get()];
         }
     }
     for (const auto& p: counter) {
-        p.first->write_metadata(ost << ">");
+        p.first->write_metadata(ost << ">individual=" << i << " ");
         ost << " copy_number=" << p.second << "\n";
         p.first->write_sequence(ost) << "\n";
+    }
+    return ost;
+}
+
+std::ostream& Population::write_fasta(std::ostream& ost, size_t num_individuals) const {
+    num_individuals = std::min(num_individuals, gametes_.size() / 2u);
+    for (size_t i=0u; i<num_individuals; ++i) {
+        write_fasta_individual(ost, i);
     }
     return ost;
 }
