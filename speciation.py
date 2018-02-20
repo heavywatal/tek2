@@ -9,9 +9,9 @@ program = 'tek'
 
 def iter_values():
     crossing_axes = wopt.OrderedDict()
-    crossing_axes['xi'] = ['10e-4', '5e-4', '1e-4']
-    crossing_axes['lower'] = ['10', '15', '300']
-    crossing_axes['upper'] = ['30', '45', '60', '300']
+    crossing_axes['xi'] = ['10e-4']  # '5e-4', '1e-4']
+    crossing_axes['lower'] = ['6', '9', '12', '300']
+    crossing_axes['upper'] = ['18', '24', '30', '300']
     for d in wopt.product(crossing_axes):
         if (d['lower'] == '300'):
             if (d['upper'] != '300'):
