@@ -44,7 +44,6 @@ inline po::options_description general_desc() {HERE;
     `-s,--split`        |         | Program::num_generations_after_split_
     `-i,--interval`     |         | Program::record_interval_
     `-r,--record`       |         | Program::record_flags_
-    `-j,--parallel`     |         | Program::concurrency_
     `-o,--outdir`       |         | Program::outdir_
 */
 po::options_description Program::options_desc() {HERE;
@@ -56,7 +55,6 @@ po::options_description Program::options_desc() {HERE;
       ("split,s", po::value(&num_generations_after_split_)->default_value(num_generations_after_split_))
       ("interval,i", po::value(&record_interval_)->default_value(record_interval_))
       ("record,r", po::value(&record_flags_)->default_value(record_flags_))
-      ("parallel,j", po::value(&concurrency_)->default_value(concurrency_))
       ("outdir,o", po::value(&outdir_)->default_value(OUT_DIR));
     description.add(Population::options_desc());
     description.add(Haploid::options_desc());
@@ -108,7 +106,7 @@ void Program::run() {HERE;
 void Program::main() {HERE;
     wtl::ChDir cd_outdir(outdir_, true);
     while (true) {
-        Population pop(popsize_, initial_freq_, concurrency_);
+        Population pop(popsize_, initial_freq_);
         auto flags = static_cast<Recording>(record_flags_);
         bool good = pop.evolve(num_generations_, record_interval_, flags);
         if (!good) continue;

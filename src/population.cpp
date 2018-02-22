@@ -20,6 +20,7 @@
 namespace tek {
 
 size_t Population::SAMPLE_SIZE_ = 10u;
+unsigned Population::CONCURRENCY_ = 1u;
 
 namespace po = boost::program_options;
 
@@ -28,17 +29,18 @@ namespace po = boost::program_options;
     Command line option | Symbol        | Variable
     ------------------- | ------------- | -------------------------
     `--sample`          |               | Population::SAMPLE_SIZE_
+    `-j,--parallel`     |               | Population::CONCURRENCY_
 */
 po::options_description Population::options_desc() {HERE;
     po::options_description description("Population");
     description.add_options()
       ("sample", po::value(&SAMPLE_SIZE_)->default_value(SAMPLE_SIZE_))
+      ("parallel,j", po::value(&CONCURRENCY_)->default_value(CONCURRENCY_))
     ;
     return description;
 }
 
-Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
-: concurrency_(concurrency) {HERE;
+Population::Population(const size_t size, const size_t num_founders) {HERE;
     Haploid::initialize(size, THETA, RHO);
     gametes_.reserve(size * 2u);
     for (size_t i=0u; i<num_founders; ++i) {
@@ -96,7 +98,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
     static Haploid::URBG seeder(std::random_device{}());
-    static wtl::ThreadPool pool(concurrency_);
+    static wtl::ThreadPool pool(CONCURRENCY_);
     static std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
     std::vector<double> fitness_record;
@@ -125,7 +127,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             nextgen.push_back(std::move(sperm));
         }
     };
-    for (size_t i=0u; i<concurrency_; ++i) {
+    for (size_t i=0u; i<CONCURRENCY_; ++i) {
         pool.submit(std::bind(task, seeder()));
     }
     pool.wait();

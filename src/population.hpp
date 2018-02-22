@@ -51,7 +51,7 @@ class Population {
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! constructor
-    Population(const size_t size, const size_t num_founders=1, const unsigned int concurrency=1);
+    Population(const size_t size, const size_t num_founders=1);
     //! default copy constructor
     Population(const Population& other) = default;
 
@@ -83,10 +83,11 @@ class Population {
     //! number of individuals to sample
     static size_t SAMPLE_SIZE_;
 
+    //! number of threads
+    static unsigned int CONCURRENCY_;
+
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;
-    //! number of threads
-    const unsigned int concurrency_;
 };
 
 } // namespace tek

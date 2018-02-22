@@ -52,8 +52,6 @@ class Program {
     size_t record_interval_ = 10u;
     //! enum Recording
     int record_flags_ = 3;
-    //! number of threads
-    unsigned int concurrency_ = 1u;
     //! name of output directory
     std::string outdir_;
     //! writen to "program_options.conf"
