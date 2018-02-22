@@ -10,6 +10,8 @@
 #include <iosfwd>
 #include <vector>
 
+namespace boost {namespace program_options {class options_description;}}
+
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
@@ -64,6 +66,10 @@ class Population {
     //! call write_fasta_individual() repeatedly
     std::ostream& write_fasta(std::ostream&, size_t num_individuals=-1u) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
+
+    //! options description for Population class
+    static boost::program_options::options_description options_desc();
+
   private:
     //! proceed one generation and return fitness record
     std::vector<double> step(const double previous_max_fitness=1.0);
@@ -73,6 +79,9 @@ class Population {
     bool is_extinct() const;
     //! summarize and write activity
     void write_activity(std::ostream&, const size_t time, const bool header) const;
+
+    //! number of individuals to sample
+    static size_t SAMPLE_SIZE_;
 
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;

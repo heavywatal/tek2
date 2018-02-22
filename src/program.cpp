@@ -58,6 +58,7 @@ po::options_description Program::options_desc() {HERE;
       ("record,r", po::value(&record_flags_)->default_value(record_flags_))
       ("parallel,j", po::value(&concurrency_)->default_value(concurrency_))
       ("outdir,o", po::value(&outdir_)->default_value(OUT_DIR));
+    description.add(Population::options_desc());
     description.add(Haploid::options_desc());
     description.add(Transposon::options_desc());
     return description;

@@ -11,12 +11,31 @@
 #include <wtl/random.hpp>
 #include <sfmt.hpp>
 #include <nlohmann/json.hpp>
+#include <boost/program_options.hpp>
 
 #include <unordered_map>
 #include <algorithm>
 #include <mutex>
 
 namespace tek {
+
+size_t Population::SAMPLE_SIZE_ = 10u;
+
+namespace po = boost::program_options;
+
+/*! @ingroup params
+
+    Command line option | Symbol        | Variable
+    ------------------- | ------------- | -------------------------
+    `--sample`          |               | Population::SAMPLE_SIZE_
+*/
+po::options_description Population::options_desc() {HERE;
+    po::options_description description("Population");
+    description.add_options()
+      ("sample", po::value(&SAMPLE_SIZE_)->default_value(SAMPLE_SIZE_))
+    ;
+    return description;
+}
 
 Population::Population(const size_t size, const size_t num_founders, const unsigned int concurrency)
 : concurrency_(concurrency) {HERE;
@@ -60,7 +79,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 std::ostringstream outfile;
                 outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
                 wtl::ozfstream ozf(outfile.str());
-                write_fasta(ozf, 10u);
+                write_fasta(ozf, SAMPLE_SIZE_);
             }
         } else {
             DCERR("." << std::flush);
