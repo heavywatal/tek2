@@ -95,23 +95,52 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 # library(ggtree)
 wtl::refresh('ggtree')
 
+summarise_mcols = function(.mcols, .useqs) {
+  .mcols %>%
+    group_by(label, activity, dn, ds, indel, species) %>%
+    summarise(copy_number = sum(copy_number)) %>%
+    dplyr::ungroup() %>%
+    {tibble::tibble(individual = 'all', data = list(.), seqs = list(.useqs[.$label]))}
+}
+
+sort_by_individual = function(.mcols, .useqs) {
+  .mcols %>%
+    tidyr::nest(-individual) %>%
+    dplyr::mutate(seqs = purrr::map(data, ~{.useqs[.x$label]}))
+}
+
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
 
 .fagz = fs::path(.focus$indir[1], "generation_30000.fa.gz")
 .seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
+.mcols = tidy_mcols(.seqs)
+.useqs = .seqs %>% {.[!duplicated(names(.))]} %>% print()
+mcols(.useq) = NULL
 
-.dd1 = tidy_mcols(.seqs) %>% dplyr::filter(individual == 1L) %>% print()
-.seq1 = .seqs[.dd1$label] %>% print()
+.all_samples = summarise_mcols(.mcols, .useqs) %>% add_phylo() %>% print()
+.all_phylo = .all_samples$phylo[[1]]
+.max_copy_number = max(.all_samples$data[[1]]$copy_number)
 
-.distmat = Biostrings::stringDist(.seq1, method='hamming')
-.phylo = ape::fastme.ols(.distmat)
-.phylo
+.ind_seqs = sort_by_individual(.mcols, .useqs) %>%
+  add_phylo() %>%
+  dplyr::bind_rows(.all_samples) %>%
+  print()
 
-.eqan = ggtree(.phylo, layout='equal_angle')
-.eqan %<+% .dd1 +
-  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.7) +
+ggtree_tek = function(data, individual, gt, max_copy_number, ...) {
+  gt %<+% data +
+  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6) +
   scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1))+
-  scale_size(range=c(3, 10))
+  scale_size(limit=c(1, max_copy_number), range=c(2, 12))+
+  labs(title = paste('sample', individual))
+}
+
+.gt = ggtree(.phylo, layout='equal_angle', alpha=0.5)
+
+.plts = .ind_seqs %>% purrr::pmap(ggtree_tek, gt=.gt, max_copy_number=.max_copy_number)
+.cow = cowplot::plot_grid(plotlist=.plts)
+.cow
+
+
 
 plot.phylo(.phylo, type='unrooted', show.tip.label=FALSE)
 
