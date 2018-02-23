@@ -46,11 +46,17 @@ read_fastas = function(dir, interval = 1000L) {
 }
 # .tbl = read_fastas('lower10_upper30_20180130T172206_00') %>% print()
 
-add_phylo = function(.tbl) {
+add_phylo = function(.tbl, root=NULL) {
   .tbl %>%
     dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method='hamming')) %>%
     dplyr::mutate(phylo = purrr::map(distmat, ~{
-      if (length(.x) > 2) {ape::fastme.ols(.x)} else {NA}
+      if (length(.x) > 2) {
+        .phy = ape::fastme.ols(.x)
+        if (!is.null(root)) {
+          .phy = ape::root(.phy, root, resolve.root=TRUE)
+        }
+        .phy
+      } else {NA}
     }))
 }
 # .tblphy = .tbl %>% add_phylo() %>% print()

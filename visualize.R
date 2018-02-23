@@ -107,30 +107,17 @@ count_holders = function(.mcols, .id = 'holders') {
   .mcols %>%
     dplyr::count(label, activity, dn, ds, indel, species) %>%
     dplyr::rename(copy_number = n) %>%
+    dplyr::arrange(desc(copy_number), label) %>%
     dplyr::mutate(individual = .id)
-}
-
-sort_by_individual = function(.mcols, .useqs) {
-  .mcols %>%
-    tidyr::nest(-individual) %>%
-    dplyr::mutate(seqs = purrr::map(data, ~{.useqs[.x$label]}))
 }
 
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
 
+.origin = DNAStringSet(c('0x0' = str_dup("A", 300L)))
 .fagz = fs::path(.focus$indir[1], "generation_30000.fa.gz")
 .seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
-.mcols = tidy_mcols(.seqs) %>% print()
-.mcols_total = summarise_mcols(.mcols) %>% print()
-.useqs = .seqs %>% {.[!duplicated(names(.))]} %>% {.[.mcols_total$label]} %>% print()
-mcols(.useq) = NULL
-.phylo = .useqs %>% Biostrings::stringDist(method='hamming') %>% ape::fastme.ols()
-.gt = ggtree(.phylo, layout='equal_angle', alpha=0.5)
-.max_copy_number = max(.mcols_total$copy_number)
-
-.mcols_holders = .mcols %>% count_holders() %>% print()
-.mcols_all = .mcols %>%
-  dplyr::bind_rows(.mcols_all, .mcols_holders) %>%
+.mcols = tidy_mcols(.seqs) %>%
+  add_row(label=names(.origin), activity=1.0, copy_number=0L, dn=0.0, ds=0.0, indel=0L, individual=seq_len(10) - 1L, species=0L) %>%
   print()
 
 # validate uniqueness of TE address
@@ -138,6 +125,63 @@ mcols(.useq) = NULL
   dplyr::select(-individual, -copy_number) %>%
   dplyr::distinct() %>%
   {stopifnot(!any(.$label %>% duplicated()))}
+
+.seqso = c(.seqs, .origin)
+.mcols_total = .mcols %>% summarise_mcols() %>% print()
+.useqs = .seqso %>% {.[!duplicated(names(.))]} %>% {.[.mcols_total$label]} %>% print()
+mcols(.useq) = NULL
+.max_copy_number = max(.mcols_total$copy_number)
+
+df_raw %>%
+  tidyr::unnest(.preserve=y2) %>%
+  tidyr::unnest()
+
+df_raw %>%
+  dplyr::transmute(x, z = purrr::map2(y, y2, ~tidyr::crossing(.x, .y))) %>%
+  tidyr::unnest()
+
+.mcols_holders = .mcols %>% count_holders() %>% print()
+.freq_cols = .mcols_holders %>% dplyr::transmute(label,
+  is_major = (copy_number > 5),
+  is_fixed = (copy_number == max(copy_number))
+) %>% print()
+
+.mcols_all %>% dplyr::filter(label == '0x7f977ab34468')
+
+.mcols_all = .mcols %>%
+  dplyr::bind_rows(.mcols_total) %>%
+  # dplyr::bind_rows(.mcols_holders) %>%
+  dplyr::left_join(.freq_cols, by='label') %>%
+  print()
+
+.tippoint = list(
+  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6),
+  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)),
+  scale_size(limit=c(1, max_copy_number), range=c(2, 12))
+)
+
+.nested_mcols = .mcols_all %>%
+  tidyr::nest(-individual) %>%
+  dplyr::mutate(seqs = purrr::map(data, ~{.useqs[.x$label]})) %>%
+  add_phylo(root = names(.origin)) %>%
+  print()
+
+ggtree_tek = function(phylo, data, individual='', ...) {
+  ggtree(phylo, layout='rectangular') %<+% data +
+  .tippoint+
+  geom_tippoint(aes(subset=is_major, size=copy_number), pch=1, colour='#000000')+
+  geom_tippoint(aes(subset=is_fixed, size=copy_number * 0.4), pch=4, colour='#000000')+
+  labs(title = paste('sample', individual))
+}
+
+.nested_mcols %>% head(1) %>% pmap(ggtree_tek)
+
+.plts = .nested_mcols %>% purrr::pmap(ggtree_tek)
+.cow = cowplot::plot_grid(plotlist=.plts)
+.cow
+ggsave('individual_trees_rect.png', .cow, width=10, height=10)
+
+# #######1#########2#########3
 
 .mcols_holders$copy_number %>% wtl::gghist()
 
@@ -150,12 +194,6 @@ ggplot(.freqdf, aes(num_holders, num_copies))+
   geom_abline(intercept=0, slope=1)+
   theme_bw()
 
-.tippoint = list(
-  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6),
-  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)),
-  scale_size(limit=c(1, max_copy_number), range=c(2, 12))
-)
-
 make_facettable = function(gt, dd) {
   gt$data = dd %>%
     tidyr::nest(-individual) %>%
@@ -165,25 +203,13 @@ make_facettable = function(gt, dd) {
   gt
 }
 
+.phylo = .useqs %>% Biostrings::stringDist(method='hamming') %>% ape::fastme.ols()
+.rooted = ape::root(.phylo, names(.origin), resolve.root=TRUE)
+.gt = ggtree(.rooted, layout='rectangular', alpha=0.5)
+
 make_facettable(.gt, .mcols_all)+
   .tippoint+
   facet_wrap(~individual)
-
-
-ggtree_tek = function(data, individual, gt, max_copy_number, ...) {
-  gt %<+% data +
-  .tippoint+
-  labs(title = paste('sample', individual))
-}
-
-.nested_mcols = .mcols_all %>%
-  tidyr::nest(-individual) %>%
-  print()
-
-.plts = .nested_mcols %>% purrr::pmap(ggtree_tek, gt=.gt, max_copy_number=.max_copy_number)
-.cow = cowplot::plot_grid(plotlist=.plts)
-.cow
-ggsave('individual_trees.png', .cow, width=10, height=10)
 
 plot.phylo(.phylo, type='unrooted', show.tip.label=FALSE)
 
