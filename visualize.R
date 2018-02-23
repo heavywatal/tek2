@@ -95,12 +95,19 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 # library(ggtree)
 wtl::refresh('ggtree')
 
-summarise_mcols = function(.mcols, .useqs) {
+summarise_mcols = function(.mcols, .id = 'total') {
   .mcols %>%
     group_by(label, activity, dn, ds, indel, species) %>%
     summarise(copy_number = sum(copy_number)) %>%
     dplyr::ungroup() %>%
-    {tibble::tibble(individual = 'all', data = list(.), seqs = list(.useqs[.$label]))}
+    dplyr::mutate(individual = .id)
+}
+
+count_holders = function(.mcols, .id = 'holders') {
+  .mcols %>%
+    dplyr::count(label, activity, dn, ds, indel, species) %>%
+    dplyr::rename(copy_number = n) %>%
+    dplyr::mutate(individual = .id)
 }
 
 sort_by_individual = function(.mcols, .useqs) {
@@ -113,34 +120,70 @@ sort_by_individual = function(.mcols, .useqs) {
 
 .fagz = fs::path(.focus$indir[1], "generation_30000.fa.gz")
 .seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
-.mcols = tidy_mcols(.seqs)
-.useqs = .seqs %>% {.[!duplicated(names(.))]} %>% print()
+.mcols = tidy_mcols(.seqs) %>% print()
+.mcols_total = summarise_mcols(.mcols) %>% print()
+.useqs = .seqs %>% {.[!duplicated(names(.))]} %>% {.[.mcols_total$label]} %>% print()
 mcols(.useq) = NULL
+.phylo = .useqs %>% Biostrings::stringDist(method='hamming') %>% ape::fastme.ols()
+.gt = ggtree(.phylo, layout='equal_angle', alpha=0.5)
+.max_copy_number = max(.mcols_total$copy_number)
 
-.all_samples = summarise_mcols(.mcols, .useqs) %>% add_phylo() %>% print()
-.all_phylo = .all_samples$phylo[[1]]
-.max_copy_number = max(.all_samples$data[[1]]$copy_number)
-
-.ind_seqs = sort_by_individual(.mcols, .useqs) %>%
-  add_phylo() %>%
-  dplyr::bind_rows(.all_samples) %>%
+.mcols_holders = .mcols %>% count_holders() %>% print()
+.mcols_all = .mcols %>%
+  dplyr::bind_rows(.mcols_all, .mcols_holders) %>%
   print()
+
+# validate uniqueness of TE address
+.mcols %>%
+  dplyr::select(-individual, -copy_number) %>%
+  dplyr::distinct() %>%
+  {stopifnot(!any(.$label %>% duplicated()))}
+
+.mcols_holders$copy_number %>% wtl::gghist()
+
+.freqdf = tibble(
+  num_holders = .mcols_holders$copy_number,
+  num_copies = .mcols_total$copy_number) %>% print()
+
+ggplot(.freqdf, aes(num_holders, num_copies))+
+  geom_jitter(width=0.1, height=0.1, alpha=0.3)+
+  geom_abline(intercept=0, slope=1)+
+  theme_bw()
+
+.tippoint = list(
+  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6),
+  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)),
+  scale_size(limit=c(1, max_copy_number), range=c(2, 12))
+)
+
+make_facettable = function(gt, dd) {
+  gt$data = dd %>%
+    tidyr::nest(-individual) %>%
+    {purrr::map2_dfr(.$data, .$individual, ~{
+      (gt %<+% .x)$data %>% dplyr::mutate(individual = .y)
+    })}
+  gt
+}
+
+make_facettable(.gt, .mcols_all)+
+  .tippoint+
+  facet_wrap(~individual)
+
 
 ggtree_tek = function(data, individual, gt, max_copy_number, ...) {
   gt %<+% data +
-  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6) +
-  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1))+
-  scale_size(limit=c(1, max_copy_number), range=c(2, 12))+
+  .tippoint+
   labs(title = paste('sample', individual))
 }
 
-.gt = ggtree(.phylo, layout='equal_angle', alpha=0.5)
+.nested_mcols = .mcols_all %>%
+  tidyr::nest(-individual) %>%
+  print()
 
-.plts = .ind_seqs %>% purrr::pmap(ggtree_tek, gt=.gt, max_copy_number=.max_copy_number)
+.plts = .nested_mcols %>% purrr::pmap(ggtree_tek, gt=.gt, max_copy_number=.max_copy_number)
 .cow = cowplot::plot_grid(plotlist=.plts)
 .cow
-
-
+ggsave('individual_trees.png', .cow, width=10, height=10)
 
 plot.phylo(.phylo, type='unrooted', show.tip.label=FALSE)
 
