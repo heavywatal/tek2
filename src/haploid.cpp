@@ -58,7 +58,7 @@ void Haploid::initialize(const size_t popsize, const double theta, const double 
     Transposon::initialize();
     SELECTION_COEFS_GP_.clear();
     const double four_n = 4.0 * popsize;
-    MUTATION_RATE_ = Transposon::LENGTH * theta / four_n;
+    MUTATION_RATE_ = theta / four_n;
     INDEL_RATE_ = MUTATION_RATE_ * INDEL_RATIO_;
     RECOMBINATION_RATE_ = rho / four_n;
     DCERR("MUTATION_RATE_ = " << MUTATION_RATE_ << std::endl);
