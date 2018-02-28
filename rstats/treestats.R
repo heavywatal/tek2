@@ -26,12 +26,6 @@ read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
   .dss
 }
 
-#' @param x BStringSet with metadata
-tidy_mcols = function(x) {
-  mcols(x) %>% as.data.frame() %>% as_tibble() %>%
-    dplyr::select(label=te, everything())
-}
-
 read_fastas = function(dir, interval = 1000L) {
   .fastas = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$')
   tibble::tibble(
@@ -106,26 +100,25 @@ read_ggplot_treestats = function(indir, interval=2000L, title='') {
     labs(title=title)
 }
 
-main = function(indir, interval=2000L) {
-  message(indir)
-  label = fs::path_file(indir)
-  outfile = paste0("shapestats-", label, ".png")
-  .p = read_ggplot_treestats(indir, interval)
-  ggsave(outfile, .p, width=7, height=7)
-}
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 if (FALSE) {
+
+main = function(indir, interval=2000L) {
+  message(indir)
+  label = fs::path_file(indir)
+  read_ggplot_treestats(indir, interval=interval, title=label)
+}
 
 root = '~/working/te2-0207'
 indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
     str_subset('xi10e|xi5e') %>%
     print()
 # indirs[1] %>% main()
-purrr::walk(indirs, main, interval = 500L)
+.plt = purrr::map(indirs, main, interval = 1000L)
+ggsave('shapestats-0207.pdf', .plt, height=5, width=5)
 
-
-eval_treeshape = function(.tblphy) {
+eval_treeshape_all = function(.tblphy) {
   .tblphy %>%
     dplyr::mutate(sstat = purrr::map(phylo, ~{
       aptree::as.treeshape(.x, 'pda') %>%
@@ -134,14 +127,7 @@ eval_treeshape = function(.tblphy) {
     dplyr::select(generation, sstat) %>%
     tidyr::unnest()
 }
-# .tblstats = .tblphy %>% eval_treeshape() %>% print()
-
-ggplot_evolution = function(.tblstats) {
-  ggplot(.tblstats, aes(generation, stat))+
-  geom_line()+
-  facet_grid(norm ~ index, scale='free_y')+
-  theme_bw()
-}
+# .tblstats = .tblphy %>% eval_treeshape_all() %>% print()
 # .tblstats %>% ggplot_evolution()
 
 library(doParallel)
@@ -152,4 +138,4 @@ indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
     print()
 wtl::map_par(indirs, main, interval = 500L)
 
-}
+} # if (FALSE)
