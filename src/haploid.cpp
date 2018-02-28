@@ -58,7 +58,7 @@ void Haploid::initialize(const size_t popsize, const double theta, const double 
     Transposon::initialize();
     SELECTION_COEFS_GP_.clear();
     const double four_n = 4.0 * popsize;
-    MUTATION_RATE_ = theta / four_n;
+    MUTATION_RATE_ = Transposon::LENGTH * theta / four_n;
     INDEL_RATE_ = MUTATION_RATE_ * INDEL_RATIO_;
     RECOMBINATION_RATE_ = rho / four_n;
     DCERR("MUTATION_RATE_ = " << MUTATION_RATE_ << std::endl);
@@ -133,6 +133,10 @@ std::set<Haploid::position_t> Haploid::sample_chiasmata(URBG& engine) {
     thread_local std::poisson_distribution<uint_fast32_t> POISSON(RECOMBINATION_RATE_);
     const uint_fast32_t n = POISSON(engine);
     std::set<position_t> existing;
+    if (wtl::generate_canonical(engine) < 0.5) {
+        // assuming two chromosomes with the same lengths
+        existing.emplace(0);
+    }
     for (uint_fast32_t i = 0; i < n; ++i) {
         while (!existing.emplace(static_cast<position_t>(engine())).second) {;}
     }
