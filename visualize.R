@@ -114,7 +114,7 @@ count_holders = function(.mcols, .id = 'holders') {
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
 
 .origin = DNAStringSet(c('0x0' = str_dup("A", 300L)))
-.fagz = fs::path(.focus$indir[1], "generation_30000.fa.gz")
+.fagz = fs::path(.focus$indir[1], "generation_20000.fa.gz")
 .seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
 .mcols = tidy_mcols(.seqs) %>%
   add_row(label=names(.origin), activity=1.0, copy_number=0L, dn=0.0, ds=0.0, indel=0L, individual=seq_len(10) - 1L, species=0L) %>%
@@ -129,24 +129,14 @@ count_holders = function(.mcols, .id = 'holders') {
 .seqso = c(.seqs, .origin)
 .mcols_total = .mcols %>% summarise_mcols() %>% print()
 .useqs = .seqso %>% {.[!duplicated(names(.))]} %>% {.[.mcols_total$label]} %>% print()
-mcols(.useq) = NULL
+mcols(.useqs) = NULL
 .max_copy_number = max(.mcols_total$copy_number)
-
-df_raw %>%
-  tidyr::unnest(.preserve=y2) %>%
-  tidyr::unnest()
-
-df_raw %>%
-  dplyr::transmute(x, z = purrr::map2(y, y2, ~tidyr::crossing(.x, .y))) %>%
-  tidyr::unnest()
 
 .mcols_holders = .mcols %>% count_holders() %>% print()
 .freq_cols = .mcols_holders %>% dplyr::transmute(label,
   is_major = (copy_number > 5),
   is_fixed = (copy_number == max(copy_number))
 ) %>% print()
-
-.mcols_all %>% dplyr::filter(label == '0x7f977ab34468')
 
 .mcols_all = .mcols %>%
   dplyr::bind_rows(.mcols_total) %>%
@@ -157,17 +147,39 @@ df_raw %>%
 .tippoint = list(
   geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6),
   scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)),
-  scale_size(limit=c(1, max_copy_number), range=c(2, 12))
+  scale_size(limit=c(1, .max_copy_number), range=c(2, 12))
 )
 
 .nested_mcols = .mcols_all %>%
   tidyr::nest(-individual) %>%
   dplyr::mutate(seqs = purrr::map(data, ~{.useqs[.x$label]})) %>%
   add_phylo(root = names(.origin)) %>%
+  # add_phylo() %>%
   print()
 
+.phylo = .nested_mcols$phylo[[1]]
+
+mrca_node = function(phylo, root = '0x0') {
+  root_node = which(phylo$tip.label == root)
+  edges = tibble::as_tibble(phylo$edge)
+  root_parent = dplyr::filter(edges, V2 == root_node)$V1
+  dplyr::filter(edges, V1 == root_parent, V1 != V2, V2 != root_node)$V2
+}
+mrca_node(.phylo)
+
+ggtree_hide_root = function(phylo, layout='rectangular', root = '0x0') {
+  mrca = mrca_node(phylo)
+  ggtree(ggtree::groupClade(phylo, .node=mrca), aes(alpha=group), layout=layout) %>%
+  ggtree::viewClade(mrca)+
+  scale_alpha_manual(values=c('0' = 0.0, '1' = 1.0))
+}
+
+.p = ggtree_hide_root(.phylo) + geom_tiplab()
+.p
+ggplot(.phylo)$data
+
 ggtree_tek = function(phylo, data, individual='', ...) {
-  ggtree(phylo, layout='rectangular') %<+% data +
+  ggtree_hide_root(phylo, layout='rectangular') %<+% data +
   .tippoint+
   geom_tippoint(aes(subset=is_major, size=copy_number), pch=1, colour='#000000')+
   geom_tippoint(aes(subset=is_fixed, size=copy_number * 0.4), pch=4, colour='#000000')+
