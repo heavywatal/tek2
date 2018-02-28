@@ -214,7 +214,7 @@ std::ostream& Population::write_summary(std::ostream& ost) const {HERE;
     for (const auto& x: gametes_) {
         record.push_back(x.summarize());
     }
-    return ost << record;
+    return ost << record << "\n";
 }
 
 std::ostream& Population::write_fasta_individual(std::ostream& ost, size_t i) const {

@@ -250,9 +250,9 @@ std::ostream& Haploid::write_fasta(std::ostream& ost) const {
     return ost;
 }
 
-//! shortcut of << Haploid::summarize()
+//! write #sites_
 std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
-    return ost << x.summarize();
+    return ost << x.sites_;
 }
 
 void Haploid::insert_coefs_gp(const size_t n) {
