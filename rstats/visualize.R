@@ -65,18 +65,24 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 source('~/git/tek-evolution/rstats/treeplot.R')
 
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
+.focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 300L, upper == 300L) %>% print()
 
-.fagz = fs::path(.focus$indir[1], "generation_20000.fa.gz")
+plot_individuals(.fagz)
+
+fs::dir_ls(.focus$indir[2], regex='\\d+\\.fa\\.gz$')
+.infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(0, 40000, by=4000)[-1]))
+# .plts = purrr::map(.infiles, plot_individuals)
+.plts = wtl::map_par(.infiles, plot_individuals)
+.plts[[3]]
+ggsave('individual_trees.pdf', .plts, width=10, height=10)
+
+.fagz = fs::path(.focus$indir[2], "generation_16000.fa.gz")
 .seqs = .fagz %>% read_tek_fasta(metadata=TRUE)
-
+# .mcols = tidy_mcols(.seqs) %>% print()
+# count_holders(.mcols)
 .mcols_all = tidy_metadata(.seqs) %>% print()
 .nested_mcols = .mcols_all %>% nest_metadata(.seqs) %>% print()
 .max_copy_number = dplyr::filter(.nested_mcols, individual == 'total')$data[[1]]$copy_number %>% max()
-
-.phylo = .nested_mcols$phylo[[1]]
-.p = ggtree_hide_root(.phylo) + geom_tiplab()
-.p
-ggplot(.phylo)$data
 
 .plts = .nested_mcols %>%
   # head(1) %>%
@@ -85,6 +91,13 @@ ggplot(.phylo)$data
 .cow
 ggsave('individual_trees_rect.png', .cow, width=10, height=10)
 
+
+.nested_mcols$data[[2]]
+
+.phylo = .nested_mcols$phylo[[1]]
+.p = ggtree_hide_root(.phylo) + geom_tiplab()
+.p
+ggplot(.phylo)$data
 
 # #######1#########2#########3#########4
 # draw sampled nodes on master tree

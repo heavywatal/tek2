@@ -10,7 +10,7 @@ ggplot_activity = function(data) {
   dplyr::mutate(data, species = factorize_species(species)) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
-  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)) +
+  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
   wtl::theme_wtl() +
   theme(legend.position = "none")
 }
@@ -18,7 +18,7 @@ ggplot_activity = function(data) {
 plot_copynumber_generation = function(data) {
   ggplot(data, aes(generation, copy_number, group = activity)) +
     geom_area(aes(fill = activity)) +
-    scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), breaks = c(0, 0.5, 1)) +
+    scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
     wtl::theme_wtl() +
     theme(legend.position = "bottom")
 }
