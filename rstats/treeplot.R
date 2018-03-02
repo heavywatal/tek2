@@ -120,13 +120,13 @@ nest_metadata = function(.tidy_metadata, dss) {
     add_phylo(root = origin_name)
 }
 
-plot_individuals = function(infile) {
+plot_individuals = function(infile, layout='rectangular') {
   message(infile)
   .seqs = read_tek_fasta(infile, metadata=TRUE)
   .mcols_all = tidy_metadata(.seqs)
   .nested_mcols = nest_metadata(.mcols_all, .seqs)
   .max_copy_number = dplyr::filter(.nested_mcols, individual == 'total')$data[[1]]$copy_number %>% max()
-  .plts = .nested_mcols %>% purrr::pmap(ggtree_tek, max_copy_number = .max_copy_number)
+  .plts = .nested_mcols %>% purrr::pmap(ggtree_tek, max_copy_number = .max_copy_number, layout = layout)
   cowplot::plot_grid(plotlist=.plts)
 }
 

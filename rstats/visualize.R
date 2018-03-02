@@ -63,11 +63,13 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 # #######1#########2#########3#########4#########5#########6#########7#########
 
 source('~/git/tek-evolution/rstats/treeplot.R')
+Rprof()
+plot_individuals(.fagz, layout='unrooted')
+Rprof(NULL)
+summaryRprof()
 
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 300L, upper == 300L) %>% print()
-
-plot_individuals(.fagz)
 
 fs::dir_ls(.focus$indir[2], regex='\\d+\\.fa\\.gz$')
 .infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(0, 40000, by=4000)[-1]))
