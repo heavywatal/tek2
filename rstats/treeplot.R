@@ -96,8 +96,11 @@ tidy_metadata = function(dss) {
     dplyr::distinct() %>%
     {stopifnot(!any(.$label %>% duplicated()))}
   .inds_with_origin = dplyr::filter(.mcols, label == origin_name)$individual
-  .inds = unique(.mcols$individual) %>% {.[!. %in% .inds_with_origin]}
-  .mcols = .mcols %>% add_row(label=origin_name, activity=1.0, copy_number=0L, dn=0.0, ds=0.0, indel=0L, individual=.inds, species=0L)
+  .inds_wo_origin = unique(.mcols$individual) %>% {.[!. %in% .inds_with_origin]}
+  if (length(.inds_wo_origin) > 0L) {
+    .mcols = .mcols %>%
+      add_row(label=origin_name, activity=1.0, copy_number=0L, dn=0.0, ds=0.0, indel=0L, individual=.inds_wo_origin, species=0L)
+  }
   .mcols_total = summarise_mcols(.mcols)
   .freq_cols = freq_in_samples(.mcols)
   .mcols %>%
