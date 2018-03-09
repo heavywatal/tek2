@@ -71,6 +71,39 @@ summaryRprof()
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 300L, upper == 300L) %>% print()
 
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+.infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(10000L, 20000L, by=2000L)))
+
+read_individuals = function(infile) {
+  message(infile)
+  .seqs = read_tek_fasta(infile, metadata=TRUE)
+  .mcols_all = tidy_metadata(.seqs)
+  .nested_mcols = nest_metadata(.mcols_all, .seqs)
+}
+
+.inds_df = .infiles %>%
+  setNames(str_extract(.,'(?<=generation_)\\d+')) %>%
+  purrr::map_dfr(read_individuals, .id='generation') %>%
+  dplyr::mutate(generation = as.integer(generation)) %>%
+  dplyr::filter(individual != 'total') %>%
+  print()
+
+.max_copy_number = .inds_df$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
+
+.head = .inds_df %>%
+  head(2L) %>%
+  dplyr::mutate(.id = paste0(individual, '-', generation)) %>%
+  print()
+
+.trees = .head %>% {setNames(.$phylo, .$.id)}
+class(.trees) = 'multiPhylo'
+
+.data = .head %>% dplyr::select(data, .id) %>% tidyr::unnest() %>% dplyr::select(label, everything()) %>% print()
+ggtree(.trees) %<+% .data + facet_wrap(~.id)
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
 fs::dir_ls(.focus$indir[2], regex='\\d+\\.fa\\.gz$')
 .infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(0, 40000, by=4000)[-1]))
 # .plts = purrr::map(.infiles, plot_individuals)
