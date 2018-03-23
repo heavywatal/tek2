@@ -51,13 +51,13 @@ class Population {
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! constructor
-    Population(const size_t size, const size_t num_founders=1);
+    Population(size_t size, size_t num_founders=1);
     //! default copy constructor
     Population(const Population& other) = default;
 
     //! return false if TE is extinct
-    bool evolve(const size_t max_generations, const size_t record_interval,
-                const Recording flags=Recording::activity | Recording::fitness);
+    bool evolve(size_t max_generations, size_t record_interval,
+                Recording flags=Recording::activity | Recording::fitness);
 
     //! write summary in JSON format
     std::ostream& write_summary(std::ostream&) const;
@@ -72,13 +72,13 @@ class Population {
 
   private:
     //! proceed one generation and return fitness record
-    std::vector<double> step(const double previous_max_fitness=1.0);
+    std::vector<double> step(double previous_max_fitness=1.0);
     //! find farthest element, count species, and cause speciation if qualified
     void supply_new_species();
     //! return true if no TE exists in #gametes_
     bool is_extinct() const;
     //! summarize and write activity
-    void write_activity(std::ostream&, const size_t time, const bool header) const;
+    void write_activity(std::ostream&, size_t time, bool header) const;
 
     //! number of individuals to sample
     static size_t SAMPLE_SIZE_;

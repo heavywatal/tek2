@@ -38,7 +38,7 @@ class Haploid {
     //! default constructor
     Haploid() = default;
     //! constructor for recombination test
-    Haploid(const size_t);
+    Haploid(size_t);
     //! default copy constructor
     Haploid(const Haploid&) = default;
     //! default move constructor
@@ -74,9 +74,9 @@ class Haploid {
     //! return a Haploid with an #ORIGINAL_TE_ on the same site
     static Haploid copy_founder();
     //! set static member variables
-    static void initialize(const size_t popsize, const double theta, const double rho);
+    static void initialize(size_t popsize, double theta, double rho);
     //! testing function to check distribution of #SELECTION_COEFS_GP_
-    static void insert_coefs_gp(const size_t);
+    static void insert_coefs_gp(size_t);
     //! getter of #SELECTION_COEFS_GP_
     static const std::unordered_map<position_t, double>& SELECTION_COEFS_GP() {return SELECTION_COEFS_GP_;}
     //! options description for Haploid class

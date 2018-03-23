@@ -55,7 +55,7 @@ void Transposon::initialize() {HERE;
     has_been_executed = true;
 }
 
-double Transposon::calc_activity(const uint_fast32_t num_mutations) {
+double Transposon::calc_activity(uint_fast32_t num_mutations) {
     const double diff = num_mutations * OVER_NONSYNONYMOUS_SITES;
     if (diff >= THRESHOLD_) return 0.0;
     return std::pow(1.0 - diff / THRESHOLD_, BETA_);

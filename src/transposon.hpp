@@ -156,7 +156,7 @@ class Transposon {
     //! write sequence
     std::ostream& write_sequence(std::ostream&) const;
     //! calculate and write activity for the given alpha and beta
-    static void write_activity(std::ostream&, const double alpha, const unsigned int beta);
+    static void write_activity(std::ostream&, double alpha, unsigned int beta);
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
     //! set dependent variables once, and reset non-parameter variables

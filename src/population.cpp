@@ -217,7 +217,7 @@ std::ostream& Population::write_summary(std::ostream& ost) const {HERE;
     return ost << record << "\n";
 }
 
-std::ostream& Population::write_fasta_individual(std::ostream& ost, size_t i) const {
+std::ostream& Population::write_fasta_individual(std::ostream& ost, const size_t i) const {
     const size_t idx = 2u * i;
     std::unordered_map<Transposon*, unsigned int> counter;
     for (size_t j: {0u, 1u}) {
