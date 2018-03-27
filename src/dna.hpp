@@ -20,20 +20,24 @@ namespace tek {
 */
 class DNA {
   public:
+    DNA() = delete;
+    DNA(const DNA&) = default;
+    //! move constructor
+    DNA(DNA&&) noexcept = default;
     //! construct
-    DNA(uint_fast32_t n): sequence_(n) {}
+    DNA(uint_fast32_t n) noexcept: sequence_(n) {}
     //! construct from sequence
-    DNA(std::valarray<uint_fast8_t>&& s)
-    : sequence_(std::forward<std::valarray<uint_fast8_t>>(s)) {}
+    DNA(std::valarray<uint_fast8_t>&& s) noexcept
+    : sequence_(std::move(s)) {}
 
     //! diviation from the original
-    uint_fast32_t count() const {
+    uint_fast32_t count() const noexcept {
         return count(sequence_ > 0u);
     }
 
     //! mutate i-th site
     template <class URBG> inline
-    void flip(uint_fast32_t i, URBG& engine) {
+    void flip(uint_fast32_t i, URBG& engine) noexcept {
         typename URBG::result_type random_bits = 0u;
         while ((random_bits = engine()) == 0u) {;}
         while ((0b00000011u & random_bits) == 0u) {
@@ -43,12 +47,12 @@ class DNA {
     }
 
     //! get i-th nucleotide
-    uint_fast8_t operator[](uint_fast32_t i) const {
+    uint_fast8_t operator[](uint_fast32_t i) const noexcept {
         return sequence_[i];
     }
 
     //! get i-th nucleotide as char
-    const char& at(uint_fast32_t i) const {
+    const char& at(uint_fast32_t i) const noexcept {
         return translate(sequence_[i]);
     }
 
@@ -66,22 +70,22 @@ class DNA {
     }
 
     //! comparison of sequence
-    std::valarray<bool> operator!=(const DNA& other) const {
+    std::valarray<bool> operator!=(const DNA& other) const noexcept {
         return this->sequence_ != other.sequence_;
     }
     //! Hamming distance
-    uint_fast32_t operator-(const DNA& other) const {
+    uint_fast32_t operator-(const DNA& other) const noexcept {
         return count(this->sequence_ != other.sequence_);
     }
 
   private:
     //! translate integer to character
-    static const char& translate(uint_fast8_t x) {
+    static const char& translate(uint_fast8_t x) noexcept {
         static const std::string NUCLEOTIDE = "ACGT";
         return NUCLEOTIDE[x];
     }
 
-    static uint_fast32_t count(const std::valarray<bool>& v) {
+    static uint_fast32_t count(const std::valarray<bool>& v) noexcept {
         return std::accumulate(std::begin(v), std::end(v), 0u,
           [](uint_fast32_t x, bool b) {
               if (b) {return ++x;} else {return x;}
@@ -96,9 +100,9 @@ class DNA {
 */
 class Homolog {
   public:
-    Homolog(uint_fast32_t length): counts_(length, {0u, 0u, 0u, 0u}) {}
+    Homolog(uint_fast32_t length) noexcept: counts_(length, {0u, 0u, 0u, 0u}) {}
 
-    Homolog& operator+=(const DNA& seq) {
+    Homolog& operator+=(const DNA& seq) noexcept {
         const uint_fast32_t n = static_cast<uint_fast32_t>(counts_.size());
         for (uint_fast32_t i=0; i<n; ++i) {
             ++counts_[i][seq[i]];
@@ -106,7 +110,7 @@ class Homolog {
         return *this;
     }
 
-    DNA majority() const {
+    DNA majority() const noexcept {
         const uint_fast32_t n = static_cast<uint_fast32_t>(counts_.size());
         std::valarray<uint_fast8_t> result(n);
         for (uint_fast32_t i=0; i<n; ++i) {

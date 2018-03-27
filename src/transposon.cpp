@@ -44,6 +44,12 @@ po::options_description Transposon::options_desc() {HERE;
     return description;
 }
 
+static_assert(std::is_nothrow_default_constructible<Transposon>{}, "");
+static_assert(std::is_nothrow_move_constructible<Transposon>{}, "");
+
+static_assert(!std::is_default_constructible<DNA>{}, "");
+static_assert(std::is_nothrow_move_constructible<DNA>{}, "");
+
 void Transposon::initialize() {HERE;
     static bool has_been_executed = false;
     NUM_SPECIES_ = 1u;

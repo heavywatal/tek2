@@ -145,7 +145,7 @@ void Population::supply_new_species() {
     }
     std::unordered_map<uint_fast32_t, Transposon> centers;
     for (const auto& p: counter) {
-        centers[p.first] = p.second.majority();
+        centers.emplace(p.first, p.second.majority());
     }
 
     Transposon::INTERACTION_COEFS_clear();

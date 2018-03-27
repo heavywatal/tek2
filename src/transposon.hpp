@@ -44,17 +44,23 @@ class Transposon {
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
 
     //! default constructor
-    Transposon()
+    Transposon() noexcept
     : nonsynonymous_sites_(NUM_NONSYNONYMOUS_SITES),
       synonymous_sites_(LENGTH - NUM_NONSYNONYMOUS_SITES) {}
 
-    Transposon(DNA&& non, DNA&& syn)
-    : nonsynonymous_sites_(std::forward<DNA>(non)),
-      synonymous_sites_(std::forward<DNA>(syn)) {}
+    //! constructor
+    Transposon(DNA&& non, DNA&& syn) noexcept
+    : nonsynonymous_sites_(std::move(non)),
+      synonymous_sites_(std::move(syn)) {}
+
+    //! copy constructor
+    Transposon(const Transposon&) = default;
+    //! move constructor
+    Transposon(Transposon&&) noexcept = default;
 
     //! make one point mutation
     template <class URBG>
-    void mutate(URBG& engine) {
+    void mutate(URBG& engine) noexcept {
         thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
         thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
         auto pos = UNIF_LEN(engine);
@@ -69,28 +75,28 @@ class Transposon {
     }
 
     //! set new #species_
-    void speciate() {
+    void speciate() noexcept {
         std::lock_guard<std::mutex> lock(MTX_);
         species_ = NUM_SPECIES_;
         ++NUM_SPECIES_;
     }
 
     //! set #has_indel_
-    void indel() {has_indel_ = true;}
+    void indel() noexcept {has_indel_ = true;}
 
     //! \f$a_i\f$; count nonsynonymous mutations and return the pre-calculated #ACTIVITY_
-    double activity() const {
+    double activity() const noexcept {
         if (has_indel_) return 0.0;
         return ACTIVITY_[nonsynonymous_sites_.count()];
     }
 
     //! \f$u_i = u_0 \times a_i\f$
-    double transposition_rate() const {
+    double transposition_rate() const noexcept {
         return MAX_TRANSPOSITION_RATE * activity();
     }
 
     //! Hamming distance
-    uint_fast32_t operator-(const Transposon& other) const {
+    uint_fast32_t operator-(const Transposon& other) const noexcept {
         return (nonsynonymous_sites() - other.nonsynonymous_sites()) +
                (synonymous_sites() - other.synonymous_sites());
     }
@@ -103,7 +109,7 @@ class Transposon {
             \end{cases}
         \f]
     */
-    double operator*(const Transposon& other) const {
+    double operator*(const Transposon& other) const noexcept {
         const static double over_x = 1.0 / (UPPER_THRESHOLD_ - LOWER_THRESHOLD_);
         const auto distance = (*this - other);
         if (distance < LOWER_THRESHOLD_) {
@@ -115,17 +121,17 @@ class Transposon {
         }
     }
     //! check if distance is large enough for speciation
-    bool is_far_enough_from(const Transposon& other) const {
+    bool is_far_enough_from(const Transposon& other) const noexcept {
         return (*this - other) >= LOWER_THRESHOLD_;
     }
     //! check if speciation is allowed under the condition
-    static bool can_speciate() {
+    static bool can_speciate() noexcept {
         return LOWER_THRESHOLD_ < LENGTH;
     }
     //! clear #INTERACTION_COEFS_
-    static void INTERACTION_COEFS_clear() {INTERACTION_COEFS_.clear();}
+    static void INTERACTION_COEFS_clear() noexcept {INTERACTION_COEFS_.clear();}
     //! setter of #INTERACTION_COEFS_
-    static void INTERACTION_COEFS_emplace(uint_fast32_t x, uint_fast32_t y, double coef) {
+    static void INTERACTION_COEFS_emplace(uint_fast32_t x, uint_fast32_t y, double coef) noexcept {
         INTERACTION_COEFS_.emplace((static_cast<uint_fast64_t>(x) << 32) | y, coef);
     }
     //! getter of #INTERACTION_COEFS_
@@ -133,19 +139,19 @@ class Transposon {
         return INTERACTION_COEFS_.at((static_cast<uint_fast64_t>(x) << 32) | y);
     }
     //! getter of #INTERACTION_COEFS_
-    static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS() {return INTERACTION_COEFS_;}
+    static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS() noexcept {return INTERACTION_COEFS_;}
     //! getter of #nonsynonymous_sites_
-    const DNA& nonsynonymous_sites() const {return nonsynonymous_sites_;}
+    const DNA& nonsynonymous_sites() const noexcept {return nonsynonymous_sites_;}
     //! getter of #synonymous_sites_
-    const DNA& synonymous_sites() const {return synonymous_sites_;}
+    const DNA& synonymous_sites() const noexcept {return synonymous_sites_;}
     //! getter of #has_indel_
-    bool has_indel() const {return has_indel_;}
+    bool has_indel() const noexcept {return has_indel_;}
     //! getter of #species_
-    uint_fast32_t species() const {return species_;}
+    uint_fast32_t species() const noexcept {return species_;}
     //! nonsynonymous substitution per nonsynonymous site
-    double dn() const {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
+    double dn() const noexcept {return nonsynonymous_sites_.count() * OVER_NONSYNONYMOUS_SITES;}
     //! synonymous substitution per synonymous site
-    double ds() const {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
+    double ds() const noexcept {return synonymous_sites_.count() * OVER_SYNONYMOUS_SITES;}
 
     //! write summary
     std::ostream& write_summary(std::ostream&) const;
@@ -215,22 +221,22 @@ class Transposon {
 */
 class TransposonFamily {
   public:
-    TransposonFamily()
+    TransposonFamily() noexcept
     : nonsynonymous_sites_(Transposon::NUM_NONSYNONYMOUS_SITES),
       synonymous_sites_(Transposon::NUM_SYNONYMOUS_SITES) {}
 
-    TransposonFamily& operator+=(const Transposon& x) {
+    TransposonFamily& operator+=(const Transposon& x) noexcept {
         nonsynonymous_sites_ += x.nonsynonymous_sites();
         synonymous_sites_ += x.synonymous_sites();
         ++size_;
         return *this;
     }
 
-    Transposon majority() const {
+    Transposon majority() const noexcept {
         return Transposon(nonsynonymous_sites_.majority(), synonymous_sites_.majority());
     }
 
-    uint_fast32_t size() const {return size_;}
+    uint_fast32_t size() const noexcept {return size_;}
 
   private:
     Homolog nonsynonymous_sites_;
