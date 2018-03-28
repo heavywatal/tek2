@@ -89,18 +89,45 @@ read_individuals = function(infile) {
   dplyr::filter(individual != 'total') %>%
   print()
 
+fortify_phylo_tbl = function(.tbl, layout = "rectangular") {
+  purrr::pmap_df(.tbl, function(phylo, data, generation, individual, ...) {
+    ggtree::fortify(phylo, layout = layout) %>%
+      dplyr::left_join(data, by="label") %>%
+      dplyr::mutate(generation = generation, individual = individual)
+  })
+}
+
 .max_copy_number = .inds_df$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
 
-.head = .inds_df %>%
-  head(2L) %>%
-  dplyr::mutate(.id = paste0(individual, '-', generation)) %>%
+.ggplotable = .inds_df %>%
+  # head(2L) %>%
+  fortify_phylo_tbl() %>%
   print()
 
-.trees = .head %>% {setNames(.$phylo, .$.id)}
-class(.trees) = 'multiPhylo'
+.df_daylight = .inds_df %>%
+  # head(2L) %>%
+  fortify_phylo_tbl(layout="daylight") %>%
+  print()
 
-.data = .head %>% dplyr::select(data, .id) %>% tidyr::unnest() %>% dplyr::select(label, everything()) %>% print()
-ggtree(.trees) %<+% .data + facet_wrap(~.id)
+
+.df_eqangle = .inds_df %>%
+  # head(2L) %>%
+  fortify_phylo_tbl(layout="equal_angle") %>%
+  print()
+
+.p = ggplot(.df_eqangle, aes(x, y)) +
+  geom_tree(layout="equal_angle") +
+  geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6) +
+  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
+  scale_size(limit=c(1, .max_copy_number), range=c(3, 12)) +
+  geom_tippoint(aes(subset=is_major, size=copy_number), pch=1, colour='#000000')+
+  geom_tippoint(aes(subset=is_fixed, size=copy_number), pch=4, colour='#000000')+
+  facet_grid(generation ~ individual) +
+  ggtree::theme_tree()
+.p
+ggsave("tek-nonsep.pdf", .p, width = 9.9, height=7, scale=2)
+ggsave("tek-equal_angle.pdf", .p, width = 9.9, height=7, scale=2)
+
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
