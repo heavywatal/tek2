@@ -99,14 +99,14 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
     static Haploid::URBG seeder(std::random_device{}());
     static wtl::ThreadPool pool(CONCURRENCY_);
+    static std::mutex mtx;
     static std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
     std::vector<double> fitness_record;
     fitness_record.reserve(num_gametes);
-    std::mutex mtx;
-    auto task = [&,this](const Haploid::URBG::result_type seed) {
+    auto task = [num_gametes,previous_max_fitness,&fitness_record,this]() {
+        Haploid::URBG engine(seeder());
         std::uniform_int_distribution<size_t> dist_idx(0u, num_gametes / 2u - 1u);
-        Haploid::URBG engine(seed);
         while (true) {
             const size_t mother_idx = dist_idx(engine);
             size_t father_idx = 0u;
@@ -128,7 +128,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
         }
     };
     for (size_t i=0u; i<CONCURRENCY_; ++i) {
-        pool.submit(std::bind(task, seeder()));
+        pool.submit(task);
     }
     pool.wait();
     gametes_.swap(nextgen);
