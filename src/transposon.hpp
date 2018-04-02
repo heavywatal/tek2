@@ -74,7 +74,7 @@ class Transposon {
         }
     }
 
-    //! set new #species_
+    //! modify #species_ and #NUM_SPECIES_
     void speciate() noexcept {
         std::lock_guard<std::mutex> lock(MTX_);
         species_ = NUM_SPECIES_;

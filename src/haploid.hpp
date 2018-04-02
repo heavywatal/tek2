@@ -97,8 +97,8 @@ class Haploid {
     */
     double prod_1_zs() const;
 
-    //! insert a new element into #SELECTION_COEFS_GP_ and return its key
-    static position_t new_position(URBG&);
+    //! insert an element into #SELECTION_COEFS_GP_ and return its key
+    static position_t SELECTION_COEFS_GP_emplace(URBG&);
     //! sample integers for recombination
     static std::set<position_t> sample_chiasmata(URBG&);
 

@@ -60,7 +60,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
         if (is_recording) {
             std::cerr << "*" << std::flush;
             if (Transposon::can_speciate()) {
-                supply_new_species();
+                eval_species_distance();
             }
             if (static_cast<bool>(flags & Recording::activity)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
@@ -136,7 +136,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     return fitness_record;
 }
 
-void Population::supply_new_species() {
+void Population::eval_species_distance() {
     std::unordered_map<uint_fast32_t, TransposonFamily> counter;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {

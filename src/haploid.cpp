@@ -66,7 +66,7 @@ void Haploid::initialize(const size_t popsize, const double theta, const double 
     DCERR("RECOMBINATION_RATE_ = " << RECOMBINATION_RATE_ << std::endl);
 }
 
-Haploid::position_t Haploid::new_position(URBG& engine) {
+Haploid::position_t Haploid::SELECTION_COEFS_GP_emplace(URBG& engine) {
     thread_local std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
     thread_local std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
     auto coef = BERN_FUNCTIONAL(engine) ? EXPO_DIST(engine) : 0.0;
@@ -173,7 +173,7 @@ void Haploid::transpose_mutate(Haploid& other, URBG& engine) {
         if (wtl::generate_canonical(engine) < 0.5) {
             target_haploid = &other;
         }
-        target_haploid->sites_.emplace(new_position(engine), std::move(p));
+        target_haploid->sites_.emplace(SELECTION_COEFS_GP_emplace(engine), std::move(p));
     }
     this->mutate(engine);
     other.mutate(engine);
@@ -258,7 +258,7 @@ std::ostream& operator<<(std::ostream& ost, const Haploid& x) {
 void Haploid::insert_coefs_gp(const size_t n) {
     URBG engine(std::random_device{}());
     for (size_t i=SELECTION_COEFS_GP_.size(); i<n; ++i) {
-        new_position(engine);
+        SELECTION_COEFS_GP_emplace(engine);
     }
 }
 

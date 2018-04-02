@@ -74,7 +74,7 @@ class Population {
     //! proceed one generation and return fitness record
     std::vector<double> step(double previous_max_fitness=1.0);
     //! find farthest element, count species, and cause speciation if qualified
-    void supply_new_species();
+    void eval_species_distance();
     //! return true if no TE exists in #gametes_
     bool is_extinct() const;
     //! summarize and write activity
