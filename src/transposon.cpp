@@ -18,9 +18,8 @@ uint_fast32_t Transposon::LOWER_THRESHOLD_ = Transposon::LENGTH;
 uint_fast32_t Transposon::UPPER_THRESHOLD_ = Transposon::LENGTH;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
-uint_fast32_t Transposon::NUM_SPECIES_ = 1u;
+std::atomic_uint_fast32_t Transposon::NUM_SPECIES_{1u};
 std::unordered_map<uint_fast64_t, double> Transposon::INTERACTION_COEFS_;
-std::mutex Transposon::MTX_;
 
 namespace po = boost::program_options;
 
@@ -52,7 +51,7 @@ static_assert(std::is_nothrow_move_constructible<DNA>{}, "");
 
 void Transposon::initialize() {HERE;
     static bool has_been_executed = false;
-    NUM_SPECIES_ = 1u;
+    NUM_SPECIES_.store(1u);
     if (has_been_executed) return;
     THRESHOLD_ = 1.0 - ALPHA_;
     for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {

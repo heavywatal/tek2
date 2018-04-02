@@ -11,7 +11,7 @@
 #include <array>
 #include <unordered_map>
 #include <random>
-#include <mutex>
+#include <atomic>
 
 namespace boost {namespace program_options {class options_description;}}
 
@@ -76,9 +76,7 @@ class Transposon {
 
     //! modify #species_ and #NUM_SPECIES_
     void speciate() noexcept {
-        std::lock_guard<std::mutex> lock(MTX_);
-        species_ = NUM_SPECIES_;
-        ++NUM_SPECIES_;
+        species_ = NUM_SPECIES_++;
     }
 
     //! set #has_indel_
@@ -201,11 +199,9 @@ class Transposon {
     //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
     //! number of species; incremented by speciation
-    static uint_fast32_t NUM_SPECIES_;
+    static std::atomic_uint_fast32_t NUM_SPECIES_;
     //! interaction coefficients between species
     static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS_;
-    //! mutex for speciation
-    static std::mutex MTX_;
 
     //! nonsynonymous sites
     DNA nonsynonymous_sites_;
