@@ -71,16 +71,17 @@ eval_treeshape = function(.tblphy) {
 }
 # .tblstats = .tblphy %>% eval_treeshape() %>% print()
 
-range_stats = tibble::tibble(
-  generation = 0L,
-  stat = rep(c('bimodality', 'shape_pda'), each=2L),
-  value = c(0, 1, 2, -10)) %>%
-  print()
+make_range_stats = function(generation=0L) {
+  tibble::tibble(
+    generation,
+    stat = rep(c('bimodality', 'shape_pda'), each=2L),
+    value = c(0, 1, 2, -10))
+}
 
 ggplot_evolution = function(.tblstats) {
   .x = tidyr::gather(.tblstats, stat, value, -generation)
   ggplot(.x, aes(generation, value))+
-  geom_blank(data=range_stats)+
+  geom_blank(data = make_range_stats(min(.x$generation)))+
   geom_line()+
   facet_grid(stat ~ ., scale='free_y', switch='y')+
   theme_bw()+

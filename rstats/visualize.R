@@ -51,29 +51,67 @@ source('~/git/tek-evolution/rstats/treestats.R')
   ) %>%
   print()
 
-.out2 = .out %>%
-  dplyr::mutate(plt = purrr::map2(aplot, tplot, ~{
-    cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
-  }))
+.plt = .out %>% {purrr::map2(.$aplot, .$tplot, ~{
+  cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
+}))}
 
-# cowplot::plot_grid(plotlist=.out2$plt)
-.gtable = gridExtra::marrangeGrob(.out2$plt, nrow=1, ncol=3, top=NULL)
+# cowplot::plot_grid(plotlist=.plt)
+.gtable = gridExtra::marrangeGrob(.plt, nrow=1, ncol=3, top=NULL)
 ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
+
+.repl = 5L; .lbound = 25000L; .ubound = 31000L
+.repl = 2L; .lbound = 10000L; .ubound = 21000L
+.out = .metadata %>%
+  dplyr::filter(repl == .repl) %>%
+  dplyr::mutate(
+    adata = purrr::map(indir, ~{read_activity(.) %>% dplyr::filter(.lbound <= generation, generation <= .ubound)}),
+    aplot = purrr::map(adata, ggplot_activity),
+    tdata = purrr::map(indir, ~{
+      read_fastas(indir, interval=100L) %>%
+        dplyr::filter(.lbound <= generation, generation <= .ubound) %>%
+        add_phylo() %>%
+        eval_treeshape()
+    }),
+    tplot = purrr::map(tdata, ~{
+      ggplot_evolution(.x)+
+        geom_point(data=.points_data, colour='red', size=3)+
+        theme(
+          axis.title = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()
+        )
+    }),
+    plt = purrr::map2(aplot, tplot, ~{
+      cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
+    })
+  ) %>%
+  print()
+.fig2_left = .out$plt[[1]]
+.fig2_left
+ggsave('fig2_left.pdf', .fig2_left, width=3, height=9)
+
+.out$tdata[[1]] %>% dplyr::filter(generation < 12000L) %>% dplyr::arrange(bimodality)
+.out$tdata[[1]] %>% dplyr::filter(generation > 18000L) %>% dplyr::arrange(bimodality)
+.out$tdata[[1]] %>% dplyr::arrange(abs(bimodality - 5/9))
+
+.gens = c(10600L, 15200L, 19100L, 20300L)
+.gens = c(10600L, 13800L, 18700L, 20500L)
+.points_data = .out$tdata[[1]] %>%
+  dplyr::filter(generation %in% .gens) %>%
+  dplyr::transmute(generation, value = bimodality, stat = "bimodality")
+
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
 source('~/git/tek-evolution/rstats/treeplot.R')
-Rprof()
-plot_individuals(.fagz, layout='unrooted')
-Rprof(NULL)
-summaryRprof()
 
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 9, upper == 24) %>% print()
 .focus = .metadata %>% dplyr::filter(xi == max(xi), lower == 300L, upper == 300L) %>% print()
 
-# #######1#########2#########3#########4#########5#########6#########7#########
-
 .infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(10000L, 20000L, by=2000L)))
+.infiles = fs::path(.focus$indir[5], sprintf('generation_%05d.fa.gz', seq(25000L, 30000L, by=1000L)))
+
+.infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', .gens))
 
 read_individuals = function(infile) {
   message(infile)
@@ -82,11 +120,10 @@ read_individuals = function(infile) {
   .nested_mcols = nest_metadata(.mcols_all, .seqs)
 }
 
-.inds_df = .infiles %>%
+.all_inds_df = .infiles %>%
   setNames(str_extract(.,'(?<=generation_)\\d+')) %>%
   purrr::map_dfr(read_individuals, .id='generation') %>%
   dplyr::mutate(generation = as.integer(generation)) %>%
-  dplyr::filter(individual != 'total') %>%
   print()
 
 fortify_phylo_tbl = function(.tbl, layout = "rectangular") {
@@ -97,39 +134,45 @@ fortify_phylo_tbl = function(.tbl, layout = "rectangular") {
   })
 }
 
+.inds_df = .all_inds_df %>%
+  dplyr::filter(individual != 'total') %>%
+  print()
+
 .max_copy_number = .inds_df$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
 
-.ggplotable = .inds_df %>%
-  # head(2L) %>%
-  fortify_phylo_tbl() %>%
-  print()
-
-.df_daylight = .inds_df %>%
-  # head(2L) %>%
-  fortify_phylo_tbl(layout="daylight") %>%
-  print()
-
-
-.df_eqangle = .inds_df %>%
-  # head(2L) %>%
-  fortify_phylo_tbl(layout="equal_angle") %>%
-  print()
+.df_rect = .inds_df %>% fortify_phylo_tbl() %>% print()
+# .df_eqangle = .inds_df %>% fortify_phylo_tbl(layout="equal_angle") %>% print()
+# .df_daylight = .inds_df %>% fortify_phylo_tbl(layout="daylight") %>% print()
 
 .p = ggplot(.df_eqangle, aes(x, y)) +
+  # geom_tree(layout="rectangular") +
   geom_tree(layout="equal_angle") +
+  # geom_tree(layout="daylight") +
   geom_tippoint(aes(colour=activity, size=copy_number), alpha=0.6) +
   scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
   scale_size(limit=c(1, .max_copy_number), range=c(3, 12)) +
   geom_tippoint(aes(subset=is_major, size=copy_number), pch=1, colour='#000000')+
   geom_tippoint(aes(subset=is_fixed, size=copy_number), pch=4, colour='#000000')+
   facet_grid(generation ~ individual) +
+  # facet_wrap(~ generation) +
   ggtree::theme_tree()
 .p
-ggsave("tek-nonsep.pdf", .p, width = 9.9, height=7, scale=2)
-ggsave("tek-equal_angle.pdf", .p, width = 9.9, height=7, scale=2)
+ggsave("fig2_right_candidates.pdf", .p, width = 9.9, height=7, scale=2)
+ggsave("fig2_right_candidates_eqangle.pdf", .p, width = 9.9, height=7, scale=2)
 
+ggsave("fig2_right_total.pdf", .p, width = 2, height=7, scale=2)
+ggsave("fig2_right_total_eqangle.pdf", .p, width = 2, height=7, scale=2)
+ggsave("fig2_right_total_daylight.pdf", .p, width = 2, height=7, scale=2)
+
+ggsave("tek-5-rectangular.pdf", .p, width = 9.9, height=7, scale=2)
+ggsave("tek-5-equal_angle.pdf", .p, width = 9.9, height=7, scale=2)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
+
+Rprof()
+plot_individuals(.fagz, layout='unrooted')
+Rprof(NULL)
+summaryRprof()
 
 fs::dir_ls(.focus$indir[2], regex='\\d+\\.fa\\.gz$')
 .infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(0, 40000, by=4000)[-1]))
