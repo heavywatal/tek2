@@ -13,6 +13,7 @@ extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "n
 # .infiles[1] %>% extract_params()
 
 popsize = 500
+# popsize = 1000
 .indirs = list.dirs(full.names = FALSE, recursive = FALSE)
 # .indirs = wtl::command_args()$args
 # .indirs = "."
@@ -40,7 +41,7 @@ source('~/git/tek-evolution/rstats/treestats.R')
   dplyr::mutate(
     title = sprintf('xi=%.0e lower=%d upper=%d (%d)', xi, lower, upper, repl),
     adata = purrr::map(indir, read_activity),
-    aplot = purrr::map(adata, ggplot_activity),
+    aplot = purrr::map(adata, ggplot_activity, popsize=popsize),
     tplot = purrr::map2(indir, title, ~{
       read_ggplot_treestats(.x, interval=500L, title=.y)+theme(
         axis.title = element_blank(),
@@ -53,7 +54,7 @@ source('~/git/tek-evolution/rstats/treestats.R')
 
 .plt = .out %>% {purrr::map2(.$aplot, .$tplot, ~{
   cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
-}))}
+})}
 
 # cowplot::plot_grid(plotlist=.plt)
 .gtable = gridExtra::marrangeGrob(.plt, nrow=1, ncol=3, top=NULL)

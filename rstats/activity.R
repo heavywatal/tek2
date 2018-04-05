@@ -1,13 +1,14 @@
 library(tidyverse)
 
 read_activity = function(indir) {
-  file.path(indir, "activity.tsv.gz") %>%
-  read_tsv() %>%
-  dplyr::mutate(copy_number = copy_number / popsize)
+  file.path(indir, "activity.tsv.gz") %>% read_tsv()
 }
 
-ggplot_activity = function(data) {
-  dplyr::mutate(data, species = factorize_species(species)) %>%
+ggplot_activity = function(data, popsize) {
+  dplyr::mutate(data,
+    copy_number = copy_number / popsize,
+    species = factorize_species(species)
+  ) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
   scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
