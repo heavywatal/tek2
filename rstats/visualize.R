@@ -127,6 +127,41 @@ read_individuals = function(infile) {
   dplyr::mutate(generation = as.integer(generation)) %>%
   print()
 
+.phylo = .all_inds_df$phylo[[33L]]
+.phylo = .all_inds_df$phylo[[23L]]
+.total_df = .all_inds_df %>% dplyr::filter(individual == 'total') %>% print()
+.inds_df = .all_inds_df %>% dplyr::filter(individual != 'total') %>% print()
+
+.max_copy_number = .inds_df$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
+
+.df_unrooted = .inds_df %>%
+.df_unrooted_total = .total_df %>%
+  purrr::pmap_df(function(phylo, data, generation, individual, ...) {
+    ape::unroot(phylo) %>%
+      wtl::ape_layout_unrooted() %>%
+      dplyr::left_join(data, by="label") %>%
+      dplyr::mutate(generation = generation, individual = individual)
+  }) %>%
+  print()
+
+.p = .df_unrooted %>% ggplot() +
+# .p = .df_unrooted_total %>% ggplot() +
+  geom_segment(aes(x, y, xend=xend, yend=yend)) +
+  geom_point(aes(xend, yend, colour=activity, size=copy_number), pch=16, alpha=0.6) +
+  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), guide=FALSE) +
+  scale_size(limit=c(1, .max_copy_number), range=c(3, 12), guide=FALSE) +
+  geom_point(data=function(x) dplyr::filter(x, is_major), aes(xend, yend, size=copy_number), pch=1, colour='#000000')+
+  geom_point(data=function(x) dplyr::filter(x, is_fixed), aes(xend, yend, size=copy_number), pch=18, colour='#000000', alpha=0.5)+
+  facet_grid(generation ~ individual)+
+  # facet_wrap(~ generation)+
+  theme_bw()
+.p
+ggsave("fig2_right_unrooted_candidates.pdf", .p, width = 9.9, height=7, scale=2)
+ggsave("fig2_right_unrooted_total.pdf", .p, width = 9.9, height=7, scale=2)
+
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
 fortify_phylo_tbl = function(.tbl, layout = "rectangular") {
   purrr::pmap_df(.tbl, function(phylo, data, generation, individual, ...) {
     ggtree::fortify(phylo, layout = layout) %>%
@@ -134,12 +169,6 @@ fortify_phylo_tbl = function(.tbl, layout = "rectangular") {
       dplyr::mutate(generation = generation, individual = individual)
   })
 }
-
-.inds_df = .all_inds_df %>%
-  dplyr::filter(individual != 'total') %>%
-  print()
-
-.max_copy_number = .inds_df$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
 
 .df_rect = .inds_df %>% fortify_phylo_tbl() %>% print()
 # .df_eqangle = .inds_df %>% fortify_phylo_tbl(layout="equal_angle") %>% print()

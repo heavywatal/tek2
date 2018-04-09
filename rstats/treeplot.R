@@ -1,7 +1,7 @@
 # library(ggtree)
 wtl::refresh('ggtree')
 
-origin_seq = DNAStringSet(c('0x0' = str_dup("A", 300L)))
+origin_seq = Biostrings::DNAStringSet(c('0x0' = str_dup("A", 300L)))
 origin_name = names(origin_seq)
 sample_size = 10L
 
