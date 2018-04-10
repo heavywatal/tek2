@@ -1,44 +1,7 @@
 library(tidyverse)
-library(Biostrings)
 library(ape)
 library(aptree)  # library(apTreeshape)
 # wtl::refresh('aptree')
-
-parse_fasta_header = function(x) {
-  str_match_all(x, '(\\w+)=(\\S+)') %>%
-  purrr::map_dfr(~{
-    tibble::tibble(key = .x[,2], value = .x[,3]) %>%
-    tidyr::spread(key, value, convert=FALSE)
-  }) %>%
-  dplyr::mutate_at(vars(activity, dn, ds), as.double) %>%
-  dplyr::mutate_at(vars(copy_number, indel, species), as.integer)
-}
-
-read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
-  .dss = Biostrings::readDNAStringSet(file, nrec=nrec, skip=skip)
-  .names = names(.dss)
-  if (metadata) {
-    mcols(.dss) = parse_fasta_header(.names)
-    names(.dss) = mcols(.dss)$te
-  } else {
-    names(.dss) = str_extract(.names, "(?<=te=)\\S+")
-  }
-  .dss
-}
-
-read_fastas = function(dir, interval = 1000L) {
-  .fastas = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$')
-  tibble::tibble(
-    path = .fastas,
-    infile = fs::path_file(path),
-    generation = as.integer(readr::parse_number(infile))) %>%
-  dplyr::filter((generation %% interval) == 0L) %>%
-  dplyr::transmute(
-    generation,
-    seqs = purrr::map(path, read_tek_fasta)
-  )
-}
-# .tbl = read_fastas('lower10_upper30_20180130T172206_00') %>% print()
 
 add_phylo = function(.tbl, root=NULL) {
   .tbl %>%
@@ -46,13 +9,22 @@ add_phylo = function(.tbl, root=NULL) {
     dplyr::mutate(phylo = purrr::map(distmat, ~{
       if (length(.x) > 2) {
         .phy = ape::fastme.ols(.x)
-        if (!is.null(root)) {
+        if (!is.null(root) && (root %in% .phy$tip.label)) {
           .phy = ape::root(.phy, root, resolve.root=TRUE)
         }
         .phy
       } else {NA}
     }))
 }
+
+nest_metadata = function(.tidy_metadata, dss) {
+  .useqs = unique_dss(dss)
+  .tidy_metadata %>%
+    tidyr::nest(-individual) %>%
+    dplyr::mutate(seqs = purrr::map(data, ~{.useqs[.x$label]})) %>%
+    add_phylo(root = origin_name)
+}
+
 # .tblphy = .tbl %>% add_phylo() %>% print()
 # .phy = .tblphy$phylo[[5L]]
 # library(ggtree)
