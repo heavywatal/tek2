@@ -20,7 +20,8 @@
 namespace tek {
 
 size_t Population::SAMPLE_SIZE_ = 10u;
-unsigned Population::CONCURRENCY_ = 1u;
+unsigned int Population::CONCURRENCY_ = 1u;
+unsigned int Population::MAX_COEXISTENCE_ = 42u;
 
 namespace po = boost::program_options;
 
@@ -30,12 +31,14 @@ namespace po = boost::program_options;
     ------------------- | ------------- | -------------------------
     `--sample`          |               | Population::SAMPLE_SIZE_
     `-j,--parallel`     |               | Population::CONCURRENCY_
+    `-c,--coexist`      |               | Population::MAX_COEXISTENCE_
 */
 po::options_description Population::options_desc() {HERE;
     po::options_description description("Population");
     description.add_options()
       ("sample", po::value(&SAMPLE_SIZE_)->default_value(SAMPLE_SIZE_))
       ("parallel,j", po::value(&CONCURRENCY_)->default_value(CONCURRENCY_))
+      ("coexist,c", po::value(&MAX_COEXISTENCE_)->default_value(MAX_COEXISTENCE_))
     ;
     return description;
 }
@@ -156,7 +159,7 @@ void Population::eval_species_distance() {
             }
         }
     }
-
+    if (counter.size() >= MAX_COEXISTENCE_) return;
     Transposon* farthest = nullptr;
     uint_fast32_t max_distance = 0;
     for (const auto& chr: gametes_) {

@@ -86,6 +86,9 @@ class Population {
     //! number of threads
     static unsigned int CONCURRENCY_;
 
+    //! max number of species that can coexist at a time
+    static unsigned int MAX_COEXISTENCE_;
+
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;
 };
