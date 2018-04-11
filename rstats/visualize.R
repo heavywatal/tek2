@@ -83,7 +83,7 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 
 # .gens = c(10600L, 15200L, 19100L, 20300L)
 .gens = c(10600L, 12300L, 14600L, 16800L, 18700L, 20500L)
-.points_data = .fig2df$tdata[[1]] %>%
+.timepoints_df = .fig2df$tdata[[1]] %>%
   dplyr::filter(generation %in% .gens) %>%
   dplyr::transmute(generation, value = bimodality, stat = "bimodality") %>%
   print()
@@ -91,8 +91,8 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
 .out = .fig2df %>% dplyr::transmute(
   aplot = purrr::map(adata, ggplot_activity, popsize=popsize),
   tplot = purrr::map(tdata, ~{
-    ggplot_evolution(.x)+
-      geom_point(data=.points_data, colour='red', size=3)+
+    ggplot_evolution(.x, only_bi = TRUE)+
+      geom_point(data=.timepoints_df, colour='red', size=3)+
       theme(
         axis.title = element_blank(),
         axis.text.x = element_blank(),
@@ -100,13 +100,18 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
       )
   }),
   plt = purrr::map2(aplot, tplot, ~{
-    cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
+    .legend = cowplot::get_legend(.x + guides(fill = guide_colorbar(barheight = 12)))
+    .x = .x + theme(legend.position = "none")
+    cowplot::plot_grid(
+      cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr'),
+      .legend,
+      rel_widths = c(1, 0.3)
+    )
   })
 )
 .fig2_left = .out$plt[[1]]
 .fig2_left
-ggsave('fig2_left.pdf', .fig2_left, width=3, height=9)
-
+ggsave('fig2_left.pdf', .fig2_left, width=4, height=9, family="Helvetica")
 
 
 # #######1#########2#########3#########4#########5#########6#########7#########
@@ -117,7 +122,7 @@ ggsave('fig2_left.pdf', .fig2_left, width=3, height=9)
 .infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', seq(10000L, 20000L, by=2000L)))
 .infiles = fs::path(.focus$indir[5], sprintf('generation_%05d.fa.gz', seq(25000L, 30000L, by=1000L)))
 
-.infiles = fs::path(.focus$indir[2], sprintf('generation_%05d.fa.gz', .gens))
+.infiles = fs::path(.metadata$indir[2], sprintf('generation_%05d.fa.gz', .gens))
 
 read_individuals = function(infile) {
   message(infile)
@@ -148,18 +153,64 @@ read_individuals = function(infile) {
   }) %>%
   print()
 
-.p = .df_unrooted %>% ggplot() +
-# .p = .df_unrooted_total %>% ggplot() +
+ggplot_tetree = function(data) {
+  .ylim = data$yend %>% {c(min(.), max(.) * 1.1)}
+  filter_active = function(x) dplyr::filter(x, activity > 0)
+  filter_major = function(x) dplyr::filter(x, is_major)
+  ggplot(data)+
+  geom_point(data=filter_active, aes(xend, yend, colour=activity, size=copy_number), pch=16, alpha=0.6) +
+  geom_point(data=filter_major, aes(xend, yend, size=copy_number), pch=1, colour='#000000', alpha=0.3, stroke=1) +
+  geom_point(data=filter_major, aes(xend, yend, colour=activity, size=copy_number), pch=1, alpha=0.6, stroke=1) +
   geom_segment(aes(x, y, xend=xend, yend=yend), size=0.25) +
-  geom_point(aes(xend, yend, colour=activity, size=copy_number), pch=16, alpha=0.6) +
   scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), guide=FALSE) +
-  scale_size(limit=c(1, .max_copy_number), range=c(3, 12), guide=FALSE) +
-  geom_point(data=function(x) dplyr::filter(x, is_major), aes(xend, yend, colour=activity, size=copy_number), pch=1, stroke=1)+
-  geom_point(data=function(x) dplyr::filter(x, is_fixed), aes(xend, yend, size=copy_number), pch=1, colour='#000000', alpha=0.3, stroke=0.5)+
-  # facet_grid(generation ~ individual)+
-  facet_wrap(~ generation)+
-  coord_fixed()+
+  scale_size(limit=c(1, .max_copy_number), range=c(3, 12), name = "Copy\nNumber", breaks=c(9, 6, 3, 1)) +
+  labs(x=NULL, y=NULL) +
+  coord_fixed(ylim = .ylim)
+}
+
+.p = .df_unrooted %>%
+# .p = .df_unrooted_total %>%
+  ggplot_tetree()+
+  facet_grid(generation ~ individual)+
+  # facet_wrap(~ generation)+
   theme_classic()
 .p
 ggsave("fig2_right_unrooted_candidates.pdf", .p, width = 9.9, height=7, scale=2)
-ggsave("fig2_right_unrooted_total.pdf", .p, width = 9.9, height=7, scale=2)
+# ggsave("fig2_right_unrooted_total.pdf", .p, width = 9.9, height=7, scale=2)
+
+.gens
+.inds = c("1", "4", "2", "7", "0", "6")
+.delegates = .timepoints_df %>%
+  dplyr::transmute(generation, BI = sprintf("%.3f", value), individual = .inds) %>%
+  print()
+.delegates_df = .delegates %>%
+  dplyr::left_join(.df_unrooted %>% tidyr::nest(-generation, -individual), by = c("generation", "individual")) %>%
+  tidyr::unnest() %>%
+  print()
+
+.fig2_right = ggplot_tetree(.delegates_df)+
+  facet_wrap(~ generation + BI, labeller=label_both)+
+  theme_classic()+
+  theme(
+    axis.line = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
+    strip.background = element_blank(),
+    strip.text.x = element_text(size=12, hjust=0, margin = margin(6, 12, 3, 12))
+  )
+.fig2_right
+ggsave('fig2_right.pdf', .fig2_right, width=7, height=4, family="Helvetica")
+
+.fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths=c(2, 6))
+ggsave('fig2.pdf', .fig2, width=14, height=7, family="Helvetica")
+
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+# Check continuity of each sequence
+
+.delegates_df %>%
+# .df_unrooted %>%
+  dplyr::filter(!is.na(label)) %>%
+  dplyr::count(generation, label, activity, wt=copy_number) %>%
+  ggplot(aes(generation, n, group=label))+
+  geom_line(aes(colour=label), alpha=0.5, size=3)+
+  # scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
+  theme_bw()+theme(legend.position='none')

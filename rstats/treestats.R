@@ -50,17 +50,30 @@ make_range_stats = function(generation=0L) {
     value = c(0, 1, 2, -10))
 }
 
-ggplot_evolution = function(.tblstats) {
+label_value_tr = function(labels, multi_line = TRUE) {
+  lapply(labels, function(x) {c(bimodality = 'BI', shape_pda = 'Shape stat. (PDA)')[x]})
+}
+
+ggplot_evolution = function(.tblstats, only_bi = FALSE) {
   .x = tidyr::gather(.tblstats, stat, value, -generation)
+  .blank = make_range_stats(min(.x$generation))
+  .hline = tibble::tibble(stat = c('bimodality', 'shape_pda'), value = c(5/9, NA))
+  if (only_bi) {
+    .x = .x %>% dplyr::filter(stat == "bimodality")
+    .blank = .blank %>% dplyr::filter(stat == "bimodality")
+    .hline = .hline %>% dplyr::filter(stat == "bimodality")
+  }
   ggplot(.x, aes(generation, value))+
-  geom_blank(data = make_range_stats(min(.x$generation)))+
+  geom_blank(data = .blank)+
   geom_line()+
-  facet_grid(stat ~ ., scale='free_y', switch='y')+
+  geom_hline(data = .hline, aes(yintercept=value), colour='red', linetype='dashed')+
+  facet_grid(stat ~ ., scale='free_y', switch='y', label = label_value_tr)+
   theme_bw()+
   theme(
     panel.grid.minor = element_blank(),
     strip.placement = "outside",
-    strip.background = element_blank()
+    strip.background = element_blank(),
+    strip.text = element_text(size = 12),
   )
 }
 # .tblstats %>% ggplot_evolution()

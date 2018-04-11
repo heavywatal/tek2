@@ -11,9 +11,9 @@ ggplot_activity = function(data, popsize) {
   ) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
-  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1)) +
-  wtl::theme_wtl() +
-  theme(legend.position = "none")
+  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), name = "Activity\nLevel") +
+  labs(x = "Generation", y = "Average Copy Number") +
+  wtl::theme_wtl()
 }
 
 plot_copynumber_generation = function(data) {
