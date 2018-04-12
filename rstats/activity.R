@@ -4,7 +4,7 @@ read_activity = function(indir) {
   file.path(indir, "activity.tsv.gz") %>% read_tsv()
 }
 
-ggplot_activity = function(data, popsize) {
+ggplot_activity = function(data, popsize=1) {
   dplyr::mutate(data,
     copy_number = copy_number / popsize,
     species = factorize_species(species)

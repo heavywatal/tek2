@@ -2,7 +2,8 @@ library(tidyverse)
 library(wtl)
 loadNamespace("cowplot")
 
-extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "nu", "lower", "upper")) {
+tek_params = c("n", "alpha", "beta", "lambda", "xi", "nu", "lower", "upper", "coexist")
+extract_params = function(filename, params=tek_params) {
   patterns = sprintf("_%s([^_]+)_", params)
   str_match(paste0("_", filename), patterns)[, 2] %>%
     parse_double() %>%
@@ -12,23 +13,21 @@ extract_params = function(filename, params=c("alpha", "beta", "lambda", "xi", "n
 }
 # .infiles[1] %>% extract_params()
 
-popsize = 500
-# popsize = 1000
-.indirs = list.dirs(full.names = FALSE, recursive = FALSE)
 # .indirs = wtl::command_args()$args
 # .indirs = "."
+.indirs = list.dirs(full.names = FALSE, recursive = FALSE)
 
 .metadata = .indirs %>%
   str_subset("_\\d+$") %>%
   set_names() %>%
   purrr::map_dfr(extract_params, .id = "indir") %>%
-  dplyr::group_by(xi, lower, upper) %>%
+  dplyr::group_by(!!!rlang::syms(tek_params)) %>%
   dplyr::mutate(repl = seq_len(n())) %>%
   dplyr::ungroup() %>%
-  dplyr::arrange(xi, lower, upper, repl) %>%
+  dplyr::arrange(n, xi, coexist, lower, upper, repl) %>%
   print()
 
-.metadata %>% distinct(xi, lower, upper)
+.metadata %>% dplyr::count(!!!rlang::syms(tek_params))
 
 # .metadata$indir[[1]] %>% read_activity() %>% ggplot_activity()
 
@@ -36,30 +35,124 @@ source('~/git/tek-evolution/rstats/activity.R')
 source('~/git/tek-evolution/rstats/biostrings.R')
 source('~/git/tek-evolution/rstats/treestats.R')
 
-.out = .metadata %>%
-  # dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
-  # head(3L) %>%
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+fig1acti = .metadata %>%
+  # dplyr::filter(xi > 6e-4) %>%
   dplyr::mutate(
-    title = sprintf('xi=%.0e lower=%d upper=%d (%d)', xi, lower, upper, repl),
+    title = sprintf('n=%d xi=%.0e (%d)', n, xi, repl),
     adata = purrr::map(indir, read_activity),
-    aplot = purrr::map(adata, ggplot_activity, popsize=popsize),
-    tplot = purrr::map2(indir, title, ~{
-      read_ggplot_treestats(.x, interval=500L, title=.y)+theme(
-        axis.title = element_blank(),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank()
-      )
+    aplot = purrr::map2(adata, n, ggplot_activity),
+    aplot = purrr::map2(aplot, title, ~.x + labs(title=.y) + theme(legend.position = "none"))
+  ) %>%
+  print()
+# fig1acti$aplot[[1]]
+ggsave("fig1_activity.pdf", fig1acti$aplot, width=8, height=4)
+
+fig2cand = .metadata %>%
+  dplyr::filter(xi > 6e-4) %>%
+  dplyr::mutate(
+    adata = purrr::map(indir, read_activity),
+    tdata = purrr::map(indir, ~{
+      message(.x)
+      read_fastas(.x, interval=500L) %>%
+        add_phylo() %>%
+        eval_treeshape()
     })
   ) %>%
   print()
 
-.plt = .out %>% {purrr::map2(.$aplot, .$tplot, ~{
-  cowplot::plot_grid(.y, .x, ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
-})}
+fig2cand_plts = fig2cand %>%
+  dplyr::mutate(
+    title = sprintf('n=%d xi=%.0e (%d)', n, xi, repl),
+    aplot = purrr::map2(adata, n, ggplot_activity),
+    tplot = purrr::map(tdata, ~{
+      ggplot_evolution(.x, only_bi = TRUE) +
+        theme(
+          axis.title = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()
+        )
+    }),
+  ) %>%
+  purrr::pmap(function(aplot, tplot, title, ...) {
+    .title = cowplot::ggdraw() + cowplot::draw_label(title, x = 0.1, hjust=0)
+    aplot = aplot + theme(legend.position = "none")
+    cowplot::plot_grid(.title, tplot, aplot, ncol=1, rel_heights=c(0.2, 1, 1), align='v', axis='lr')
+  })
+ggsave("fig2_candidates.pdf", fig2cand_plts, width=8, height=4)
 
-# cowplot::plot_grid(plotlist=.plt)
-.gtable = gridExtra::marrangeGrob(.plt, nrow=1, ncol=3, top=NULL)
-ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
+
+fig5acti = .metadata %>%
+  dplyr::mutate(
+    title = sprintf('n=%d xi=%.0e c=%d lower=%d upper=%d (%d)', n, xi, coexist, lower, upper, repl),
+    adata = purrr::map(indir, read_activity),
+    aplot = purrr::map2(adata, n, ggplot_activity),
+    aplot = purrr::map2(aplot, title, ~.x + labs(title=.y) + theme(legend.position = "none"))
+  ) %>%
+  print()
+# fig5acti$aplot[[1]]
+ggsave("fig5_activity.pdf", fig5acti$aplot, width=8, height=4)
+
+.fig5actidy = .metadata %>%
+  dplyr::mutate(
+    adata = purrr::map(indir, read_activity),
+    indir = NULL
+  ) %>%
+  tidyr::unnest() %>%
+  dplyr::mutate(copy_number = copy_number / n) %>%
+  print()
+
+.p5facet = .fig5actidy %>%
+  dplyr::filter(generation %% 1000L == 0L) %>%
+  ggplot_activity()+
+  facet_grid(n + xi + coexist ~ lower + upper + repl, scale='free_y')
+ggsave("fig5facet.pdf", .p5facet, width=20, height=20)
+
+# #######1#########2#########3#########4
+
+fig1df = .metadata %>%
+  dplyr::filter(xi > 6e-4) %>%
+  # dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
+  # head(3L) %>%
+  dplyr::mutate(
+    title = sprintf('n=%d xi=%.0e (%d)', n, xi, repl),
+    adata = purrr::map(indir, read_activity),
+    tdata = purrr::map(indir, ~{
+      message(.x)
+      read_fastas(.x, interval=500L) %>%
+        add_phylo() %>%
+        eval_treeshape()
+    })
+  ) %>%
+  print()
+
+fig1plts = fig1df %>%
+  dplyr::mutate(
+    aplot = purrr::map2(adata, n, ggplot_activity),
+    tplot = purrr::map(tdata, ~{
+      ggplot_evolution(.x, only_bi = TRUE) +
+        theme(
+          axis.title = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()
+        )
+    }),
+  ) %>%
+  purrr::pmap(function(aplot, tplot, title, ...) {
+    .title = cowplot::ggdraw() + cowplot::draw_label(title, x = 0.1, hjust=0)
+    .legend = cowplot::get_legend(aplot + guides(fill = guide_colorbar(barheight = 12)))
+    aplot = aplot + theme(legend.position = "none")
+    cowplot::plot_grid(
+      cowplot::plot_grid(.title, tplot, aplot, ncol=1, rel_heights=c(0.2, 1, 1), align='v', axis='lr'),
+      .legend,
+      rel_widths = c(1, 0.3)
+    )
+  })
+
+ggsave("copynumber-treestats.pdf", fig1plts, width=8, height=4)
+
+# #######1#########2#########3#########4#########5#########6#########7#########
 
 # .repl = 5L; .lbound = 25000L; .ubound = 31000L
 .repl = 2L; .lbound = 10000L; .ubound = 21000L
@@ -69,7 +162,7 @@ ggsave('copynumber-treestats.pdf', .gtable, width=9.9, height=7)
   dplyr::mutate(
     adata = purrr::map(indir, ~{read_activity(.) %>% dplyr::filter(.lbound <= generation, generation <= .ubound)}),
     tdata = purrr::map(indir, ~{
-      read_fastas(indir, interval=100L) %>%
+      read_fastas(.x, interval=100L) %>%
         dplyr::filter(.lbound <= generation, generation <= .ubound) %>%
         add_phylo() %>%
         eval_treeshape()

@@ -73,19 +73,10 @@ ggplot_evolution = function(.tblstats, only_bi = FALSE) {
     panel.grid.minor = element_blank(),
     strip.placement = "outside",
     strip.background = element_blank(),
-    strip.text = element_text(size = 12),
+    strip.text = element_text(size = 12, family = 'Helvetica'),
   )
 }
 # .tblstats %>% ggplot_evolution()
-
-read_ggplot_treestats = function(indir, interval=2000L, title='') {
-  read_fastas(indir, interval=interval) %>%
-    add_phylo() %>%
-    eval_treeshape() %>%
-    ggplot_evolution()+
-    labs(title=title)
-}
-
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 if (FALSE) {
@@ -93,7 +84,11 @@ if (FALSE) {
 main = function(indir, interval=2000L) {
   message(indir)
   label = fs::path_file(indir)
-  read_ggplot_treestats(indir, interval=interval, title=label)
+  read_fastas(indir, interval=interval) %>%
+    add_phylo() %>%
+    eval_treeshape() %>%
+    ggplot_evolution()+
+    labs(title=label)
 }
 
 root = '~/working/te2-0207'
