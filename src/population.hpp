@@ -20,8 +20,8 @@ namespace tek {
 enum class Recording: int {
     none     = 0b00000000,
     activity = 0b00000001,
-    fitness  = 0b00000010,
-    sequence = 0b00000100,
+    sequence = 0b00000010,
+    fitness  = 0b00000100,
     summary  = 0b00001000,
 };
 
