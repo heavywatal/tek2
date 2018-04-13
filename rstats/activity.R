@@ -5,13 +5,14 @@ read_activity = function(indir) {
 }
 
 ggplot_activity = function(data, popsize=1) {
+  .guide = guide_colorbar(title = "Activity\nLevel", barheight = 12, reverse=TRUE)
   dplyr::mutate(data,
     copy_number = copy_number / popsize,
     species = factorize_species(species)
   ) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
-  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), name = "Activity\nLevel") +
+  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), guide = .guide) +
   labs(x = "Generation", y = "Average Copy Number") +
   wtl::theme_wtl()
 }

@@ -109,27 +109,34 @@ ggsave("fig5_activity.pdf", fig5acti$aplot, width=8, height=4)
   facet_grid(coexist + n + xi ~ lower + upper + repl, scale='free_y')
 ggsave("fig5facet.pdf", .p5facet, width=30, height=20)
 
-# #######1#########2#########3#########4
+.p5facet_narrow = .fig5actidy %>%
+  dplyr::filter(xi == 0.001, n == 500L, upper < 30L) %>%
+  dplyr::filter(generation %% 1000L == 0L) %>%
+  ggplot_activity()+
+  facet_grid(coexist + lower ~ upper + repl, scale='free_y')
+ggsave("fig5facet_narrow.pdf", .p5facet_narrow, width=20, height=12)
+
+
+# #######1#########2#########3#########4#########5#########6#########7#########
 
 fig1df = .metadata %>%
-  dplyr::filter(xi > 6e-4) %>%
-  # dplyr::filter(!(xi < 6e-4 & upper < 16)) %>%
-  # head(3L) %>%
   dplyr::mutate(
-    title = sprintf('n=%d xi=%.0e (%d)', n, xi, repl),
     adata = purrr::map(indir, read_activity),
     tdata = purrr::map(indir, ~{
       message(.x)
-      read_fastas(.x, interval=500L) %>%
+      read_fastas(.x, interval=100L) %>%
         add_phylo() %>%
         eval_treeshape()
     })
   ) %>%
   print()
 
+saveRDS(fig1df, 'fig1.rds')
+# fig1df = readRDS('fig1.rds')
+
 fig1plts = fig1df %>%
+  dplyr::arrange(desc(xi)) %>%
   dplyr::mutate(
-    aplot = purrr::map2(adata, n, ggplot_activity),
     tplot = purrr::map(tdata, ~{
       ggplot_evolution(.x, only_bi = TRUE) +
         theme(
@@ -138,19 +145,31 @@ fig1plts = fig1df %>%
           axis.ticks.x = element_blank()
         )
     }),
+    aplot = purrr::map2(adata, n, ~{
+      .p = ggplot_activity(.x, .y)
+      if (max(.x$copy_number) / .y < 100) {
+        .p = .p + theme(axis.title.y = element_text(margin=margin(r=11.5)))
+      }
+      .p
+    }),
+    plt = purrr::map2(tplot, aplot, ~{
+      cowplot::plot_grid(.x, .y + theme(legend.position = "none", axis.title.x=element_blank()),
+        ncol=1, rel_heights=c(1, 1), align='v', axis='lr')
+    })
   ) %>%
-  purrr::pmap(function(aplot, tplot, title, ...) {
-    .title = cowplot::ggdraw() + cowplot::draw_label(title, x = 0.1, hjust=0)
-    .legend = cowplot::get_legend(aplot + guides(fill = guide_colorbar(barheight = 12)))
-    aplot = aplot + theme(legend.position = "none")
-    cowplot::plot_grid(
-      cowplot::plot_grid(.title, tplot, aplot, ncol=1, rel_heights=c(0.2, 1, 1), align='v', axis='lr'),
-      .legend,
-      rel_widths = c(1, 0.3)
-    )
-  })
+  print()
+fig1plts$plt[[1]]
 
-ggsave("copynumber-treestats.pdf", fig1plts, width=8, height=4)
+fig1 = cowplot::plot_grid(
+  cowplot::plot_grid(
+    cowplot::plot_grid(plotlist=fig1plts$plt, ncol=1, labels=c("A", "B", "C"), scale=0.95),
+    cowplot::get_legend(fig1plts$aplot[[1]]),
+    nrow = 1L, rel_widths=c(1, 0.1)
+  ),
+  cowplot::ggdraw() + cowplot::draw_label("Generation"),
+  ncol = 1L, rel_heights=c(3, 0.1)
+)
+ggsave("fig1.pdf", fig1, width=7, height=9.9)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
@@ -256,7 +275,7 @@ ggsave('fig2_candidates8.pdf', cowplot::plot_grid(plotlist=fig2candplt$plt, ncol
 ggsave('fig2_left.pdf', .fig2_left, width=4, height=9, family="Helvetica")
 
 
-# #######1#########2#########3#########4#########5#########6#########7#########
+# #######1#########2#########3#########4
 
 read_individuals = function(infile) {
   message(infile)
