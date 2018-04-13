@@ -22,17 +22,19 @@ read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
   .dss
 }
 
-read_fastas = function(dir, interval = 1000L) {
-  .fastas = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$')
-  tibble::tibble(
-    path = .fastas,
+read_fastas = function(dir, interval = 1000L, from = NULL, to = NULL) {
+  .df = tibble::tibble(
+    path = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$'),
     infile = fs::path_file(path),
-    generation = as.integer(readr::parse_number(infile))) %>%
-  dplyr::filter((generation %% interval) == 0L) %>%
-  dplyr::transmute(
-    generation,
-    seqs = purrr::map(path, read_tek_fasta)
-  )
+    generation = as.integer(readr::parse_number(infile)))
+  if (is.null(from)) {from = min(.df$generation)}
+  if (is.null(to)) {to = max(.df$generation)}
+  .df %>%
+    dplyr::filter(generation %in% seq.int(from, to, interval)) %>%
+    dplyr::transmute(
+      generation,
+      seqs = purrr::map(path, read_tek_fasta)
+    )
 }
 # .tbl = read_fastas('lower10_upper30_20180130T172206_00') %>% print()
 
