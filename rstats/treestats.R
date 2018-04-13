@@ -65,7 +65,7 @@ ggplot_evolution = function(.tblstats, only_bi = FALSE) {
   }
   ggplot(.x, aes(generation, value))+
   geom_blank(data = .blank)+
-  geom_line()+
+  geom_line(size=0.8)+
   geom_hline(data = .hline, aes(yintercept=value), colour='red', linetype='dashed')+
   facet_grid(stat ~ ., scale='free_y', switch='y', label = label_value_tr)+
   theme_bw()+
