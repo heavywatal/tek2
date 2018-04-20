@@ -119,6 +119,47 @@ ggsave("fig5facet_possible.pdf", .p5facet, width=30, height=20)
 ggsave("fig5facet_narrow.pdf", .p5facet_narrow, width=20, height=12)
 
 
+.metadata %>% dplyr::count(!!!rlang::syms(tek_params))
+
+.fig6repl = tibble::tribble(
+     ~n,  ~xi, ~lower, ~upper, ~coexist, ~repl,
+   500L, 1e-3,     6L,    18L,       8L,    4L,
+   500L, 1e-3,     6L,    24L,       8L,    1L,
+   500L, 1e-3,     6L,    24L,       8L,    2L,
+   500L, 1e-3,     9L,    18L,       8L,    2L,
+   500L, 1e-3,     9L,    18L,       8L,    3L,
+   500L, 1e-3,     9L,    24L,       8L,    3L,
+  1000L, 1e-3,     6L,    18L,       8L,    1L,
+  1000L, 1e-3,     6L,    18L,       8L,    3L,
+  1000L, 1e-3,     6L,    18L,       8L,    4L,
+  1000L, 1e-3,     6L,    24L,       8L,    1L,
+  1000L, 1e-3,     6L,    24L,       8L,    2L,
+  1000L, 1e-3,     6L,    24L,       8L,    4L,
+  1000L, 1e-3,     6L,    30L,       8L,    1L,
+  1000L, 1e-3,     9L,    18L,       8L,    1L,
+  1000L, 1e-3,     9L,    18L,       8L,    3L,
+  1000L, 1e-3,     9L,    24L,       8L,    4L,
+  1000L, 1e-3,     9L,    30L,       8L,    1L,
+  1000L, 1e-3,     9L,    30L,       8L,    3L
+) %>% print()
+
+.fig6actidy = .metadata %>%
+  dplyr::right_join(.fig6repl, by = names(.fig6repl)) %>%
+  dplyr::mutate(
+    label = sprintf('n=%d l=%d u=%d repl=%d', n, lower, upper, repl),
+    adata = purrr::map(indir, read_activity),
+    indir = NULL
+  ) %>%
+  tidyr::unnest() %>%
+  dplyr::mutate(copy_number = copy_number / n) %>%
+  print()
+
+.fig6candidates = .fig6actidy %>%
+  ggplot_activity()+
+  facet_wrap(~ label, ncol=3L)
+.fig6candidates
+ggsave("fig6candidates.pdf", .fig6candidates, width=14, height=14)
+
 # #######1#########2#########3#########4#########5#########6#########7#########
 
 fig1df = .metadata %>%
