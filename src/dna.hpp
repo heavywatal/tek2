@@ -21,6 +21,7 @@ namespace tek {
 class DNA {
   public:
     DNA() = delete;
+    //! default constructor
     DNA(const DNA&) = default;
     //! move constructor
     DNA(DNA&&) noexcept = default;
@@ -84,7 +85,7 @@ class DNA {
         static const std::string NUCLEOTIDE = "ACGT";
         return NUCLEOTIDE[x];
     }
-
+    //! count the number of trues
     static uint_fast32_t count(const std::valarray<bool>& v) noexcept {
         return std::accumulate(std::begin(v), std::end(v), 0u,
           [](uint_fast32_t x, bool b) {

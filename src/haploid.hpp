@@ -52,8 +52,11 @@ class Haploid {
     void transpose_mutate(Haploid& other, URBG& engine);
     //! evaluate and return fitness
     /*! \f[\begin{split}
-            s_{CN,k} &= \xi n_k ^\tau \\
-            w_k &= w_{k,GP} (1 - s_{CN,k})
+            w_k &= w_{GP,k} w_{CN,k} \\
+            w_{CN,k} &= \prod _{x \in F} \prod _{y \in F}
+                        \left(1 - I(d _{xy}) \xi n _{x,k} ^{\frac \tau 2}
+                                                 n _{y,k} ^{\frac \tau 2}
+                        \right) \\
         \end{split}\f]
     */
     double fitness(const Haploid&) const;

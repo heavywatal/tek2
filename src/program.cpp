@@ -22,6 +22,7 @@ namespace tek {
 
 namespace po = boost::program_options;
 
+//! directory for output
 const std::string OUT_DIR = wtl::strftime("tek_%Y%m%d_%H%M%S");
 
 //! options description for general arguments

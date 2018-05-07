@@ -100,9 +100,9 @@ class Transposon {
     }
     //! interaction coefficient between species
     /*! \f[
-            f(d) = \begin{cases}
-            1                            &         d \lt d_l \\
-            \frac {d_u - d}{d_u - d_l}   & d_l \le d \lt d_u \\
+            I(d) = \begin{cases}
+            1                            &         d < d_l \\
+            \frac {d_u - d}{d_u - d_l}   & d_l \le d < d_u \\
             0                            & d_u \le d
             \end{cases}
         \f]
