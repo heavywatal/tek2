@@ -69,7 +69,8 @@ po::options_description Program::options_desc() {HERE;
     // do not print positional arguments as options
     std::cout << "commit " << GIT_COMMIT_HASH
               << " [" << GIT_BRANCH << "]\n"
-              << "Date:  " << GIT_COMMIT_TIME << std::endl;    std::cout << "Usage: tek [options]\n" << std::endl;
+              << "Date:  " << GIT_COMMIT_TIME << "\n";
+    std::cout << "Usage: tek [options]\n\n";
     description.print(std::cout);
     throw wtl::ExitSuccess();
 }
