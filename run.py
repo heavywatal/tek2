@@ -68,9 +68,6 @@ def main():
     arg_makers = {k: v for k, v in globals().items()
                   if callable(v) and k not in ('main', 'iter_args')}
     parser = wopt.ArgumentParser()
-    parser.add_argument('--skip', type=int, default=0)
-    parser.add_argument('-o', '--outdir', default='.stdout')
-    parser.add_argument('-r', '--repeat', type=int, default=1)
     parser.add_argument('function', choices=arg_makers)
     (args, rest) = parser.parse_known_args()
     print("cpu_count(): {}".format(wopt.cpu_count()))
