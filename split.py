@@ -4,10 +4,8 @@
 """
 import wtl.options as wopt
 
-program = 'tek'
 
-
-def iter_values(rest):
+def iter_values():
     crossing_axes = wopt.OrderedDict()
     crossing_axes['xi'] = ['1e-4', '1e-3']
     for d in wopt.product(crossing_axes):
@@ -15,14 +13,14 @@ def iter_values(rest):
 
 
 def iter_args(rest, concurrency, repeat, skip):
-    const = [program, '-j{}'.format(concurrency)] + rest
+    const = ['tek', '-j{}'.format(concurrency)] + rest
     const.extend(['-i10000', '-g10000', '-s100000'])
-    suffix = '_{}'.format(wopt.now())
-    for i, v in enumerate(wopt.cycle(iter_values(rest), repeat)):
+    now = wopt.now()
+    for i, v in enumerate(wopt.cycle(iter_values(), repeat)):
         if i < skip:
             continue
         args = wopt.make_args(v)
-        label = wopt.join(args) + suffix + '_{:02}'.format(i)
+        label = '_'.join([wopt.join(args), now, format(i, '03d')])
         yield const + args + ['--outdir=' + label]
 
 

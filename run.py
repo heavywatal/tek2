@@ -4,8 +4,6 @@
 """
 import wtl.options as wopt
 
-program = 'tek'
-
 
 def te2fig1():
     crossing_axes = wopt.OrderedDict()
@@ -54,13 +52,13 @@ def te1fig2s():
 
 
 def iter_args(arg_maker, rest, concurrency, repeat, skip):
-    const = [program, '-j{}'.format(concurrency)] + rest
-    suffix = '_{}'.format(wopt.now())
+    const = ['tek', '-j{}'.format(concurrency)] + rest
+    now = wopt.now()
     for i, v in enumerate(wopt.cycle(arg_maker(), repeat)):
         if i < skip:
             continue
         args = wopt.make_args(v)
-        label = wopt.join(args) + suffix + '_{:02}'.format(i)
+        label = '_'.join([wopt.join(args), now, format(i, '03d')])
         yield const + args + ['--outdir=' + label]
 
 
