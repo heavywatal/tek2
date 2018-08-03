@@ -12,9 +12,9 @@
 #include <wtl/exception.hpp>
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
-#include <wtl/zfstream.hpp>
-#include <wtl/filesystem.hpp>
 #include <wtl/chrono.hpp>
+#include <wtl/zlib.hpp>
+#include <wtl/filesystem.hpp>
 #include <wtl/getopt.hpp>
 #include <boost/program_options.hpp>
 
@@ -114,11 +114,11 @@ void Program::main() {HERE;
         if (!good) continue;
         wtl::make_ofs("program_options.conf") << config_string_;
         if (static_cast<bool>(flags & Recording::sequence)) {
-            wtl::ozfstream ost("sequence.fa.gz");
+            wtl::zlib::ofstream ost("sequence.fa.gz");
             pop.write_fasta(ost);
         }
         if (static_cast<bool>(flags & Recording::summary)) {
-            wtl::ozfstream ost("summary.json.gz");
+            wtl::zlib::ofstream ost("summary.json.gz");
             pop.write_summary(ost);
         }
         if (num_generations_after_split_ == 0u) break;

@@ -6,9 +6,10 @@ option(PROFILE "Use gperftools" FALSE)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 set(Boost_NO_BOOST_CMAKE TRUE)
-find_package(Boost REQUIRED COMPONENTS program_options iostreams filesystem system)
+find_package(Boost REQUIRED COMPONENTS program_options filesystem)
 message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 
+find_package(ZLIB)
 find_package(wtl)
 find_package(sfmt)
 
@@ -31,7 +32,7 @@ endif()
 add_subdirectory(src)
 
 add_executable(${PROJECT_NAME}-exe main.cpp $<TARGET_OBJECTS:obj>)
-target_link_libraries(${PROJECT_NAME}-exe PRIVATE wtl sfmt ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}-exe PRIVATE wtl sfmt ${Boost_LIBRARIES} ZLIB::ZLIB)
 if(PROFILE)
   target_link_libraries(${PROJECT_NAME}-exe PRIVATE profiler)
 endif()
@@ -46,7 +47,7 @@ add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:obj>)
 target_include_directories(${PROJECT_NAME} BEFORE
   INTERFACE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE wtl sfmt ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE wtl sfmt ${Boost_LIBRARIES} ZLIB::ZLIB)
 
 include(CTest)
 if(BUILD_TESTING)

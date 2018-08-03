@@ -6,7 +6,7 @@
 
 #include <wtl/debug.hpp>
 #include <wtl/iostr.hpp>
-#include <wtl/zfstream.hpp>
+#include <wtl/zlib.hpp>
 #include <wtl/concurrent.hpp>
 #include <wtl/random.hpp>
 #include <sfmt.hpp>
@@ -67,12 +67,12 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             }
             if (static_cast<bool>(flags & Recording::activity)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
-                wtl::ozfstream ozf("activity.tsv.gz", ioflag);
+                wtl::zlib::ofstream ozf("activity.tsv.gz", ioflag);
                 write_activity(ozf, t, t == record_interval);
             }
             if (static_cast<bool>(flags & Recording::fitness)) {
                 auto ioflag = (t > record_interval) ? std::ios::app : std::ios::out;
-                wtl::ozfstream ozf("fitness.tsv.gz", ioflag);
+                wtl::zlib::ofstream ozf("fitness.tsv.gz", ioflag);
                 if (t == record_interval) {
                     ozf << "generation\tfitness\n";
                 }
@@ -83,7 +83,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             if (static_cast<bool>(flags & Recording::sequence)) {
                 std::ostringstream outfile;
                 outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
-                wtl::ozfstream ozf(outfile.str());
+                wtl::zlib::ofstream ozf(outfile.str());
                 write_fasta(ozf, SAMPLE_SIZE_);
             }
         } else {
