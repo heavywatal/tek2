@@ -34,11 +34,12 @@ namespace po = boost::program_options;
     `-c,--coexist`      |               | Population::MAX_COEXISTENCE_
 */
 po::options_description Population::options_desc() {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
     po::options_description description("Population");
     description.add_options()
-      ("sample", po::value(&SAMPLE_SIZE_)->default_value(SAMPLE_SIZE_))
-      ("parallel,j", po::value(&CONCURRENCY_)->default_value(CONCURRENCY_))
-      ("coexist,c", po::value(&MAX_COEXISTENCE_)->default_value(MAX_COEXISTENCE_))
+      ("sample", po_value(&SAMPLE_SIZE_))
+      ("parallel,j", po_value(&CONCURRENCY_))
+      ("coexist,c", po_value(&MAX_COEXISTENCE_))
     ;
     return description;
 }

@@ -33,13 +33,15 @@ namespace po = boost::program_options;
     `-d,--mindist`      |               | Transposon::MIN_DISTANCE_
 */
 po::options_description Transposon::options_desc() {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
     po::options_description description("Transposon");
     description.add_options()
-      ("alpha,a", po::value(&ALPHA_)->default_value(ALPHA_))
-      ("beta,b", po::value(&BETA_)->default_value(BETA_))
-      ("spec", po::value(&SPECIATION_RATE_)->default_value(SPECIATION_RATE_))
-      ("lower,l", po::value(&LOWER_THRESHOLD_)->default_value(LOWER_THRESHOLD_))
-      ("upper,u", po::value(&UPPER_THRESHOLD_)->default_value(UPPER_THRESHOLD_));
+      ("alpha,a", po_value(&ALPHA_))
+      ("beta,b", po_value(&BETA_))
+      ("spec", po_value(&SPECIATION_RATE_))
+      ("lower,l", po_value(&LOWER_THRESHOLD_))
+      ("upper,u", po_value(&UPPER_THRESHOLD_))
+    ;
     return description;
 }
 

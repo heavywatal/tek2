@@ -40,11 +40,13 @@ namespace po = boost::program_options;
     `--lambda`          | \f$\lambda\f$ | Haploid::MEAN_SELECTION_COEF_
 */
 po::options_description Haploid::options_desc() {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
     po::options_description description("Haploid");
     description.add_options()
-      ("xi", po::value(&XI_)->default_value(XI_))
-      ("nu", po::value(&EXCISION_RATE_)->default_value(EXCISION_RATE_))
-      ("lambda", po::value(&MEAN_SELECTION_COEF_)->default_value(MEAN_SELECTION_COEF_));
+      ("xi", po_value(&XI_))
+      ("nu", po_value(&EXCISION_RATE_))
+      ("lambda", po_value(&MEAN_SELECTION_COEF_))
+    ;
     return description;
 }
 

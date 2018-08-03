@@ -48,15 +48,17 @@ inline po::options_description general_desc() {HERE;
     `-o,--outdir`       |         | Program::outdir_
 */
 po::options_description Program::options_desc() {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
     po::options_description description("Program");
     description.add_options()
-      ("popsize,n", po::value(&popsize_)->default_value(popsize_))
-      ("initial,q", po::value(&initial_freq_)->default_value(initial_freq_))
-      ("generations,g", po::value(&num_generations_)->default_value(num_generations_))
-      ("split,s", po::value(&num_generations_after_split_)->default_value(num_generations_after_split_))
-      ("interval,i", po::value(&record_interval_)->default_value(record_interval_))
-      ("record,r", po::value(&record_flags_)->default_value(record_flags_))
-      ("outdir,o", po::value(&outdir_)->default_value(OUT_DIR));
+      ("popsize,n", po_value(&popsize_))
+      ("initial,q", po_value(&initial_freq_))
+      ("generations,g", po_value(&num_generations_))
+      ("split,s", po_value(&num_generations_after_split_))
+      ("interval,i", po_value(&record_interval_))
+      ("record,r", po_value(&record_flags_))
+      ("outdir,o", po::value(&outdir_)->default_value(OUT_DIR))
+    ;
     description.add(Population::options_desc());
     description.add(Haploid::options_desc());
     description.add(Transposon::options_desc());
