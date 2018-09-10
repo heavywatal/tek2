@@ -2,8 +2,11 @@
 #ifndef TEK_VERSION_HPP
 #define TEK_VERSION_HPP
 
-constexpr char static GIT_BRANCH[] = "@GIT_BRANCH@";
-constexpr char static GIT_COMMIT_HASH[] = "@GIT_COMMIT_HASH@";
-constexpr char static GIT_COMMIT_TIME[] = "@GIT_COMMIT_TIME@";
+namespace tek {
+
+constexpr char static PROJECT_NAME[] = "@PROJECT_NAME@";
+constexpr char static PROJECT_VERSION[] = "@PROJECT_VERSION@";
+
+}
 
 #endif//TEK_VERSION_HPP

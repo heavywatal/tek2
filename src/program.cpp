@@ -30,6 +30,7 @@ inline po::options_description general_desc() {HERE;
     po::options_description description("General");
     description.add_options()
         ("help,h", po::bool_switch(), "print this help")
+        ("version", po::bool_switch(), "print version")
         ("verbose,v", po::bool_switch(), "verbose output")
     ;
     return description;
@@ -69,10 +70,7 @@ po::options_description Program::options_desc() {HERE;
     auto description = general_desc();
     description.add(options_desc());
     // do not print positional arguments as options
-    std::cout << "commit " << GIT_COMMIT_HASH
-              << " [" << GIT_BRANCH << "]\n"
-              << "Date:  " << GIT_COMMIT_TIME << "\n";
-    std::cout << "Usage: tek [options]\n\n";
+    std::cout << "Usage: " << PROJECT_NAME << " [options]\n\n";
     description.print(std::cout);
     throw wtl::ExitSuccess();
 }
@@ -90,6 +88,10 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
     po::store(po::command_line_parser({arguments.begin() + 1, arguments.end()}).
               options(description).run(), vm);
     if (vm["help"].as<bool>()) {help_and_exit();}
+    if (vm["version"].as<bool>()) {
+        std::cout << PROJECT_VERSION << "\n";
+        throw wtl::ExitSuccess();
+    }
     po::notify(vm);
 
     config_string_ = wtl::flags_into_string(vm);
