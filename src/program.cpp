@@ -62,17 +62,29 @@ po::options_description Program::options_desc() {HERE;
     ;
     description.add(Population::options_desc());
     description.add(Haploid::options_desc());
-    description.add(Transposon::options_desc());
     return description;
 }
 
-[[noreturn]] void Program::help_and_exit() {HERE;
-    auto description = general_desc();
-    description.add(options_desc());
-    // do not print positional arguments as options
-    std::cout << "Usage: " << PROJECT_NAME << " [options]\n\n";
-    description.print(std::cout);
-    throw wtl::ExitSuccess();
+/*! @ingroup params
+
+    Command line option | Symbol        | Variable
+    ------------------- | ------------- | -------------------------
+    `-a,--alpha`        | \f$\alpha\f$  | Transposon::ALPHA_
+    `-b,--beta`         | \f$\beta\f$   | Transposon::BETA_
+    `--spec`            |               | Transposon::SPECIATION_RATE_
+    `-d,--mindist`      |               | Transposon::MIN_DISTANCE_
+*/
+inline po::options_description Transposon_options(TransposonParams* p) {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
+    po::options_description description("Transposon");
+    description.add_options()
+      ("alpha,a", po_value(&p->ALPHA))
+      ("beta,b", po_value(&p->BETA))
+      ("spec", po_value(&p->SPECIATION_RATE))
+      ("lower,l", po_value(&p->LOWER_THRESHOLD))
+      ("upper,u", po_value(&p->UPPER_THRESHOLD))
+    ;
+    return description;
 }
 
 Program::Program(const std::vector<std::string>& arguments) {HERE;
@@ -82,18 +94,25 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
     std::cout.precision(15);
     std::cerr.precision(6);
 
+    TransposonParams transposon_params;
+
     auto description = general_desc();
     description.add(options_desc());
+    description.add(Transposon_options(&transposon_params));
     po::variables_map vm;
     po::store(po::command_line_parser({arguments.begin() + 1, arguments.end()}).
               options(description).run(), vm);
-    if (vm["help"].as<bool>()) {help_and_exit();}
+    if (vm["help"].as<bool>()) {
+        std::cout << "Usage: " << PROJECT_NAME << " [options]\n\n";
+        description.print(std::cout);
+        throw wtl::ExitSuccess();
+    }
     if (vm["version"].as<bool>()) {
         std::cout << PROJECT_VERSION << "\n";
         throw wtl::ExitSuccess();
     }
     po::notify(vm);
-
+    Transposon::param(transposon_params);
     config_string_ = wtl::flags_into_string(vm);
     if (vm["verbose"].as<bool>()) {
         std::cerr << wtl::iso8601datetime() << std::endl;

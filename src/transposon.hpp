@@ -13,11 +13,28 @@
 #include <random>
 #include <atomic>
 
-namespace boost {namespace program_options {class options_description;}}
-
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
+
+//! \f$L\f$, sequence length of TE (bp)
+constexpr uint_fast32_t LENGTH = 300u;
+
+//! @brief Parameters for Transposon class
+/*! @ingroup params
+*/
+struct TransposonParams {
+    //! \f$\alpha\f$, intercept of sequence identity to make activity zero
+    double ALPHA = 0.7;
+    //! \f$\beta\f$, exponent of activity curve
+    unsigned int BETA = 6u;
+    //! speciation rate per mutation
+    double SPECIATION_RATE = 0.0;
+    //! threshold distance required for speciation
+    uint_fast32_t LOWER_THRESHOLD = LENGTH;
+    //! threshold distance that interaction between sepecies becomes zero
+    uint_fast32_t UPPER_THRESHOLD = LENGTH;
+};
 
 /*! @brief Transposon class
 */
@@ -26,9 +43,8 @@ class Transposon {
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params
     //! @{
-
-    //! \f$L\f$, sequence length of TE (bp)
-    static constexpr uint_fast32_t LENGTH = 300u;
+    //! Alias
+    using param_type = TransposonParams;
     //! number of synonymous sites
     static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
     //! number of nonsynonymous sites
@@ -62,14 +78,14 @@ class Transposon {
     template <class URBG>
     void mutate(URBG& engine) noexcept {
         thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
-        thread_local std::bernoulli_distribution BERN_SPECIATION(SPECIATION_RATE_);
+        thread_local std::bernoulli_distribution BERN_SPECIATION(param().SPECIATION_RATE);
         auto pos = UNIF_LEN(engine);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, engine);
         } else {
             nonsynonymous_sites_.flip(pos, engine);
         }
-        if (SPECIATION_RATE_ > 0.0 && BERN_SPECIATION(engine)) {
+        if (param().SPECIATION_RATE > 0.0 && BERN_SPECIATION(engine)) {
             speciate();
         }
     }
@@ -108,23 +124,23 @@ class Transposon {
         \f]
     */
     double operator*(const Transposon& other) const noexcept {
-        const static double over_x = 1.0 / (UPPER_THRESHOLD_ - LOWER_THRESHOLD_);
+        const static double over_x = 1.0 / (param().UPPER_THRESHOLD - param().LOWER_THRESHOLD);
         const auto distance = (*this - other);
-        if (distance < LOWER_THRESHOLD_) {
+        if (distance < param().LOWER_THRESHOLD) {
             return 1.0;
-        } else if (distance < UPPER_THRESHOLD_) {
-            return (UPPER_THRESHOLD_ - distance) * over_x;
+        } else if (distance < param().UPPER_THRESHOLD) {
+            return (param().UPPER_THRESHOLD - distance) * over_x;
         } else {
             return 0.0;
         }
     }
     //! check if distance is large enough for speciation
     bool is_far_enough_from(const Transposon& other) const noexcept {
-        return (*this - other) >= LOWER_THRESHOLD_;
+        return (*this - other) >= param().LOWER_THRESHOLD;
     }
     //! check if speciation is allowed under the condition
     static bool can_speciate() noexcept {
-        return LOWER_THRESHOLD_ < LENGTH;
+        return param().LOWER_THRESHOLD < LENGTH;
     }
     //! clear #INTERACTION_COEFS_
     static void INTERACTION_COEFS_clear() noexcept {INTERACTION_COEFS_.clear();}
@@ -163,12 +179,19 @@ class Transposon {
     static void write_activity(std::ostream&, double alpha, unsigned int beta);
     friend std::ostream& operator<<(std::ostream&, const Transposon&);
 
-    //! set dependent variables once, and reset non-parameter variables
-    static void initialize();
-    //! options description for Transposon class
-    static boost::program_options::options_description options_desc();
+    //! Set #PARAM_
+    static void param(const param_type& p);
+    //! Get #PARAM_
+    static const param_type& param() {return PARAM_;}
+    //! Set #PARAM_ with default values;
+    static void initialize() {
+        TransposonParams p;
+        param(p);
+    }
 
   private:
+    //! Parameters shared among instances
+    static param_type PARAM_;
 
     //!
     /*! \f[
@@ -176,23 +199,6 @@ class Transposon {
         \f]
     */
     static double calc_activity(uint_fast32_t num_mutations);
-
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
-    //! @addtogroup params
-    //! @{
-
-    //! \f$\alpha\f$, intercept of sequence identity to make activity zero
-    static double ALPHA_;
-    //! \f$\beta\f$, exponent of activity curve
-    static unsigned int BETA_;
-    //! speciation rate per mutation
-    static double SPECIATION_RATE_;
-    //! threshold distance required for speciation
-    static uint_fast32_t LOWER_THRESHOLD_;
-    //! threshold distance that interaction between sepecies becomes zero
-    static uint_fast32_t UPPER_THRESHOLD_;
-    //! @} params
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! 1 - #ALPHA_
     static double THRESHOLD_;

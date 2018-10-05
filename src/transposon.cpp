@@ -5,45 +5,16 @@
 
 #include <wtl/debug.hpp>
 #include <wtl/numeric.hpp>
-#include <boost/program_options.hpp>
 
 #include <cmath>
 
 namespace tek {
 
-double Transposon::ALPHA_ = 0.7;
-unsigned int Transposon::BETA_ = 6u;
-double Transposon::SPECIATION_RATE_ = 0.0;
-uint_fast32_t Transposon::LOWER_THRESHOLD_ = Transposon::LENGTH;
-uint_fast32_t Transposon::UPPER_THRESHOLD_ = Transposon::LENGTH;
+Transposon::param_type Transposon::PARAM_;
 double Transposon::THRESHOLD_ = 0.0;
 std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
 std::atomic_uint_fast32_t Transposon::NUM_SPECIES_{1u};
 std::unordered_map<uint_fast64_t, double> Transposon::INTERACTION_COEFS_;
-
-namespace po = boost::program_options;
-
-/*! @ingroup params
-
-    Command line option | Symbol        | Variable
-    ------------------- | ------------- | -------------------------
-    `-a,--alpha`        | \f$\alpha\f$  | Transposon::ALPHA_
-    `-b,--beta`         | \f$\beta\f$   | Transposon::BETA_
-    `--spec`            |               | Transposon::SPECIATION_RATE_
-    `-d,--mindist`      |               | Transposon::MIN_DISTANCE_
-*/
-po::options_description Transposon::options_desc() {HERE;
-    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
-    po::options_description description("Transposon");
-    description.add_options()
-      ("alpha,a", po_value(&ALPHA_))
-      ("beta,b", po_value(&BETA_))
-      ("spec", po_value(&SPECIATION_RATE_))
-      ("lower,l", po_value(&LOWER_THRESHOLD_))
-      ("upper,u", po_value(&UPPER_THRESHOLD_))
-    ;
-    return description;
-}
 
 static_assert(std::is_nothrow_default_constructible<Transposon>{}, "");
 static_assert(std::is_nothrow_move_constructible<Transposon>{}, "");
@@ -51,11 +22,12 @@ static_assert(std::is_nothrow_move_constructible<Transposon>{}, "");
 static_assert(!std::is_default_constructible<DNA>{}, "");
 static_assert(std::is_nothrow_move_constructible<DNA>{}, "");
 
-void Transposon::initialize() {HERE;
+void Transposon::param(const param_type& p) {HERE;
+    PARAM_ = p;
     static bool has_been_executed = false;
     NUM_SPECIES_.store(1u);
     if (has_been_executed) return;
-    THRESHOLD_ = 1.0 - ALPHA_;
+    THRESHOLD_ = 1.0 - param().ALPHA;
     for (uint_fast32_t i=0u; i<NUM_NONSYNONYMOUS_SITES; ++i) {
         ACTIVITY_[i] = calc_activity(i);
     }
@@ -65,7 +37,7 @@ void Transposon::initialize() {HERE;
 double Transposon::calc_activity(uint_fast32_t num_mutations) {
     const double diff = num_mutations * OVER_NONSYNONYMOUS_SITES;
     if (diff >= THRESHOLD_) return 0.0;
-    return std::pow(1.0 - diff / THRESHOLD_, BETA_);
+    return std::pow(1.0 - diff / THRESHOLD_, param().BETA);
 }
 
 std::ostream& Transposon::write_summary(std::ostream& ost) const {
