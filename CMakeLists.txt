@@ -6,12 +6,9 @@ project(tek
 include(GNUInstallDirs)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost REQUIRED COMPONENTS program_options)
-message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-
 find_package(ZLIB REQUIRED)
 find_package(sfmt 0.7.0)
+find_package(clippson 0.7.3)
 find_package(wtl 0.7.1)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -40,7 +37,7 @@ add_subdirectory(src)
 target_include_directories(${PROJECT_NAME} INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE wtl::wtl wtl::sfmt Boost::program_options ZLIB::ZLIB)
+target_link_libraries(${PROJECT_NAME} PRIVATE wtl::wtl wtl::sfmt clippson::clippson ZLIB::ZLIB)
 
 add_executable(${PROJECT_NAME}-exe main.cpp)
 target_link_libraries(${PROJECT_NAME}-exe PRIVATE ${PROJECT_NAME})
