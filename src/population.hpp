@@ -10,8 +10,6 @@
 #include <iosfwd>
 #include <vector>
 
-namespace boost {namespace program_options {class options_description;}}
-
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
@@ -35,14 +33,27 @@ constexpr Recording operator|(Recording x, Recording y) {
     return static_cast<Recording>(static_cast<int>(x) | static_cast<int>(y));
 }
 
+//! @brief Parameters for Population class
+/*! @ingroup params
+*/
+struct PopulationParams {
+    //! number of individuals to sample
+    size_t SAMPLE_SIZE = 10u;
+    //! number of threads
+    unsigned int CONCURRENCY = 1u;
+    //! max number of species that can coexist at a time
+    unsigned int MAX_COEXISTENCE = 42u;
+};
+
 /*! @brief Population class
 */
 class Population {
   public:
+    //! Alias
+    using param_type = PopulationParams;
     /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params
     //! @{
-
     //! \f$\theta = 4N\mu\f$, population mutation rate
     static constexpr double THETA = 0.01;
     //! \f$\rho = 4Nc\f$, population recombination rate
@@ -67,10 +78,15 @@ class Population {
     std::ostream& write_fasta(std::ostream&, size_t num_individuals=-1u) const;
     friend std::ostream& operator<<(std::ostream&, const Population&);
 
-    //! options description for Population class
-    static boost::program_options::options_description options_desc();
+    //! Set #PARAM_
+    static void param(const param_type& p) {PARAM_ = p;}
+    //! Get #PARAM_
+    static const param_type& param() {return PARAM_;}
 
   private:
+    //! Parameters shared among instances
+    static param_type PARAM_;
+
     //! proceed one generation and return fitness record
     std::vector<double> step(double previous_max_fitness=1.0);
     //! find farthest element, count species, and cause speciation if qualified
@@ -79,15 +95,6 @@ class Population {
     bool is_extinct() const;
     //! summarize and write activity
     void write_activity(std::ostream&, size_t time, bool header) const;
-
-    //! number of individuals to sample
-    static size_t SAMPLE_SIZE_;
-
-    //! number of threads
-    static unsigned int CONCURRENCY_;
-
-    //! max number of species that can coexist at a time
-    static unsigned int MAX_COEXISTENCE_;
 
     //! vector of chromosomes, not individuals
     std::vector<Haploid> gametes_;

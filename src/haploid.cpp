@@ -8,17 +8,13 @@
 #include <wtl/iostr.hpp>
 #include <wtl/random.hpp>
 #include <sfmt.hpp>
-#include <boost/program_options.hpp>
 
 #include <cmath>
 #include <numeric>
 
 namespace tek {
 
-double Haploid::XI_ = 1e-4;
-double Haploid::EXCISION_RATE_ = 1e-5;
-double Haploid::MEAN_SELECTION_COEF_ = 1e-4;
-
+Haploid::param_type Haploid::PARAM_;
 double Haploid::MUTATION_RATE_ = 0.0;
 double Haploid::RECOMBINATION_RATE_ = 0.0;
 double Haploid::INDEL_RATE_ = 0.0;
@@ -28,27 +24,6 @@ std::shared_timed_mutex Haploid::MTX_;
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 // static functions
-
-namespace po = boost::program_options;
-
-/*! @ingroup params
-
-    Command line option | Symbol        | Variable
-    ------------------- | ------------- | -------------------------
-    `--xi`              | \f$\xi\f$     | Haploid::XI_
-    `--nu`              | \f$\nu\f$     | Haploid::EXCISION_RATE_
-    `--lambda`          | \f$\lambda\f$ | Haploid::MEAN_SELECTION_COEF_
-*/
-po::options_description Haploid::options_desc() {HERE;
-    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
-    po::options_description description("Haploid");
-    description.add_options()
-      ("xi", po_value(&XI_))
-      ("nu", po_value(&EXCISION_RATE_))
-      ("lambda", po_value(&MEAN_SELECTION_COEF_))
-    ;
-    return description;
-}
 
 Haploid::Haploid(size_t n) {HERE;
     for (size_t i=0; i<n; ++i) {
@@ -68,7 +43,7 @@ void Haploid::initialize(const size_t popsize, const double theta, const double 
 }
 
 Haploid::position_t Haploid::SELECTION_COEFS_GP_emplace(URBG& engine) {
-    thread_local std::exponential_distribution<double> EXPO_DIST(1.0 / MEAN_SELECTION_COEF_);
+    thread_local std::exponential_distribution<double> EXPO_DIST(1.0 / param().MEAN_SELECTION_COEF);
     thread_local std::bernoulli_distribution BERN_FUNCTIONAL(PROP_FUNCTIONAL_SITES_);
     auto coef = BERN_FUNCTIONAL(engine) ? EXPO_DIST(engine) : 0.0;
     position_t j = 0;
@@ -152,7 +127,7 @@ std::vector<std::shared_ptr<Transposon>> Haploid::transpose(URBG& engine) {
         if (wtl::generate_canonical(engine) < it->second->transposition_rate()) {
             copying_transposons.push_back(it->second);
         }
-        if (wtl::generate_canonical(engine) < EXCISION_RATE_) {
+        if (wtl::generate_canonical(engine) < param().EXCISION_RATE) {
             it = sites_.erase(it);
         } else {
             ++it;
@@ -218,12 +193,12 @@ double Haploid::fitness(const Haploid& other) const {
     double prod_1_xi_n_tau = 1.0;
     for (const auto& px: counter) {
         // within species
-        prod_1_xi_n_tau *= (1.0 - XI_ * std::pow(px.second, TAU_));
+        prod_1_xi_n_tau *= (1.0 - param().XI * std::pow(px.second, TAU_));
         for (const auto& py: counter) {
             if (px.first < py.first) {
                 // between species
                 double coef = Transposon::INTERACTION_COEFS_get(px.first, py.first);
-                prod_1_xi_n_tau *= (1.0 - coef * XI_ * std::pow(px.second, 0.5 * TAU_) * std::pow(py.second, 0.5 * TAU_));
+                prod_1_xi_n_tau *= (1.0 - coef * param().XI * std::pow(px.second, 0.5 * TAU_) * std::pow(py.second, 0.5 * TAU_));
             }
         }
     }

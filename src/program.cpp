@@ -60,8 +60,44 @@ po::options_description Program::options_desc() {HERE;
       ("record,r", po_value(&record_flags_))
       ("outdir,o", po::value(&outdir_)->default_value(OUT_DIR))
     ;
-    description.add(Population::options_desc());
-    description.add(Haploid::options_desc());
+    return description;
+}
+
+/*! @ingroup params
+
+    Command line option | Symbol        | Variable
+    ------------------- | ------------- | -------------------------
+    `--sample`          |               | Population::SAMPLE_SIZE_
+    `-j,--parallel`     |               | Population::CONCURRENCY_
+    `-c,--coexist`      |               | Population::MAX_COEXISTENCE_
+*/
+inline po::options_description Population_options(PopulationParams* p) {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
+    po::options_description description("Population");
+    description.add_options()
+      ("sample", po_value(&p->SAMPLE_SIZE))
+      ("parallel,j", po_value(&p->CONCURRENCY))
+      ("coexist,c", po_value(&p->MAX_COEXISTENCE))
+    ;
+    return description;
+}
+
+/*! @ingroup params
+
+    Command line option | Symbol        | Variable
+    ------------------- | ------------- | -------------------------
+    `--xi`              | \f$\xi\f$     | Haploid::XI_
+    `--nu`              | \f$\nu\f$     | Haploid::EXCISION_RATE_
+    `--lambda`          | \f$\lambda\f$ | Haploid::MEAN_SELECTION_COEF_
+*/
+inline po::options_description Haploid_options(HaploidParams* p) {HERE;
+    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
+    po::options_description description("Haploid");
+    description.add_options()
+      ("xi", po_value(&p->XI))
+      ("nu", po_value(&p->EXCISION_RATE))
+      ("lambda", po_value(&p->MEAN_SELECTION_COEF))
+    ;
     return description;
 }
 
@@ -94,10 +130,14 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
     std::cout.precision(15);
     std::cerr.precision(6);
 
+    PopulationParams population_params;
+    HaploidParams haploid_params;
     TransposonParams transposon_params;
 
     auto description = general_desc();
     description.add(options_desc());
+    description.add(Population_options(&population_params));
+    description.add(Haploid_options(&haploid_params));
     description.add(Transposon_options(&transposon_params));
     po::variables_map vm;
     po::store(po::command_line_parser({arguments.begin() + 1, arguments.end()}).
@@ -112,6 +152,8 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
         throw wtl::ExitSuccess();
     }
     po::notify(vm);
+    Population::param(population_params);
+    Haploid::param(haploid_params);
     Transposon::param(transposon_params);
     config_string_ = wtl::flags_into_string(vm);
     if (vm["verbose"].as<bool>()) {

@@ -18,18 +18,30 @@
 
 namespace wtl {class sfmt19937_64;}
 
-namespace boost {namespace program_options {class options_description;}}
-
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
 
 class Transposon;
 
+//! @brief Parameters for Haploid class
+/*! @ingroup params
+*/
+struct HaploidParams {
+    //! \f$\xi\f$, parameter for the intensity of copy number selection
+    double XI = 1e-4;
+    //! \f$\nu\f$, excision rate per generation per element
+    double EXCISION_RATE = 1e-5;
+    //! \f$\lambda\f$, mean selection coef against TEs on functional sites
+    double MEAN_SELECTION_COEF = 1e-4;
+};
+
 /*! @brief Haploid class
 */
 class Haploid {
   public:
+    //! Alias
+    using param_type = HaploidParams;
     //! random number generator class
     using URBG = wtl::sfmt19937_64;
     //! unsigned integer type for TE position
@@ -82,10 +94,16 @@ class Haploid {
     static void insert_coefs_gp(size_t);
     //! getter of #SELECTION_COEFS_GP_
     static const std::unordered_map<position_t, double>& SELECTION_COEFS_GP() {return SELECTION_COEFS_GP_;}
-    //! options description for Haploid class
-    static boost::program_options::options_description options_desc();
+
+    //! Set #PARAM_
+    static void param(const param_type& p) {PARAM_ = p;}
+    //! Get #PARAM_
+    static const param_type& param() {return PARAM_;}
 
   private:
+    //! Parameters shared among instances
+    static param_type PARAM_;
+
     //! default copy assignment operator (private)
     Haploid& operator=(const Haploid&) = default;
 
@@ -115,12 +133,6 @@ class Haploid {
     static constexpr double TAU_ = 1.5;
     //! \f$p\f$, proportion of non-neutral sites
     static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
-    //! \f$\xi\f$, parameter for the intensity of copy number selection
-    static double XI_;
-    //! \f$\nu\f$, excision rate per generation per element
-    static double EXCISION_RATE_;
-    //! \f$\lambda\f$, mean selection coef against TEs on functional sites
-    static double MEAN_SELECTION_COEF_;
 
     //! \f$L\mu = L\theta / 4N\f$, mutation rate per TE
     static double MUTATION_RATE_;

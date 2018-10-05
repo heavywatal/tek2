@@ -11,7 +11,6 @@
 #include <wtl/random.hpp>
 #include <sfmt.hpp>
 #include <nlohmann/json.hpp>
-#include <boost/program_options.hpp>
 
 #include <unordered_map>
 #include <algorithm>
@@ -19,30 +18,7 @@
 
 namespace tek {
 
-size_t Population::SAMPLE_SIZE_ = 10u;
-unsigned int Population::CONCURRENCY_ = 1u;
-unsigned int Population::MAX_COEXISTENCE_ = 42u;
-
-namespace po = boost::program_options;
-
-/*! @ingroup params
-
-    Command line option | Symbol        | Variable
-    ------------------- | ------------- | -------------------------
-    `--sample`          |               | Population::SAMPLE_SIZE_
-    `-j,--parallel`     |               | Population::CONCURRENCY_
-    `-c,--coexist`      |               | Population::MAX_COEXISTENCE_
-*/
-po::options_description Population::options_desc() {HERE;
-    auto po_value = [](auto* x) {return po::value(x)->default_value(*x);};
-    po::options_description description("Population");
-    description.add_options()
-      ("sample", po_value(&SAMPLE_SIZE_))
-      ("parallel,j", po_value(&CONCURRENCY_))
-      ("coexist,c", po_value(&MAX_COEXISTENCE_))
-    ;
-    return description;
-}
+Population::param_type Population::PARAM_;
 
 Population::Population(const size_t size, const size_t num_founders) {HERE;
     Haploid::initialize(size, THETA, RHO);
@@ -85,7 +61,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
                 std::ostringstream outfile;
                 outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
                 wtl::zlib::ofstream ozf(outfile.str());
-                write_fasta(ozf, SAMPLE_SIZE_);
+                write_fasta(ozf, param().SAMPLE_SIZE);
             }
         } else {
             DCERR("." << std::flush);
@@ -102,7 +78,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
     static Haploid::URBG seeder(std::random_device{}());
-    static wtl::ThreadPool pool(CONCURRENCY_);
+    static wtl::ThreadPool pool(param().CONCURRENCY);
     static std::mutex mtx;
     static std::vector<Haploid> nextgen;
     nextgen.reserve(num_gametes);
@@ -131,7 +107,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             nextgen.push_back(std::move(sperm));
         }
     };
-    for (size_t i=0u; i<CONCURRENCY_; ++i) {
+    for (size_t i=0u; i<param().CONCURRENCY; ++i) {
         pool.submit(task);
     }
     pool.wait();
@@ -160,7 +136,7 @@ void Population::eval_species_distance() {
             }
         }
     }
-    if (counter.size() >= MAX_COEXISTENCE_) return;
+    if (counter.size() >= param().MAX_COEXISTENCE) return;
     Transposon* farthest = nullptr;
     uint_fast32_t max_distance = 0;
     for (const auto& chr: gametes_) {
