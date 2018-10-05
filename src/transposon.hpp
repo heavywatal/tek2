@@ -40,19 +40,19 @@ struct TransposonParams {
 */
 class Transposon {
   public:
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
-    //! @addtogroup params
-    //! @{
     //! Alias
     using param_type = TransposonParams;
+
+    //! @addtogroup params
+    //! @{
+
     //! number of synonymous sites
     static constexpr uint_fast32_t NUM_SYNONYMOUS_SITES = LENGTH / 3u;
     //! number of nonsynonymous sites
     static constexpr uint_fast32_t NUM_NONSYNONYMOUS_SITES = LENGTH - NUM_SYNONYMOUS_SITES;
     //! \f$u_0\f$, maximum transposition rate
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
-    //! @} params
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @} params /2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! resiprocal of synonymous sites
     static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
@@ -200,7 +200,7 @@ class Transposon {
     */
     static double calc_activity(uint_fast32_t num_mutations);
 
-    //! 1 - #ALPHA_
+    //! 1 - TransposonParams::ALPHA
     static double THRESHOLD_;
     //! pre-calculated activity values
     static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;

@@ -123,7 +123,6 @@ class Haploid {
     //! sample integers for recombination
     static std::set<position_t> sample_chiasmata(URBG&);
 
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
     //! @addtogroup params
     //! @{
 
@@ -141,7 +140,6 @@ class Haploid {
     //! \f$c = \rho / 4N\f$, recombination rate per genome
     static double RECOMBINATION_RATE_;
     //! @} params
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! \f$s_{GP}\f$ : coefficient of GP selection
     static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;

@@ -19,6 +19,7 @@
 
 namespace tek {
 
+//! variables map
 nlohmann::json VM;
 
 //! Options description for general purpose
@@ -34,13 +35,13 @@ inline clipp::group general_options(nlohmann::json* vm) {HERE;
 
     Command line option | Symbol  | Variable
     ------------------- | ------- | -------------------------
-    `-n,--popsize`      | \f$N\f$ | Program::popsize_
-    `-q,--initial`      |         | Program::initial_freq_
-    `-g,--generations`  |         | Program::num_generations_
-    `-s,--split`        |         | Program::num_generations_after_split_
-    `-i,--interval`     |         | Program::record_interval_
-    `-r,--record`       |         | Program::record_flags_
-    `-o,--outdir`       |         | Program::outdir_
+    `-n,--popsize`      | \f$N\f$ |
+    `-q,--initial`      |         |
+    `-g,--generations`  |         |
+    `-s,--split`        |         |
+    `-i,--interval`     |         |
+    `-r,--record`       |         |
+    `-o,--outdir`       |         |
 */
 inline clipp::group program_options(nlohmann::json* vm) {HERE;
     const std::string outdir = wtl::strftime("tek_%Y%m%d_%H%M%S");
@@ -64,9 +65,9 @@ inline clipp::group program_options(nlohmann::json* vm) {HERE;
 
     Command line option | Symbol        | Variable
     ------------------- | ------------- | -------------------------
-    `--sample`          |               | Population::SAMPLE_SIZE_
-    `-j,--parallel`     |               | Population::CONCURRENCY_
-    `-c,--coexist`      |               | Population::MAX_COEXISTENCE_
+    `--sample`          |               | PopulationParams::SAMPLE_SIZE
+    `-j,--parallel`     |               | PopulationParams::CONCURRENCY
+    `-c,--coexist`      |               | PopulationParams::MAX_COEXISTENCE
 */
 inline clipp::group
 population_options(nlohmann::json* vm, PopulationParams* p) {HERE;
@@ -81,9 +82,9 @@ population_options(nlohmann::json* vm, PopulationParams* p) {HERE;
 
     Command line option | Symbol        | Variable
     ------------------- | ------------- | -------------------------
-    `--xi`              | \f$\xi\f$     | Haploid::XI_
-    `--nu`              | \f$\nu\f$     | Haploid::EXCISION_RATE_
-    `--lambda`          | \f$\lambda\f$ | Haploid::MEAN_SELECTION_COEF_
+    `--xi`              | \f$\xi\f$     | HaploidParams::XI
+    `--nu`              | \f$\nu\f$     | HaploidParams::EXCISION_RATE
+    `--lambda`          | \f$\lambda\f$ | HaploidParams::MEAN_SELECTION_COEF
 */
 inline clipp::group
 haploid_options(nlohmann::json* vm, HaploidParams* p) {HERE;
@@ -98,10 +99,11 @@ haploid_options(nlohmann::json* vm, HaploidParams* p) {HERE;
 
     Command line option | Symbol        | Variable
     ------------------- | ------------- | -------------------------
-    `-a,--alpha`        | \f$\alpha\f$  | Transposon::ALPHA_
-    `-b,--beta`         | \f$\beta\f$   | Transposon::BETA_
-    `--spec`            |               | Transposon::SPECIATION_RATE_
-    `-d,--mindist`      |               | Transposon::MIN_DISTANCE_
+    `-a,--alpha`        | \f$\alpha\f$  | TransposonParams::ALPHA
+    `-b,--beta`         | \f$\beta\f$   | TransposonParams::BETA
+    `--spec`            |               | TransposonParams::SPECIATION_RATE
+    `-l,--lower`        | \f$d_l\f$     | TransposonParams::LOWER_THRESHOLD
+    `-u,--upper`        | \f$d_u\f$     | TransposonParams::UPPER_THRESHOLD
 */
 inline clipp::group
 transposon_options(nlohmann::json* vm, TransposonParams* p) {HERE;

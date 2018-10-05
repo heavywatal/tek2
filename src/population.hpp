@@ -51,15 +51,15 @@ class Population {
   public:
     //! Alias
     using param_type = PopulationParams;
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+
     //! @addtogroup params
     //! @{
+
     //! \f$\theta = 4N\mu\f$, population mutation rate
     static constexpr double THETA = 0.01;
     //! \f$\rho = 4Nc\f$, population recombination rate
     static constexpr double RHO = 20000;
-    //! @} params
-    /////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
+    //! @} params /2/////////3/////////4/////////5/////////6/////////7/////////
 
     //! constructor
     Population(size_t size, size_t num_founders=1);
