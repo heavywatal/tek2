@@ -32,7 +32,6 @@ add_executable(${PROJECT_NAME}-exe main.cpp)
 target_link_libraries(${PROJECT_NAME}-exe PRIVATE objlib)
 set_target_properties(${PROJECT_NAME}-exe PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}
-  INSTALL_RPATH_USE_LINK_PATH ON
 )
 install(TARGETS ${PROJECT_NAME}-exe
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

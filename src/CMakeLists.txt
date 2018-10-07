@@ -19,5 +19,4 @@ add_library(objlib OBJECT ${srcfiles})
 target_include_directories(objlib INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
-set_property(TARGET objlib PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(objlib PUBLIC wtl::wtl wtl::sfmt clippson::clippson ZLIB::ZLIB)
