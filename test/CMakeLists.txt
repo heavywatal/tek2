@@ -1,4 +1,4 @@
-link_libraries(${PROJECT_NAME})
+link_libraries(objlib)
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} source_files)
 foreach(src IN LISTS source_files)
@@ -6,4 +6,3 @@ foreach(src IN LISTS source_files)
   add_executable(test-${name_we} ${src})
   add_test(NAME ${name_we} COMMAND $<TARGET_FILE:test-${name_we}>)
 endforeach()
-target_link_libraries(test-haploid PRIVATE wtl::sfmt)

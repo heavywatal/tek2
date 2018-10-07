@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 project(tek
   VERSION 0.1.0
   LANGUAGES CXX)
@@ -8,8 +8,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(ZLIB REQUIRED)
 find_package(sfmt 0.7.0)
-find_package(clippson 0.7.3)
-find_package(wtl 0.7.1)
+find_package(clippson 0.7.4)
+find_package(wtl 0.7.2)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -26,28 +26,16 @@ if(${CMAKE_INSTALL_PREFIX} MATCHES linuxbrew)
   set(CMAKE_INSTALL_LIBDIR lib)
 endif()
 
-set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-
-add_library(${PROJECT_NAME} SHARED)
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 add_subdirectory(src)
 
-target_include_directories(${PROJECT_NAME} INTERFACE
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE wtl::wtl wtl::sfmt clippson::clippson ZLIB::ZLIB)
-
 add_executable(${PROJECT_NAME}-exe main.cpp)
-target_link_libraries(${PROJECT_NAME}-exe PRIVATE ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}-exe PRIVATE objlib)
 set_target_properties(${PROJECT_NAME}-exe PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}
+  INSTALL_RPATH_USE_LINK_PATH ON
 )
-install(TARGETS ${PROJECT_NAME}-exe ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}-config
+install(TARGETS ${PROJECT_NAME}-exe
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 include(CTest)
