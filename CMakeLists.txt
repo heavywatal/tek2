@@ -3,13 +3,12 @@ project(tek
   VERSION 0.1.0
   LANGUAGES CXX)
 
-include(GNUInstallDirs)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-
-find_package(ZLIB REQUIRED)
-find_package(sfmt 0.7.0)
-find_package(clippson 0.7.4)
-find_package(wtl 0.7.2)
+include(GNUInstallDirs)
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+if(${CMAKE_INSTALL_PREFIX} MATCHES linuxbrew)
+  set(CMAKE_INSTALL_LIBDIR lib)
+endif()
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -19,12 +18,12 @@ set(CMAKE_CXX_FLAGS_DEV "-O2 -g")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_compile_options(-march=native -Wall -Wextra -Wpedantic)
+add_compile_options(-march=native -Wall -Wextra -pedantic)
 
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-if(${CMAKE_INSTALL_PREFIX} MATCHES linuxbrew)
-  set(CMAKE_INSTALL_LIBDIR lib)
-endif()
+find_package(ZLIB)
+find_package(sfmt 0.7.1)
+find_package(clippson 0.7.6)
+find_package(wtl 0.7.6)
 
 add_subdirectory(src)
 
