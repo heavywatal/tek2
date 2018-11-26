@@ -33,7 +33,7 @@ class DNA {
 
     //! diviation from the original
     uint_fast32_t count() const noexcept {
-        return count(sequence_ > 0u);
+        return count(sequence_ > uint_fast8_t(0u));
     }
 
     //! mutate i-th site
