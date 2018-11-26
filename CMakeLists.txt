@@ -20,6 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-march=native -Wall -Wextra -pedantic)
 
+find_package(Threads)
 find_package(ZLIB)
 find_package(sfmt 0.7.1)
 find_package(clippson 0.7.6)
