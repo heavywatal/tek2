@@ -23,8 +23,8 @@ add_compile_options(-march=native -Wall -Wextra -pedantic)
 find_package(Threads)
 find_package(ZLIB)
 find_package(sfmt 0.7.1)
-find_package(clippson 0.7.6)
-find_package(wtl 0.7.6)
+find_package(clippson 0.8.0)
+find_package(wtl 0.8.1)
 
 add_subdirectory(src)
 
