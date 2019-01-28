@@ -31,9 +31,9 @@ extract_params = function(filename, params=tek_params) {
 
 # .metadata$indir[[1]] %>% read_activity() %>% ggplot_activity()
 
-source('~/git/tek-evolution/rstats/activity.R')
-source('~/git/tek-evolution/rstats/biostrings.R')
-source('~/git/tek-evolution/rstats/treestats.R')
+source('~/git/teaposon/rstats/activity.R')
+source('~/git/teaposon/rstats/biostrings.R')
+source('~/git/teaposon/rstats/treestats.R')
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
