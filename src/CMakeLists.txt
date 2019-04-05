@@ -14,9 +14,21 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp @ONLY
 )
 
-file(GLOB srcfiles *.cpp)
-add_library(objlib OBJECT ${srcfiles})
+# Be patient until 3.13 is popularized
+add_library(objlib OBJECT
+  ${CMAKE_CURRENT_SOURCE_DIR}/haploid.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/program.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/transposon.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp
+)
 target_include_directories(objlib INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
-target_link_libraries(objlib PUBLIC wtl::wtl wtl::sfmt clippson::clippson ZLIB::ZLIB Threads::Threads)
+target_link_libraries(objlib PUBLIC
+  wtl::wtl
+  wtl::sfmt
+  clippson::clippson
+  ZLIB::ZLIB
+  Threads::Threads
+)

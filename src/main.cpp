@@ -1,7 +1,7 @@
 /*! @file main.cpp
     @brief Only defines tiny main()
 */
-#include "src/program.hpp"
+#include "program.hpp"
 #include <iostream>
 #include <stdexcept>
 

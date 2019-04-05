@@ -28,7 +28,7 @@ find_package(wtl 0.8.1)
 
 add_subdirectory(src)
 
-add_executable(${PROJECT_NAME}-exe main.cpp)
+add_executable(${PROJECT_NAME}-exe src/main.cpp)
 target_link_libraries(${PROJECT_NAME}-exe PRIVATE objlib)
 set_target_properties(${PROJECT_NAME}-exe PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}
