@@ -22,6 +22,11 @@ add_library(objlib OBJECT
   transposon.cpp
   version.cpp
 )
+target_compile_features(objlib PUBLIC cxx_std_14)
+set_target_properties(objlib PROPERTIES
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
+)
 target_include_directories(objlib INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
