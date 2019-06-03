@@ -5,14 +5,15 @@ read_activity = function(indir) {
 }
 
 ggplot_activity = function(data, popsize=1) {
-  .guide = guide_colorbar(title = "Activity\nLevel", barheight = 12, reverse=TRUE)
+  .guide = guide_colorbar(title = "Activity\nLevel", barheight = 12, reverse = TRUE)
+  .colors = rev(head(rainbow(15L), 12L))
   dplyr::mutate(data,
     copy_number = copy_number / popsize,
     species = factorize_species(species)
   ) %>%
   ggplot(aes(generation, copy_number)) +
   geom_area(aes(group = interaction(activity, species), fill = activity), position = position_stack(reverse = FALSE)) +
-  scale_fill_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), guide = .guide) +
+  scale_fill_gradientn(colours = .colors, limits = c(0, 1), breaks = c(0, 0.5, 1), guide = .guide) +
   labs(x = "Generation", y = "Average Copy Number") +
   wtl::theme_wtl()
 }
@@ -27,7 +28,7 @@ plot_copynumber_generation = function(data) {
 # .counted %>% plot_copynumber_generation()
 
 factorize_species = function(x) {
-  factor(x, levels=sort.int(unique(x), decreasing=TRUE))
+  factor(x, levels = sort.int(unique(x), decreasing = TRUE))
 }
 
 
@@ -43,7 +44,7 @@ if (FALSE) {
   tidyr::unnest() %>%
   print()
 
-.p = ggplot_activity(.tbl_act)+
+.p = ggplot_activity(.tbl_act) +
   facet_grid(xi * lower ~ upper * repl)
 .p
 ggsave("copynumber-activity-species.png", .p, width = 10, height = 10)

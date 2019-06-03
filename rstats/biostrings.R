@@ -3,15 +3,15 @@ library(Biostrings)
 parse_fasta_header = function(x) {
   str_match_all(x, "(\\w+)=(\\S+)") %>%
   purrr::map_dfr(~{
-    tibble::tibble(key = .x[,2], value = .x[,3]) %>%
-    tidyr::spread(key, value, convert=FALSE)
+    tibble::tibble(key = .x[, 2], value = .x[, 3]) %>%
+    tidyr::spread(key, value, convert = FALSE)
   }) %>%
   dplyr::mutate_at(vars(activity, dn, ds), as.double) %>%
   dplyr::mutate_at(vars(copy_number, indel, species), as.integer)
 }
 
 read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
-  .dss = Biostrings::readDNAStringSet(file, nrec=nrec, skip=skip)
+  .dss = Biostrings::readDNAStringSet(file, nrec = nrec, skip = skip)
   .names = names(.dss)
   if (metadata) {
     mcols(.dss) = parse_fasta_header(.names)
@@ -24,7 +24,7 @@ read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
 
 read_fastas = function(dir, interval = 1000L, from = NULL, to = NULL) {
   .df = tibble::tibble(
-    path = fs::dir_ls(dir, regexp="generation_\\d+\\.fa\\.gz$"),
+    path = fs::dir_ls(dir, regexp = "generation_\\d+\\.fa\\.gz$"),
     infile = fs::path_file(path),
     generation = as.integer(readr::parse_number(infile)))
   if (is.null(from)) {from = min(.df$generation)}
@@ -46,7 +46,7 @@ sample_size = 10L
 #' @param x BStringSet with metadata
 tidy_mcols = function(x) {
   mcols(x) %>% as.data.frame() %>% as_tibble() %>%
-    dplyr::select(label=te, everything()) %>%
+    dplyr::select(label = te, everything()) %>%
     rename_origin()
 }
 
@@ -100,14 +100,16 @@ tidy_metadata = function(dss, add_root = TRUE) {
   .inds_with_origin = dplyr::filter(.mcols, label == origin_name)$individual
   .inds_wo_origin = unique(.mcols$individual) %>% {.[!. %in% .inds_with_origin]}
   if (add_root && length(.inds_wo_origin) > 0L) {
-    .mcols = .mcols %>%
-      add_row(label=origin_name, activity=1.0, copy_number=0L, dn=0.0, ds=0.0, indel=0L, individual=.inds_wo_origin, species=0L)
+    .mcols = .mcols %>% add_row(
+      label = origin_name, activity = 1.0, copy_number = 0L, dn = 0.0, ds = 0.0,
+      indel = 0L, individual = .inds_wo_origin, species = 0L
+    )
   }
   .mcols_total = summarise_mcols(.mcols)
   .freq_cols = freq_in_samples(.mcols)
   .mcols %>%
     dplyr::bind_rows(.mcols_total) %>%
-    dplyr::left_join(.freq_cols, by="label")
+    dplyr::left_join(.freq_cols, by = "label")
 }
 
 unique_dss = function(dss) {

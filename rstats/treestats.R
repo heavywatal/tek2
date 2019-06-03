@@ -5,12 +5,12 @@ library(aptree)  # library(apTreeshape)
 
 add_phylo = function(.tbl, root=NULL) {
   .tbl %>%
-    dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method="hamming")) %>%
+    dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method = "hamming")) %>%
     dplyr::mutate(phylo = purrr::map(distmat, ~{
       if (length(.x) > 2) {
         .phy = ape::fastme.ols(.x)
         if (!is.null(root) && (root %in% .phy$tip.label)) {
-          .phy = ape::root(.phy, root, resolve.root=TRUE)
+          .phy = ape::root(.phy, root, resolve.root = TRUE)
         }
         .phy
       } else {NA}
@@ -46,7 +46,7 @@ eval_treeshape = function(.tblphy) {
 make_range_stats = function(generation=0L) {
   tibble::tibble(
     generation,
-    stat = rep(c("bimodality", "shape_pda"), each=2L),
+    stat = rep(c("bimodality", "shape_pda"), each = 2L),
     value = c(0, 1, 2, -10))
 }
 
@@ -57,18 +57,18 @@ label_value_tr = function(labels, multi_line = TRUE) {
 ggplot_evolution = function(.tblstats, only_bi = FALSE) {
   .x = tidyr::gather(.tblstats, stat, value, -generation)
   .blank = make_range_stats(min(.x$generation))
-  .hline = tibble::tibble(stat = c("bimodality", "shape_pda"), value = c(5/9, NA))
+  .hline = tibble::tibble(stat = c("bimodality", "shape_pda"), value = c(5 / 9, NA))
   if (only_bi) {
     .x = .x %>% dplyr::filter(stat == "bimodality")
     .blank = .blank %>% dplyr::filter(stat == "bimodality")
     .hline = .hline %>% dplyr::filter(stat == "bimodality")
   }
-  ggplot(.x, aes(generation, value))+
-  geom_blank(data = .blank)+
-  geom_line(size=0.8)+
-  geom_hline(data = .hline, aes(yintercept=value), colour="red", linetype="dashed")+
-  facet_grid(stat ~ ., scale="free_y", switch="y", label = label_value_tr)+
-  theme_bw()+
+  ggplot(.x, aes(generation, value)) +
+  geom_blank(data = .blank) +
+  geom_line(size = 0.8) +
+  geom_hline(data = .hline, aes(yintercept = value), colour = "red", linetype = "dashed") +
+  facet_grid(stat ~ ., scale = "free_y", switch = "y", label = label_value_tr) +
+  theme_bw() +
   theme(
     panel.grid.minor = element_blank(),
     strip.placement = "outside",
@@ -84,20 +84,20 @@ if (FALSE) {
 main = function(indir, interval=2000L) {
   message(indir)
   label = fs::path_file(indir)
-  read_fastas(indir, interval=interval) %>%
+  read_fastas(indir, interval = interval) %>%
     add_phylo() %>%
     eval_treeshape() %>%
-    ggplot_evolution()+
-    labs(title=label)
+    ggplot_evolution() +
+    labs(title = label)
 }
 
 root = "~/working/te2-0207"
-indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
+indirs = fs::dir_ls(root, regexp = "\\d+$", type = "directory") %>%
     str_subset("xi10e|xi5e") %>%
     print()
 # indirs[1] %>% main()
 .plt = purrr::map(indirs, main, interval = 1000L)
-ggsave("shapestats-0207.pdf", .plt, height=5, width=5)
+ggsave("shapestats-0207.pdf", .plt, height = 5, width = 5)
 
 eval_treeshape_all = function(.tblphy) {
   .tblphy %>%
@@ -111,12 +111,10 @@ eval_treeshape_all = function(.tblphy) {
 # .tblstats = .tblphy %>% eval_treeshape_all() %>% print()
 # .tblstats %>% ggplot_evolution()
 
-library(doParallel)
-
 root = "~/working/tek-spec-0130"
-indirs = fs::dir_ls(root, regexp="\\d+$", type="directory") %>%
+indirs = fs::dir_ls(root, regexp = "\\d+$", type = "directory") %>%
     str_subset("xi10e|xi5e") %>%
     print()
-wtl::map_par(indirs, main, interval = 500L)
+wtl::mcmap(indirs, main, interval = 500L)
 
 } # if (FALSE)
