@@ -1,7 +1,7 @@
 library(Biostrings)
 
 parse_fasta_header = function(x) {
-  str_match_all(x, '(\\w+)=(\\S+)') %>%
+  str_match_all(x, "(\\w+)=(\\S+)") %>%
   purrr::map_dfr(~{
     tibble::tibble(key = .x[,2], value = .x[,3]) %>%
     tidyr::spread(key, value, convert=FALSE)
@@ -24,7 +24,7 @@ read_tek_fasta = function(file, metadata=FALSE, nrec=-1L, skip=0L) {
 
 read_fastas = function(dir, interval = 1000L, from = NULL, to = NULL) {
   .df = tibble::tibble(
-    path = fs::dir_ls(dir, regexp='generation_\\d+\\.fa\\.gz$'),
+    path = fs::dir_ls(dir, regexp="generation_\\d+\\.fa\\.gz$"),
     infile = fs::path_file(path),
     generation = as.integer(readr::parse_number(infile)))
   if (is.null(from)) {from = min(.df$generation)}
@@ -36,10 +36,10 @@ read_fastas = function(dir, interval = 1000L, from = NULL, to = NULL) {
       seqs = purrr::map(path, read_tek_fasta)
     )
 }
-# .tbl = read_fastas('lower10_upper30_20180130T172206_00') %>% print()
+# .tbl = read_fastas("lower10_upper30_20180130T172206_00") %>% print()
 
 
-origin_seq = Biostrings::DNAStringSet(c('0x0' = str_dup("A", 300L)))
+origin_seq = Biostrings::DNAStringSet(c("0x0" = str_dup("A", 300L)))
 origin_name = names(origin_seq)
 sample_size = 10L
 
@@ -54,7 +54,7 @@ rename_origin = function(.mcols) {
   old_label = .mcols %>%
     dplyr::distinct(label, dn, ds, indel, species) %>%
     dplyr::filter(dn == 0, ds == 0, indel == 0L, species == 0L) %>%
-    purrr::pluck('label')
+    purrr::pluck("label")
   if (is.null(old_label)) {
     .mcols
   } else {
@@ -63,7 +63,7 @@ rename_origin = function(.mcols) {
   }
 }
 
-summarise_mcols = function(.mcols, .id = 'total') {
+summarise_mcols = function(.mcols, .id = "total") {
   .mcols %>%
     group_by(label, activity, dn, ds, indel, species) %>%
     summarise(copy_number = sum(copy_number)) %>%
@@ -71,7 +71,7 @@ summarise_mcols = function(.mcols, .id = 'total') {
     dplyr::mutate(individual = .id)
 }
 
-count_holders = function(.mcols, .id = 'holders') {
+count_holders = function(.mcols, .id = "holders") {
   .mcols %>%
     dplyr::group_by(label, activity, dn, ds, indel, species) %>%
     dplyr::summarise(copy_number = sum(copy_number > 0L)) %>%
@@ -107,7 +107,7 @@ tidy_metadata = function(dss, add_root = TRUE) {
   .freq_cols = freq_in_samples(.mcols)
   .mcols %>%
     dplyr::bind_rows(.mcols_total) %>%
-    dplyr::left_join(.freq_cols, by='label')
+    dplyr::left_join(.freq_cols, by="label")
 }
 
 unique_dss = function(dss) {
