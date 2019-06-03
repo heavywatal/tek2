@@ -17,6 +17,9 @@ message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_FLAGS_DEV "-O2 -g")
 add_compile_options(-march=native -Wall -Wextra -pedantic)
 
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+
 find_package(Threads)
 find_package(ZLIB)
 find_package(sfmt 0.7.2)
