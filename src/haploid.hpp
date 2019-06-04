@@ -62,6 +62,8 @@ class Haploid {
     Haploid gametogenesis(const Haploid& other, URBG& engine) const;
     //! mutation process within an individual
     void transpose_mutate(Haploid& other, URBG& engine);
+    //! introduce a hyperactivating mutation
+    void hyperactivate();
     //! evaluate and return fitness
     /*! \f[\begin{split}
             w_k &= w_{GP,k} w_{CN,k} \\

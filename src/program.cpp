@@ -51,6 +51,8 @@ inline clipp::group program_options(nlohmann::json* vm) {HERE;
         "initial number of individuals with TE"),
       wtl::option(vm, {"g", "generations"}, 1000u,
         "maximum number of generations to simulate"),
+      wtl::option(vm, {"H", "hyperactivate"}, 0u,
+        "time to introduce a hyperactivating mutation"),
       wtl::option(vm, {"s", "split"}, 0u,
         "number of generations to simulate after population split"),
       wtl::option(vm, {"i", "interval"}, 10u,
@@ -168,6 +170,7 @@ void Program::main() {HERE;
     const size_t popsize_ = VM.at("popsize");
     const size_t initial_freq_ = VM.at("initial");
     const size_t num_generations_ = VM.at("generations");
+    const size_t hyperactivate = VM.at("hyperactivate");
     const size_t num_generations_after_split_ = VM.at("split");
     const size_t record_interval_ = VM.at("interval");
     const int record_flags_ = VM.at("record");
@@ -176,7 +179,7 @@ void Program::main() {HERE;
     while (true) {
         Population pop(popsize_, initial_freq_);
         auto flags = static_cast<Recording>(record_flags_);
-        bool good = pop.evolve(num_generations_, record_interval_, flags);
+        bool good = pop.evolve(num_generations_, record_interval_, flags, hyperactivate);
         if (!good) continue;
         wtl::make_ofs("config.json") << config_;
         if (static_cast<bool>(flags & Recording::sequence)) {

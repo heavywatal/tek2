@@ -18,6 +18,21 @@
 
 namespace tek {
 
+namespace {
+inline bool once_in_a_run(size_t now = 0, size_t then = 0) {
+    static bool is_the_time = false;
+    if (now == 0ul) {
+        if (is_the_time) {
+            is_the_time = false;
+            return true;
+        }
+    } else if (now == then) {
+        is_the_time = true;
+    }
+    return false;
+}
+}
+
 Population::param_type Population::PARAM_;
 
 Population::Population(const size_t size, const size_t num_founders) {HERE;
@@ -29,10 +44,11 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
     gametes_.resize(size * 2u);
 }
 
-bool Population::evolve(const size_t max_generations, const size_t record_interval, const Recording flags) {HERE;
+bool Population::evolve(const size_t max_generations, const size_t record_interval, const Recording flags, const size_t t_hyperactivate) {HERE;
     constexpr double margin = 0.1;
     double max_fitness = 1.0;
     for (size_t t=1; t<=max_generations; ++t) {
+        once_in_a_run(t, t_hyperactivate);
         bool is_recording = ((t % record_interval) == 0u);
         const auto fitness_record = step(max_fitness);
         max_fitness = *std::max_element(fitness_record.begin(), fitness_record.end());
@@ -101,6 +117,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             if (fitness < wtl::generate_canonical(engine) * previous_max_fitness) continue;
             egg.transpose_mutate(sperm, engine);
             std::lock_guard<std::mutex> lock(mtx);
+            if (once_in_a_run()) egg.hyperactivate();
             if (nextgen.size() >= num_gametes) break;
             fitness_record.push_back(fitness);
             nextgen.push_back(std::move(egg));

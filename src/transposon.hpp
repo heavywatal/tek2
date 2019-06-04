@@ -98,9 +98,13 @@ class Transposon {
     //! set #has_indel_
     void indel() noexcept {has_indel_ = true;}
 
+    //! set #is_hyperactive_
+    void hyperactivate() noexcept {is_hyperactive_ = true;}
+
     //! \f$a_i\f$; count nonsynonymous mutations and return the pre-calculated #ACTIVITY_
     double activity() const noexcept {
         if (has_indel_) return 0.0;
+        if (is_hyperactive_) return 2.0;
         return ACTIVITY_[nonsynonymous_sites_.count()];
     }
 
@@ -215,6 +219,8 @@ class Transposon {
     DNA synonymous_sites_;
     //! activity is zero if this is true
     bool has_indel_ = false;
+    //! activity is doubled if this is true
+    bool is_hyperactive_ = false;
     //! transposon species
     uint_fast32_t species_ = 0;
 };

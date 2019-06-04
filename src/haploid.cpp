@@ -173,6 +173,16 @@ void Haploid::mutate(URBG& engine) {
     }
 }
 
+void Haploid::hyperactivate() {
+    for (auto& p: sites_) {
+        if (p.second->activity() > 0.9) {
+            p.second = std::make_shared<Transposon>(*p.second);
+            p.second->hyperactivate();
+            break;
+        }
+    }
+}
+
 double Haploid::prod_1_zs() const {
     double product = 1.0;
     std::shared_lock<std::shared_timed_mutex> lock(MTX_);

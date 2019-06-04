@@ -68,7 +68,8 @@ class Population {
 
     //! return false if TE is extinct
     bool evolve(size_t max_generations, size_t record_interval,
-                Recording flags=Recording::activity | Recording::fitness);
+                Recording flags=Recording::activity | Recording::fitness,
+                size_t t_hyperactivate = 0u);
 
     //! write summary in JSON format
     std::ostream& write_summary(std::ostream&) const;
