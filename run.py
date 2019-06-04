@@ -25,6 +25,16 @@ def te2fig2():
         yield wopt.OrderedDict(**d)
 
 
+def te2fig4():
+    return [{
+        'n': '500',
+        'xi': '10e-4',
+        'g': '8000',
+        'i': '50',
+        'H': '5000',
+    }]
+
+
 def te2fig5():
     crossing_axes = wopt.OrderedDict()
     crossing_axes['n'] = ['500', '1000']
@@ -52,7 +62,7 @@ def te1fig2s():
 
 
 def iter_args(arg_maker, rest, concurrency, repeat, skip):
-    const = ['tek', '-j{}'.format(concurrency)] + rest
+    const = ['teaposon', '-j{}'.format(concurrency)] + rest
     now = wopt.now()
     for i, v in enumerate(wopt.cycle(arg_maker(), repeat)):
         if i < skip:
