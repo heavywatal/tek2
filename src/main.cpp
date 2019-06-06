@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
         tek::Program program(argc, argv);
         program.run();
     } catch (const std::runtime_error& e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "\nruntime_error: " << e.what() << std::endl;
     }
     return 0;
 }

@@ -22,13 +22,13 @@ namespace tek {
 namespace {
 inline void once_in_a_run(size_t now, size_t then, Haploid* hapl = nullptr) {
     static bool is_the_time = false;
-    static unsigned tolerance = 200u;
+    static unsigned failures = 0u;
     if (hapl) {
         if (is_the_time) {
             if (hapl->hyperactivate()) {
                 is_the_time = false;
-            } else if (--tolerance == 0u) {
-                throw std::runtime_error("hyperactivation failed");
+            } else if (++failures > 200u) {
+                throw std::runtime_error("hyperactivate() failed");
             }
         }
     } else if (now == then) {
@@ -103,13 +103,15 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     static wtl::ThreadPool pool(param().CONCURRENCY);
     static std::mutex mtx;
     static std::vector<Haploid> nextgen;
+    static std::vector<std::future<void>> ftrs;
     nextgen.reserve(num_gametes);
+    ftrs.reserve(num_gametes);
     std::vector<double> fitness_record;
     fitness_record.reserve(num_gametes);
-    auto task = [num_gametes,previous_max_fitness,&fitness_record,this]() {
+    auto task = [num_gametes,previous_max_fitness,&fitness_record,this](bool dummy) {
         Haploid::URBG engine(seeder());
         std::uniform_int_distribution<size_t> dist_idx(0u, num_gametes / 2u - 1u);
-        while (true) {
+        while (dummy) {
             const size_t mother_idx = dist_idx(engine);
             size_t father_idx = 0u;
             while ((father_idx = dist_idx(engine)) == mother_idx) {;}
@@ -131,9 +133,11 @@ std::vector<double> Population::step(const double previous_max_fitness) {
         }
     };
     for (size_t i=0u; i<param().CONCURRENCY; ++i) {
-        pool.submit(task);
+        ftrs.emplace_back(pool.submit(task, true)); // dummy for future
     }
     pool.wait();
+    for (auto& f: ftrs) f.get(); // check exception
+    ftrs.clear();
     gametes_.swap(nextgen);
     nextgen.clear();
     return fitness_record;
