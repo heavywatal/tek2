@@ -175,7 +175,7 @@ void Haploid::mutate(URBG& engine) {
 
 bool Haploid::hyperactivate() {
     for (auto& p: sites_) {
-        if (p.second->activity() > 0.9) {
+        if (p.second->activity() > 0.99) {
             p.second = std::make_shared<Transposon>(*p.second);
             p.second->hyperactivate();
             return true;
