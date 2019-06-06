@@ -15,7 +15,6 @@ extract_params = function(filename, params=tek_params) {
 
 # .indirs = wtl::command_args()$args
 # .indirs = "."
-.indirs = list.dirs(full.names = FALSE, recursive = FALSE)
 .indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
 
 .metadata = .indirs %>%
@@ -38,15 +37,13 @@ source("~/git/teaposon/rstats/treestats.R")
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-.adata = read_activity(.metadata$indir[[1]])
-
-source("~/git/teaposon/rstats/activity.R")
-
-.pink = ggplot_activity(.adata, 500, "#ff00ff") + coord_cartesian(xlim = c(4000, 6000))
-.grey = ggplot_activity(.adata, 500, "#aa0000") + coord_cartesian(xlim = c(4000, 6000))
-.gp = cowplot::plot_grid(.pink, .grey)
-.gp
-ggsave("fig4_left_candidates.png", .gp, width = 8, height = 4)
+df = .metadata %>% dplyr::transmute(repl, lapply(indir, read_activity)) %>% print()
+.p = df %>% tidyr::unnest() %>%
+  ggplot_activity(500, "#aa0000") +
+  coord_cartesian(xlim = c(3000, 6000)) +
+  facet_wrap(~repl)
+.p
+ggsave("fig4_candidates.png", .gp, width = 16, height = 16)
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
