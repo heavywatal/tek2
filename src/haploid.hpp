@@ -63,7 +63,7 @@ class Haploid {
     //! mutation process within an individual
     void transpose_mutate(Haploid& other, URBG& engine);
     //! introduce a hyperactivating mutation
-    void hyperactivate();
+    bool hyperactivate();
     //! evaluate and return fitness
     /*! \f[\begin{split}
             w_k &= w_{GP,k} w_{CN,k} \\

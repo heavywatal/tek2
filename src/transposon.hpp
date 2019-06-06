@@ -104,8 +104,7 @@ class Transposon {
     //! \f$a_i\f$; count nonsynonymous mutations and return the pre-calculated #ACTIVITY_
     double activity() const noexcept {
         if (has_indel_) return 0.0;
-        if (is_hyperactive_) return 2.0;
-        return ACTIVITY_[nonsynonymous_sites_.count()];
+        return (is_hyperactive_ ? 2.0 : 1.0) * ACTIVITY_[nonsynonymous_sites_.count()];
     }
 
     //! \f$u_i = u_0 \times a_i\f$

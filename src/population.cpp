@@ -19,17 +19,20 @@
 namespace tek {
 
 namespace {
-inline bool once_in_a_run(size_t now = 0, size_t then = 0) {
+inline void once_in_a_run(size_t now, size_t then, Haploid* hapl = nullptr) {
     static bool is_the_time = false;
-    if (now == 0ul) {
+    static unsigned tolerance = 200u;
+    if (hapl) {
         if (is_the_time) {
-            is_the_time = false;
-            return true;
+            if (hapl->hyperactivate()) {
+                is_the_time = false;
+            } else if (--tolerance == 0u) {
+                throw std::runtime_error("hyperactivation failed");
+            }
         }
     } else if (now == then) {
         is_the_time = true;
     }
-    return false;
 }
 }
 
@@ -117,7 +120,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             if (fitness < wtl::generate_canonical(engine) * previous_max_fitness) continue;
             egg.transpose_mutate(sperm, engine);
             std::lock_guard<std::mutex> lock(mtx);
-            if (once_in_a_run()) egg.hyperactivate();
+            once_in_a_run(0, 0, &egg);
             if (nextgen.size() >= num_gametes) break;
             fitness_record.push_back(fitness);
             nextgen.push_back(std::move(egg));

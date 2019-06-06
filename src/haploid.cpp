@@ -173,14 +173,15 @@ void Haploid::mutate(URBG& engine) {
     }
 }
 
-void Haploid::hyperactivate() {
+bool Haploid::hyperactivate() {
     for (auto& p: sites_) {
         if (p.second->activity() > 0.9) {
             p.second = std::make_shared<Transposon>(*p.second);
             p.second->hyperactivate();
-            break;
+            return true;
         }
     }
+    return false;
 }
 
 double Haploid::prod_1_zs() const {
