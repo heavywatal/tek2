@@ -7,7 +7,6 @@
 #include "population.hpp"
 #include "haploid.hpp"
 #include "transposon.hpp"
-#include "dna.hpp"
 
 #include <wtl/exception.hpp>
 #include <wtl/debug.hpp>

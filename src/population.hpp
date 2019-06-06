@@ -5,14 +5,14 @@
 #ifndef TEK_POPULATION_HPP_
 #define TEK_POPULATION_HPP_
 
-#include "haploid.hpp"
-
 #include <iosfwd>
 #include <vector>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
 namespace tek {
+
+class Haploid;
 
 //! bits to denote what to record
 enum class Recording: int {
@@ -65,6 +65,8 @@ class Population {
     Population(size_t size, size_t num_founders=1);
     //! default copy constructor
     Population(const Population& other) = default;
+    //! destructor
+    ~Population();
 
     //! return false if TE is extinct
     bool evolve(size_t max_generations, size_t record_interval,

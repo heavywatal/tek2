@@ -2,6 +2,7 @@
     @brief Implementation of Population class
 */
 #include "population.hpp"
+#include "haploid.hpp"
 #include "transposon.hpp"
 
 #include <wtl/debug.hpp>
@@ -46,6 +47,8 @@ Population::Population(const size_t size, const size_t num_founders) {HERE;
     }
     gametes_.resize(size * 2u);
 }
+
+Population::~Population() = default;
 
 bool Population::evolve(const size_t max_generations, const size_t record_interval, const Recording flags, const size_t t_hyperactivate) {HERE;
     constexpr double margin = 0.1;
