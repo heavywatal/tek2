@@ -48,6 +48,20 @@ def te2fig5():
         yield wopt.OrderedDict(**d)
 
 
+def te2fig6():
+    crossing_axes = wopt.OrderedDict()
+    crossing_axes['r'] = ['1']
+    crossing_axes['n'] = ['500']
+    crossing_axes['xi'] = ['10e-4']
+    crossing_axes['coexist'] = ['2', '5', '8']
+    crossing_axes['lower'] = ['6', '9']
+    crossing_axes['upper'] = ['18', '24', '30']
+    crossing_axes['g'] = ['50000']
+    crossing_axes['i'] = ['100']
+    for d in wopt.product(crossing_axes):
+        yield wopt.OrderedDict(**d)
+
+
 def te1fig2s():
     parallel_axes = wopt.OrderedDict()
     parallel_axes['alpha'] = ['0.70', '0.75', '0.80', '0.85']
