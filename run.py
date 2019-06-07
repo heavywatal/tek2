@@ -7,7 +7,7 @@ import wtl.options as wopt
 
 def te2fig1():
     crossing_axes = wopt.OrderedDict()
-    crossing_axes['n'] = ['500', '1000']
+    crossing_axes['n'] = ['1000']
     crossing_axes['xi'] = ['10e-4', '5e-4', '1e-4']
     crossing_axes['g'] = ['50000']
     crossing_axes['i'] = ['100']
@@ -17,7 +17,7 @@ def te2fig1():
 
 def te2fig2():
     crossing_axes = wopt.OrderedDict()
-    crossing_axes['n'] = ['500', '1000']
+    crossing_axes['n'] = ['1000']
     crossing_axes['xi'] = ['10e-4']
     crossing_axes['g'] = ['50000']
     crossing_axes['i'] = ['100']
@@ -27,7 +27,7 @@ def te2fig2():
 
 def te2fig4():
     return [{
-        'n': '500',
+        'n': '1000',
         'xi': '10e-4',
         'g': '6000',
         'H': '4000',
@@ -37,9 +37,9 @@ def te2fig4():
 
 def te2fig5():
     crossing_axes = wopt.OrderedDict()
-    crossing_axes['n'] = ['500', '1000']
-    crossing_axes['xi'] = ['10e-4', '5e-4']
-    crossing_axes['coexist'] = ['2', '8']
+    crossing_axes['n'] = ['1000']
+    crossing_axes['xi'] = ['10e-4']
+    crossing_axes['coexist'] = ['2']
     crossing_axes['lower'] = ['6', '9']
     crossing_axes['upper'] = ['18', '24', '30']
     crossing_axes['g'] = ['50000']
@@ -51,7 +51,7 @@ def te2fig5():
 def te2fig6():
     crossing_axes = wopt.OrderedDict()
     crossing_axes['r'] = ['1']
-    crossing_axes['n'] = ['500']
+    crossing_axes['n'] = ['1000']
     crossing_axes['xi'] = ['10e-4']
     crossing_axes['coexist'] = ['2', '5', '8']
     crossing_axes['lower'] = ['6', '9']
