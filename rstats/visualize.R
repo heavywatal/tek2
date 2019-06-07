@@ -170,9 +170,12 @@ ggsave("fig5facet_narrow.pdf", .p5facet_narrow, width = 20, height = 12)
 .fig6candidates
 ggsave("fig6candidates.pdf", .fig6candidates, width = 14, height = 14)
 
+# ~/git/teaposon/run.py -p3 -j2 -r10 te2fig6
+
 # #######1#########2#########3#########4#########5#########6#########7#########
 
 fig1df = .metadata %>%
+  dplyr::filter(n == 1000L) %>%
   dplyr::mutate(
     adata = purrr::map(indir, read_activity),
     tdata = purrr::map(indir, ~{
@@ -361,39 +364,6 @@ read_individuals = function(infile) {
   }) %>%
   print()
 
-ggplot_tetree = function(data, colorbar=TRUE) {
-  .ylim = data$yend %>% {c(min(.), max(.) * 1.1)}
-  .size_guide = guide_legend(order = 10, override.aes = list(stroke = 0, alpha = 0.4))
-  .oaes = list(alpha = 0.4, fill = "#000000", stroke = 1, size = 5)
-  .pch_guide = guide_legend(order = 20, title = "Frequency", override.aes = .oaes)
-  .col_guide = if (colorbar) {
-    guide_colourbar(order = 30, title = "Acitivity\nLevel", barheight = 12, reverse = TRUE)
-  } else {FALSE}
-  filter_active = function(x) dplyr::filter(x, activity > 0)
-  filter_major = function(x) dplyr::filter(x, is_major)
-  ggplot(data %>% dplyr::mutate(is_major = dplyr::coalesce(is_major, FALSE))) +
-  geom_point(data = filter_active, aes(xend, yend, colour = activity, size = copy_number), pch = 16, alpha = 0.6, stroke = 1) +
-  geom_point(data = filter_major, aes(xend, yend, size = copy_number), pch = 1, colour = "#000000", alpha = 0.5, stroke = 1) +
-  geom_point(data = filter_major, aes(xend, yend, colour = activity, size = copy_number), pch = 1, alpha = 0.6, stroke = 1) +
-  geom_point(aes(xend, yend, shape = is_major), alpha = 0) +
-  geom_segment(aes(x, y, xend = xend, yend = yend), size = 0.28) +
-  scale_shape_manual(values = c(`TRUE` = 21, `FALSE` = 16), guide = .pch_guide, labels = c("< 0.5", "≥ 0.5")) +
-  scale_colour_gradientn(colours = rev(head(rainbow(15L), 12L)), limits = c(0, 1), breaks = c(0, 0.5, 1), guide = .col_guide) +
-  scale_size(limit = c(1, .max_copy_number), breaks = c(8, 4, 2, 1), range = c(3, 12), name = "Copy\nNumber", guide = .size_guide) +
-  labs(x = NULL, y = NULL) +
-  coord_fixed(ylim = .ylim)
-}
-
-label_both_tree = function(labels, multi_line = TRUE) {
-  value <- label_value(labels, multi_line = multi_line)
-  variable <- labels %>% dplyr::rename(t = generation) %>% names()
-  out <- vector("list", length(value))
-  for (i in seq_along(out)) {
-      out[[i]] <- paste(variable[[i]], value[[i]], sep = " = ")
-  }
-  out
-}
-
 .p = .df_unrooted %>%
 # .p = .df_unrooted_total %>%
   ggplot_tetree() +
@@ -433,6 +403,52 @@ ggsave("fig2_right.pdf", .fig2_right, width = 9, height = 7, family = "Helvetica
 
 .fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(2, 9))
 ggsave("fig2.pdf", .fig2, width = 12, height = 7, family = "Helvetica", device = cairo_pdf)
+
+# #######1#########2#########3#########4
+
+fig4df = .metadata %>%
+  dplyr::mutate(
+    adata = purrr::map(indir, read_activity),
+    tdata = purrr::map(indir, ~{
+      message(.x)
+      read_fastas(.x, interval = 100L) %>%
+        add_phylo() %>%
+        eval_treeshape()
+    })
+  ) %>%
+  print()
+
+.gens4 = c(4000L, 4300L, 4600L, 4900L, 5200L)
+.infiles4 = fs::path(fig4df$indir, sprintf("generation_%05d.fa.gz", .gens4))
+.inds_df4 = .infiles4 %>%
+  setNames(str_extract(., "(?<=generation_)\\d+")) %>%
+  purrr::map_dfr(read_individuals, .id = "generation") %>%
+  dplyr::mutate(generation = as.integer(generation)) %>%
+  dplyr::filter(individual != "total") %>%
+  print()
+
+.max_copy_number = .inds_df4$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
+
+.df_unrooted4 = .inds_df4 %>%
+  purrr::pmap_df(function(phylo, data, generation, individual, ...) {
+    wtl::ape_layout_unrooted(phylo) %>%
+      dplyr::left_join(data, by = "label") %>%
+      dplyr::mutate(generation = generation, individual = individual)
+  }) %>%
+  print()
+
+.p = .df_unrooted4 %>%
+  ggplot_tetree(hypercolor = "#aa0000") +
+  facet_grid(generation ~ individual) +
+  theme_classic()
+.p
+ggsave("fig4_tree_candidates.pdf", .p, width = 9.9, height = 7, scale = 2, device = cairo_pdf)
+
+.timepoints_df = fig4df$adata[[1]] %>%
+  dplyr::filter(generation %in% .gens4) %>%
+  dplyr::group_by(generation) %>%
+  dplyr::summarise(copy_number = sum(copy_number)) %>%
+  print()
 
 # #######1#########2#########3#########4
 

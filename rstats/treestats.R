@@ -3,6 +3,50 @@ library(ape)
 library(aptree)  # library(apTreeshape)
 # wtl::refresh("aptree")
 
+ggplot_tetree = function(data, colorbar=TRUE, hypercolor = NA) {
+  .colors = rev(head(rainbow(15L), 12L))
+  .values = seq(0, 1, length.out = length(.colors))
+  .breaks = c(0, 0.5, 1)
+  if (!is.na(hypercolor)) {
+    .colors = c(.colors, hypercolor)
+    .breaks = c(.breaks, 2)
+    .values = c(seq(0, 0.5, length.out = length(.colors)), 1)
+  }
+  .limits = c(0, max(.breaks))
+  .ylim = data$yend %>% {c(min(.), max(.) * 1.1)}
+  .size_guide = guide_legend(order = 10, override.aes = list(stroke = 0, alpha = 0.4))
+  .oaes = list(alpha = 0.4, fill = "#000000", stroke = 1, size = 5)
+  .pch_guide = guide_legend(order = 20, title = "Frequency", override.aes = .oaes)
+  .col_guide = if (colorbar) {
+    guide_colourbar(order = 30, title = "Acitivity\nLevel", barheight = 12, reverse = TRUE)
+  } else {FALSE}
+  filter_active = function(x) dplyr::filter(x, activity > 0)
+  filter_major = function(x) dplyr::filter(x, is_major)
+  ggplot(data %>% dplyr::mutate(is_major = dplyr::coalesce(is_major, FALSE))) +
+  geom_point(data = filter_active, aes(xend, yend, colour = activity, size = copy_number), pch = 16, alpha = 0.6, stroke = 1) +
+  geom_point(data = filter_major, aes(xend, yend, size = copy_number), pch = 1, colour = "#000000", alpha = 0.5, stroke = 1) +
+  geom_point(data = filter_major, aes(xend, yend, colour = activity, size = copy_number), pch = 1, alpha = 0.6, stroke = 1) +
+  geom_point(aes(xend, yend, shape = is_major), alpha = 0) +
+  geom_segment(aes(x, y, xend = xend, yend = yend), size = 0.28) +
+  scale_shape_manual(values = c(`TRUE` = 21, `FALSE` = 16), guide = .pch_guide, labels = c("< 0.5", "≥ 0.5")) +
+  scale_colour_gradientn(colours = .colors, limits = .limits, breaks = .breaks, values = .values, guide = .col_guide) +
+  scale_size(limit = c(1, .max_copy_number), breaks = c(8, 4, 2, 1), range = c(3, 12), name = "Copy\nNumber", guide = .size_guide) +
+  labs(x = NULL, y = NULL) +
+  coord_fixed(ylim = .ylim)
+}
+
+label_both_tree = function(labels, multi_line = TRUE) {
+  value <- label_value(labels, multi_line = multi_line)
+  variable <- labels %>% dplyr::rename(t = generation) %>% names()
+  out <- vector("list", length(value))
+  for (i in seq_along(out)) {
+      out[[i]] <- paste(variable[[i]], value[[i]], sep = " = ")
+  }
+  out
+}
+
+# #######1#########2#########3#########4#########5#########6#########7#########
+
 add_phylo = function(.tbl, root=NULL) {
   .tbl %>%
     dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method = "hamming")) %>%
