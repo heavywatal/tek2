@@ -16,6 +16,7 @@ extract_params = function(filename, params=tek_params) {
 # .indirs = wtl::command_args()$args
 # .indirs = "."
 .indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
+.indirs = fs::dir_ls(regexp = "^r\\d+", type = "directory")
 
 .metadata = .indirs %>%
   str_subset("_\\d+$") %>%
@@ -37,16 +38,6 @@ source("~/git/teaposon/rstats/treestats.R")
 
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-df = .metadata %>% dplyr::transmute(repl, lapply(indir, read_activity)) %>% print()
-.p = df %>% tidyr::unnest() %>%
-  ggplot_activity(500, "#aa0000") +
-  coord_cartesian(xlim = c(3000, 6000)) +
-  facet_wrap(~repl)
-.p
-ggsave("fig4_candidates.png", .gp, width = 16, height = 16)
-
-# #######1#########2#########3#########4#########5#########6#########7#########
-
 fig1acti = .metadata %>%
   # dplyr::filter(xi > 6e-4) %>%
   dplyr::mutate(
@@ -58,6 +49,8 @@ fig1acti = .metadata %>%
   print()
 # fig1acti$aplot[[1]]
 ggsave("fig1_activity.pdf", fig1acti$aplot, width = 8, height = 4)
+
+# @ILP23% ~/git/teaposon/run.py -p2 -j6 te2fig2 -r96
 
 fig2cand = .metadata %>%
   dplyr::filter(xi > 6e-4) %>%
@@ -91,6 +84,18 @@ fig2cand_plts = fig2cand %>%
     cowplot::plot_grid(.title, tplot, aplot, ncol = 1, rel_heights = c(0.2, 1, 1), align = "v", axis = "lr")
   })
 ggsave("fig2_candidates.pdf", fig2cand_plts, width = 8, height = 4)
+
+# rsync -auv ilp23.local:~/working/te2-fig2/ ~/working/tek/te2-fig2/
+
+# @ilp15% ~/git/teaposon/run.py -p2 -j6 te2fig4 -r96
+
+fig4cand = .metadata %>% dplyr::transmute(n, repl, lapply(indir, read_activity)) %>% print()
+.p = fig4cand %>% tidyr::unnest() %>%
+  ggplot_activity(500, "#aa0000") +
+  coord_cartesian(xlim = c(3000, 6000)) +
+  facet_wrap(~n + repl)
+.p
+ggsave("fig4_candidates.png", .p, width = 16, height = 16)
 
 
 fig5acti = .metadata %>%
@@ -130,6 +135,27 @@ ggsave("fig5facet_narrow.pdf", .p5facet_narrow, width = 20, height = 12)
 
 
 .metadata %>% dplyr::count(!!!rlang::syms(tek_params))
+
+# @ILP22% ~/git/teaposon/run.py -p2 -j6 -r6 te2fig6
+# rsync -auv ilp22.local:~/working/te2-fig6/ ~/working/tek/te2-fig6/
+
+df6act = .metadata %>%
+  dplyr::mutate(
+    label = sprintf("n=%d c=%d l=%d u=%d repl=%d", n, coexist, lower, upper, repl),
+    adata = purrr::map(indir, read_activity),
+    indir = NULL
+  ) %>%
+  tidyr::unnest() %>%
+  dplyr::mutate(copy_number = copy_number / n) %>%
+  print()
+
+fig6candidates = df6act %>%
+  dplyr::filter((generation %% 2000) == 0) %>%
+  ggplot_activity() +
+  facet_wrap(~label, ncol = 6L) +
+  theme_minimal()
+fig6candidates
+ggsave("fig6candidates.pdf", fig6candidates, width = 7, height = 9.9, scale = 2)
 
 .fig6repl = tibble::tribble(
      ~n,  ~xi, ~lower, ~upper, ~coexist, ~repl,
@@ -188,6 +214,8 @@ fig1df = .metadata %>%
   print()
 
 saveRDS(fig1df, "fig1.rds")
+
+# rsync -auv ilp15.local:~/working/te2-fig1/ ~/working/tek/te2-fig1/
 # fig1df = readRDS("fig1.rds")
 
 fig1plts = fig1df %>%
@@ -233,18 +261,14 @@ ggsave("fig1.pdf", fig1, width = 10, height = 10)
 
 fig2windows = tibble::tribble(
   ~repl, ~lbound, ~ubound,
-     9L,  12000L,  32000L,
-    19L,  10000L,  22000L,
-    34L,  18000L,  32000L,
-    48L,  24000L,  36000L,
-    55L,  18000L,  36000L,
-    65L,  34000L,  48000L,
-    69L,  38000L,  49000L,
-    77L,  35000L,  50000L
+    43L,  25000L,  45000L,
+    46L,  10000L,  30000L,
+    47L,  15000L,  30000L,
+    65L,  10000L,  30000L,
+    73L,  10000L,  27000L
 ) %>% print()
 
 fig2candidates = .metadata %>%
-  dplyr::filter(n == 500L) %>%
   dplyr::right_join(fig2windows, by = "repl") %>%
   dplyr::mutate(
     adata = purrr::pmap(., function(indir, lbound, ubound, ...) {
@@ -276,17 +300,13 @@ fig2candplt = fig2candidates %>% dplyr::transmute(
   })
 )
 # ggsave("fig2left.pdf", fig2candplt$plt, width=4, height=9, family="Helvetica")
-.pg = cowplot::plot_grid(plotlist = fig2candplt$plt, ncol = 4)
-ggsave("fig2_candidates8.pdf", .pg, width = 12, height = 8, family = "Helvetica")
+.pg = cowplot::plot_grid(plotlist = fig2candplt$plt, ncol = 3L)
+ggsave("fig2_finalists.pdf", .pg, width = 7, height = 9.9, family = "Helvetica", scale = 1.5)
 
-# .repl = 5L; .lbound = 25000L; .ubound = 31000L
-# .repl = 2L; .lbound = 10000L; .ubound = 21000L
-.repl = 48L; .lbound = 24000L; .ubound = 35000L
-.repl = 69L; .lbound = 42000L; .ubound = 48000L
-.repl = 77L; .lbound = 44000L; .ubound = 50000L
+ .repl = 43L; .lbound = 25000L; .ubound = 45000L
 
-.fig2df = .metadata %>%
-  dplyr::filter(n == 500L, repl == .repl) %>%
+df2 = .metadata %>%
+  dplyr::filter(n == 1000L, repl == .repl) %>%
   dplyr::mutate(
     adata = purrr::map(indir, ~{read_activity(.) %>% dplyr::filter(.lbound <= generation, generation <= .ubound)}),
     tdata = purrr::map(indir, ~{
@@ -298,22 +318,22 @@ ggsave("fig2_candidates8.pdf", .pg, width = 12, height = 8, family = "Helvetica"
   ) %>%
   print()
 
-.fig2df$tdata[[1]] %>% dplyr::arrange(bimodality)
-.fig2df$tdata[[1]] %>% dplyr::arrange(desc(bimodality))
-.fig2df$tdata[[1]] %>% dplyr::arrange(abs(bimodality - 5 / 9))
+df2$tdata[[1]] %>% dplyr::arrange(bimodality)
+df2$tdata[[1]] %>% dplyr::arrange(abs(bimodality - 5 / 9))
 
 .gens = list()
 # .gens = c(10600L, 15200L, 19100L, 20300L)
 # .gens[["2"]] = c(10600L, 12300L, 14600L, 16800L, 18700L, 20500L)
-.gens[["48"]] = c(25000L, 26900L, 30100L, 33400L, 34100L, 34700L)
-.gens[["69"]] = c(42600L, 43900L, 45200L, 46300L, 47100L, 47800L)
-.gens[["77"]] = c(44900L, 45700L, 46500L, 47500L, 48700L, 49600L)
-.timepoints_df = .fig2df$tdata[[1]] %>%
+# .gens[["48"]] = c(25000L, 26900L, 30100L, 33400L, 34100L, 34700L)
+# .gens[["69"]] = c(42600L, 43900L, 45200L, 46300L, 47100L, 47800L)
+# .gens[["77"]] = c(44900L, 45700L, 46500L, 47500L, 48700L, 49600L)
+.gens[["43"]] = c(25500L, 29700L, 33900L, 38400L, 41200L, 42600L)
+.timepoints_df = df2$tdata[[1]] %>%
   dplyr::filter(generation %in% .gens[[as.character(.repl)]]) %>%
   dplyr::transmute(generation, value = bimodality, stat = "bimodality") %>%
   print()
 
-.fig2_left = .fig2df %>%
+.fig2_left = df2 %>%
   dplyr::transmute(
     aplot = purrr::map2(adata, n, ggplot_activity),
     tplot = purrr::map(tdata, ~{
@@ -327,8 +347,9 @@ ggsave("fig2_candidates8.pdf", .pg, width = 12, height = 8, family = "Helvetica"
     })
   ) %>%
   purrr::pmap(function(aplot, tplot, ...) {
-    aplot = aplot + theme(legend.position = "none")
-    cowplot::plot_grid(tplot, aplot, ncol = 1, rel_heights = c(1, 1), align = "v", axis = "lr")
+    .scale_x = scale_x_continuous(breaks = c(20000, 30000, 40000))
+    aplot = aplot + theme(legend.position = "none") + .scale_x
+    cowplot::plot_grid(tplot + .scale_x, aplot, ncol = 1, rel_heights = c(1, 1), align = "v", axis = "lr")
   }) %>%
   purrr::pluck(1L)
 ggsave("fig2_left.pdf", .fig2_left, width = 4, height = 9, family = "Helvetica")
@@ -371,11 +392,10 @@ read_individuals = function(infile) {
   # facet_wrap(~ generation)+
   theme_classic()
 .p
-ggsave(sprintf("fig2_right_unrooted_candidates_%d.pdf", .repl), .p, width = 9.9, height = 7, scale = 2)
+ggsave(sprintf("fig2_tree_candidates_%d.pdf", .repl), .p, width = 9.9, height = 7, scale = 2)
 # ggsave("fig2_right_unrooted_total.pdf", .p, width = 9.9, height=7, scale=2)
 
-# .inds = c("1", "4", "2", "7", "0", "6")  # old2
-.inds = c("6", "6", "7", "9", "9", "4")  # 69
+.inds = as.character(c(2, 7, 7, 1, 8, 1))
 .delegates = .timepoints_df %>%
   dplyr::transmute(generation, BI = sprintf("%.3f", value), individual = .inds) %>%
   print()
@@ -385,8 +405,8 @@ ggsave(sprintf("fig2_right_unrooted_candidates_%d.pdf", .repl), .p, width = 9.9,
   print()
 
 .annot_base = .delegates_df %>% dplyr::distinct(generation, BI) %>% tail(1L) %>% print()
-.dsegm = .annot_base %>% dplyr::mutate(x = 5, xend = 8, y = -8.5, yend = -8.5) %>% print()
-.dtext = .annot_base %>% dplyr::mutate(x = 6.5, y = -9.7, label = "0.01") %>% print()
+.dsegm = .annot_base %>% dplyr::mutate(x = 5, xend = 8, y = -7.5, yend = -7.5) %>% print()
+.dtext = .annot_base %>% dplyr::mutate(x = 6.5, y = -8.7, label = "0.01") %>% print()
 
 .fig2_right = ggplot_tetree(.delegates_df) +
   geom_segment(data = .dsegm, aes(x, y, xend = xend, yend = yend), size = 1) +
@@ -401,35 +421,28 @@ ggsave(sprintf("fig2_right_unrooted_candidates_%d.pdf", .repl), .p, width = 9.9,
 # .fig2_right
 ggsave("fig2_right.pdf", .fig2_right, width = 9, height = 7, family = "Helvetica", device = cairo_pdf)
 
-.fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(2, 9))
-ggsave("fig2.pdf", .fig2, width = 12, height = 7, family = "Helvetica", device = cairo_pdf)
+fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(2, 9))
+ggsave("fig2.pdf", fig2, width = 12, height = 7, family = "Helvetica", device = cairo_pdf)
 
 # #######1#########2#########3#########4
 
-fig4df = .metadata %>%
-  dplyr::mutate(
-    adata = purrr::map(indir, read_activity),
-    tdata = purrr::map(indir, ~{
-      message(.x)
-      read_fastas(.x, interval = 100L) %>%
-        add_phylo() %>%
-        eval_treeshape()
-    })
-  ) %>%
+.df4 = .metadata %>% dplyr::filter(n == 1000L) %>% print()
+
+df4act = .df4 %>%
+  dplyr::transmute(data = lapply(indir, read_activity)) %>%
+  tidyr::unnest() %>%
   print()
+df4act %>% ggplot_activity(1000, "#aa0000")
 
 .gens4 = c(4000L, 4300L, 4600L, 4900L, 5200L)
-.infiles4 = fs::path(fig4df$indir, sprintf("generation_%05d.fa.gz", .gens4))
-.inds_df4 = .infiles4 %>%
+.df4inds = fs::path(.df4$indir, sprintf("generation_%05d.fa.gz", .gens4)) %>%
   setNames(str_extract(., "(?<=generation_)\\d+")) %>%
   purrr::map_dfr(read_individuals, .id = "generation") %>%
   dplyr::mutate(generation = as.integer(generation)) %>%
   dplyr::filter(individual != "total") %>%
   print()
 
-.max_copy_number = .inds_df4$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
-
-.df_unrooted4 = .inds_df4 %>%
+.df4unrooted = .df4inds %>%
   purrr::pmap_df(function(phylo, data, generation, individual, ...) {
     wtl::ape_layout_unrooted(phylo) %>%
       dplyr::left_join(data, by = "label") %>%
@@ -437,23 +450,64 @@ fig4df = .metadata %>%
   }) %>%
   print()
 
-.p = .df_unrooted4 %>%
+.p = .df4unrooted %>%
   ggplot_tetree(hypercolor = "#aa0000") +
   facet_grid(generation ~ individual) +
   theme_classic()
 .p
 ggsave("fig4_tree_candidates.pdf", .p, width = 9.9, height = 7, scale = 2, device = cairo_pdf)
 
-.timepoints_df = fig4df$adata[[1]] %>%
+.timepoints_df = df4act %>%
   dplyr::filter(generation %in% .gens4) %>%
   dplyr::group_by(generation) %>%
-  dplyr::summarise(copy_number = sum(copy_number)) %>%
+  dplyr::summarise(copy_number = sum(copy_number) / 1000) %>%
+  dplyr::mutate(label = tolower(as.roman(dplyr::row_number()))) %>%
   print()
+
+fig4act = df4act %>%
+  ggplot_activity(1000, "#aa0000") +
+  geom_vline(xintercept = .gens4, linetype = "dashed") +
+  # geom_point(data = .timepoints_df, position = position_nudge(0, 3), shape = 25, fill = "#000000") +
+  # geom_text(data = .timepoints_df, aes(label = label), position = position_nudge(-40, 2)) +
+  coord_cartesian(xlim = c(3700, 5500), ylim = c(0, 55), expand = FALSE) +
+  scale_x_continuous(breaks = .gens4) +
+  scale_y_continuous(breaks = c(0, 20, 40)) +
+  theme(panel.grid.major = element_blank())
+fig4act
+ggsave("fig4_activity.pdf", fig4act, width = 4, height = 5, scale = 1)
+
+.inds = c("0", "1", "0", "3", "0")
+df4delegates = tibble::tibble(generation = .gens4, individual = .inds) %>%
+  dplyr::left_join(.df4unrooted, by = c("generation", "individual")) %>%
+  print()
+
+.annot_base = df4delegates %>% dplyr::distinct(generation) %>% head(1L) %>% print()
+.dsegm = .annot_base %>% dplyr::mutate(x = 5, xend = 8, y = -10, yend = -10) %>% print()
+.dtext = .annot_base %>% dplyr::mutate(x = 6.5, y = -12, label = "0.01") %>% print()
+
+fig4trees = ggplot_tetree(df4delegates, colorbar = FALSE, hypercolor = "#aa0000") +
+  geom_segment(data = .dsegm, aes(x, y, xend = xend, yend = yend), size = 1) +
+  geom_text(data = .dtext, aes(x, y, label = label)) +
+  facet_wrap(~ generation, labeller = label_both_tree, nrow = 1L) +
+  theme_classic() +
+  theme(
+    axis.line = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
+    strip.background = element_blank(),
+    strip.text.x = element_text(size = 12, hjust = 0.2, vjust = 0),
+    panel.spacing = grid::unit(-8, "lines"),
+    legend.box.margin = margin(l = -9, unit = "lines")
+  )
+fig4trees
+ggsave("fig4_trees.pdf", fig4trees, width = 12, height = 4, scale = 1, family = "Helvetica", device = cairo_pdf)
+
+fig4 = cowplot::plot_grid(fig4act, fig4trees, nrow = 1L, rel_widths = c(1, 3))
+fig4
+ggsave("fig4.pdf", fig4, width = 15, height = 4, family = "Helvetica", device = cairo_pdf)
 
 # #######1#########2#########3#########4
 
 fig5df = .metadata %>%
-  dplyr::filter(coexist == 2L, xi == 0.001, n == 500L, lower == 6L, upper == 30L, repl == 1L) %>%
+  dplyr::filter(coexist == 2L, xi == 0.001, n == 1000L, lower == 6L, upper == 24L, repl == 3L) %>%
   dplyr::mutate(
     adata = purrr::map(indir, read_activity),
     tdata = purrr::map(indir, ~{
@@ -467,7 +521,7 @@ fig5df = .metadata %>%
 
 saveRDS(fig5df, "fig5.rds")
 
-.gens5 = c(15000L, 20000L, 25000L, 35000L, 45000L)
+.gens5 = c(17000L, 22000L, 27000L, 30000L, 40000L)
 .infiles5 = fs::path(fig5df$indir, sprintf("generation_%05d.fa.gz", .gens5))
 .inds_df5 = .infiles5 %>%
   setNames(str_extract(., "(?<=generation_)\\d+")) %>%
@@ -526,7 +580,7 @@ fig5plts$top[[1]]
 .p
 ggsave("fig5_tree_candidates.pdf", .p, width = 9.9, height = 7, scale = 2, device = cairo_pdf)
 
-.inds = c("1", "2", "0", "0", "2")
+.inds = c("0", "0", "5", "2", "7")
 .delegates = .timepoints_df %>%
   dplyr::transmute(generation, BI = sprintf("%.3f", value), individual = .inds) %>%
   print()
