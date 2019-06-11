@@ -6,6 +6,7 @@
 #define TEK_DNA_HPP_
 
 #include <cstdint>
+#include <bitset>
 #include <valarray>
 #include <vector>
 #include <numeric>
@@ -18,22 +19,26 @@ namespace tek {
 
 /*! @brief DNA class
 */
+template <size_t N>
 class DNA {
   public:
-    DNA() = delete;
     //! default constructor
+    DNA() = default;
+    //! default copy constructor
     DNA(const DNA&) = default;
     //! move constructor
     DNA(DNA&&) noexcept = default;
-    //! construct
-    DNA(uint_fast32_t n) noexcept: sequence_(n) {}
-    //! construct from sequence
-    DNA(std::valarray<uint_fast8_t>&& s) noexcept
-    : sequence_(std::move(s)) {}
+    // //! construct from sequence
+    DNA(std::valarray<uint_fast8_t>&& s) noexcept {
+        for (unsigned i=0; i<N; ++i) {
+            is_pyrimidine_.set(i, (0b00000010u & s[i]) >> 1);
+            has_3bonds_.set(i, 0b00000001u & s[i]);
+        }
+    }
 
     //! diviation from the original
     uint_fast32_t count() const noexcept {
-        return count(sequence_ > uint_fast8_t(0u));
+        return (is_pyrimidine_ | has_3bonds_).count();
     }
 
     //! mutate i-th site
@@ -44,23 +49,23 @@ class DNA {
         while ((0b00000011u & random_bits) == 0u) {
             random_bits >>= 2;
         }
-        sequence_[i] ^= (0b00000011u & random_bits);
+        is_pyrimidine_.set(i, (0b00000010u & random_bits) >> 1);
+        has_3bonds_.set(i, 0b00000001u & random_bits);
     }
 
     //! get i-th nucleotide
     uint_fast8_t operator[](uint_fast32_t i) const noexcept {
-        return sequence_[i];
+        return (is_pyrimidine_[i] << 1) + has_3bonds_[i];
     }
-
     //! get i-th nucleotide as char
     const char& at(uint_fast32_t i) const noexcept {
-        return translate(sequence_[i]);
+        return translate(operator[](i));
     }
 
     //! translate integer to nucleotide character and print
     std::ostream& write(std::ostream& ost) const {
-        for (auto x: sequence_) {
-            ost << translate(x);
+        for (unsigned int i=0; i<N; ++i) {
+            ost << at(i);
         }
         return ost;
     }
@@ -70,13 +75,9 @@ class DNA {
         return x.write(ost);
     }
 
-    //! comparison of sequence
-    std::valarray<bool> operator!=(const DNA& other) const noexcept {
-        return this->sequence_ != other.sequence_;
-    }
     //! Hamming distance
     uint_fast32_t operator-(const DNA& other) const noexcept {
-        return count(this->sequence_ != other.sequence_);
+        return ((this->is_pyrimidine_ ^ other.is_pyrimidine_) | (this->has_3bonds_ ^ other.has_3bonds_)).count();
     }
 
   private:
@@ -93,32 +94,32 @@ class DNA {
           });
     }
 
-    //! sequence as integer array
-    std::valarray<uint_fast8_t> sequence_;
+    //! sequence as two bitsets: {00: A, 01: G, 10: T, 11: C}
+    std::bitset<N> is_pyrimidine_; // {0: AG, 1: TC}
+    std::bitset<N> has_3bonds_;    // {0: AT, 1: GC}
 };
 
 /*! @brief Homolog class
 */
+template <size_t N>
 class Homolog {
   public:
-    Homolog(uint_fast32_t length) noexcept: counts_(length, {0u, 0u, 0u, 0u}) {}
+    Homolog() noexcept: counts_(N, {0u, 0u, 0u, 0u}) {}
 
-    Homolog& operator+=(const DNA& seq) noexcept {
-        const uint_fast32_t n = static_cast<uint_fast32_t>(counts_.size());
-        for (uint_fast32_t i=0; i<n; ++i) {
+    Homolog& operator+=(const DNA<N>& seq) noexcept {
+        for (uint_fast32_t i=0; i<N; ++i) {
             ++counts_[i][seq[i]];
         }
         return *this;
     }
 
-    DNA majority() const noexcept {
-        const uint_fast32_t n = static_cast<uint_fast32_t>(counts_.size());
-        std::valarray<uint_fast8_t> result(n);
-        for (uint_fast32_t i=0; i<n; ++i) {
+    DNA<N> majority() const noexcept {
+        std::valarray<uint_fast8_t> result(N);
+        for (uint_fast32_t i=0; i<N; ++i) {
             const auto& v = counts_[i];
             result[i] = static_cast<uint_fast8_t>(std::distance(v.begin(), std::max_element(v.begin(), v.end())));
         }
-        return DNA(std::move(result));
+        return DNA<N>(std::move(result));
     }
 
   private:

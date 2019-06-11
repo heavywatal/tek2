@@ -60,12 +60,10 @@ class Transposon {
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
 
     //! default constructor
-    Transposon() noexcept
-    : nonsynonymous_sites_(NUM_NONSYNONYMOUS_SITES),
-      synonymous_sites_(LENGTH - NUM_NONSYNONYMOUS_SITES) {}
+    Transposon() noexcept = default;
 
     //! constructor
-    Transposon(DNA&& non, DNA&& syn) noexcept
+    Transposon(DNA<NUM_NONSYNONYMOUS_SITES>&& non, DNA<NUM_SYNONYMOUS_SITES>&& syn) noexcept
     : nonsynonymous_sites_(std::move(non)),
       synonymous_sites_(std::move(syn)) {}
 
@@ -158,9 +156,9 @@ class Transposon {
     //! getter of #INTERACTION_COEFS_
     static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS() noexcept {return INTERACTION_COEFS_;}
     //! getter of #nonsynonymous_sites_
-    const DNA& nonsynonymous_sites() const noexcept {return nonsynonymous_sites_;}
+    const DNA<NUM_NONSYNONYMOUS_SITES>& nonsynonymous_sites() const noexcept {return nonsynonymous_sites_;}
     //! getter of #synonymous_sites_
-    const DNA& synonymous_sites() const noexcept {return synonymous_sites_;}
+    const DNA<NUM_SYNONYMOUS_SITES>& synonymous_sites() const noexcept {return synonymous_sites_;}
     //! getter of #has_indel_
     bool has_indel() const noexcept {return has_indel_;}
     //! getter of #species_
@@ -213,9 +211,9 @@ class Transposon {
     static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS_;
 
     //! nonsynonymous sites
-    DNA nonsynonymous_sites_;
+    DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
     //! synonymous sites
-    DNA synonymous_sites_;
+    DNA<NUM_SYNONYMOUS_SITES> synonymous_sites_;
     //! activity is zero if this is true
     bool has_indel_ = false;
     //! activity is doubled if this is true
@@ -228,9 +226,7 @@ class Transposon {
 */
 class TransposonFamily {
   public:
-    TransposonFamily() noexcept
-    : nonsynonymous_sites_(Transposon::NUM_NONSYNONYMOUS_SITES),
-      synonymous_sites_(Transposon::NUM_SYNONYMOUS_SITES) {}
+    TransposonFamily() noexcept = default;
 
     TransposonFamily& operator+=(const Transposon& x) noexcept {
         nonsynonymous_sites_ += x.nonsynonymous_sites();
@@ -246,8 +242,8 @@ class TransposonFamily {
     uint_fast32_t size() const noexcept {return size_;}
 
   private:
-    Homolog nonsynonymous_sites_;
-    Homolog synonymous_sites_;
+    Homolog<Transposon::NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;
+    Homolog<Transposon::NUM_SYNONYMOUS_SITES> synonymous_sites_;
     uint_fast32_t size_ = 0u;
 };
 

@@ -19,8 +19,8 @@ std::unordered_map<uint_fast64_t, double> Transposon::INTERACTION_COEFS_;
 static_assert(std::is_nothrow_default_constructible<Transposon>{}, "");
 static_assert(std::is_nothrow_move_constructible<Transposon>{}, "");
 
-static_assert(!std::is_default_constructible<DNA>{}, "");
-static_assert(std::is_nothrow_move_constructible<DNA>{}, "");
+static_assert(std::is_default_constructible<DNA<3>>{}, "");
+static_assert(std::is_nothrow_move_constructible<DNA<3>>{}, "");
 
 void Transposon::param(const param_type& p) {HERE;
     PARAM_ = p;
