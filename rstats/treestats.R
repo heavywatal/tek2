@@ -4,6 +4,8 @@ library(aptree)  # library(apTreeshape)
 # wtl::refresh("aptree")
 
 ggplot_tetree = function(data, colorbar=TRUE, hypercolor = NA) {
+  .max_copy_number = max(data[["copy_number"]], na.rm = TRUE)
+  .size_breaks = c(32, 16, 8, 4, 2, 1) %>% {.[. < .max_copy_number]}
   .colors = rev(head(rainbow(15L), 12L))
   .values = seq(0, 1, length.out = length(.colors))
   .breaks = c(0, 0.5, 1)
@@ -30,7 +32,7 @@ ggplot_tetree = function(data, colorbar=TRUE, hypercolor = NA) {
   geom_segment(aes(x, y, xend = xend, yend = yend), size = 0.28) +
   scale_shape_manual(values = c(`TRUE` = 21, `FALSE` = 16), guide = .pch_guide, labels = c("< 0.5", "≥ 0.5")) +
   scale_colour_gradientn(colours = .colors, limits = .limits, breaks = .breaks, values = .values, guide = .col_guide) +
-  scale_size(limit = c(1, .max_copy_number), breaks = c(8, 4, 2, 1), range = c(3, 12), name = "Copy\nNumber", guide = .size_guide) +
+  scale_size(limit = c(1, .max_copy_number), breaks = .size_breaks, range = c(3, 12), name = "Copy\nNumber", guide = .size_guide) +
   labs(x = NULL, y = NULL) +
   coord_fixed(ylim = .ylim)
 }

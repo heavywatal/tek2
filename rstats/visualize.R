@@ -203,8 +203,8 @@ ggsave("fig6candidates.pdf", .fig6candidates, width = 14, height = 14)
 fig1df = .metadata %>%
   dplyr::filter(n == 1000L) %>%
   dplyr::mutate(
-    adata = purrr::map(indir, read_activity),
-    tdata = purrr::map(indir, ~{
+    adata = wtl::mcmap(indir, read_activity),
+    tdata = wtl::mcmap(indir, ~{
       message(.x)
       read_fastas(.x, interval = 100L) %>%
         add_phylo() %>%
@@ -374,8 +374,6 @@ read_individuals = function(infile) {
 .total_df = .all_inds_df %>% dplyr::filter(individual == "total") %>% print()
 .inds_df = .all_inds_df %>% dplyr::filter(individual != "total") %>% print()
 
-.max_copy_number = .inds_df$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
-
 .df_unrooted = .inds_df %>%
 # .df_unrooted_total = .total_df %>%
   purrr::pmap_df(function(phylo, data, generation, individual, ...) {
@@ -476,7 +474,7 @@ fig4act = df4act %>%
 fig4act
 ggsave("fig4_activity.pdf", fig4act, width = 4, height = 5, scale = 1)
 
-.inds = c("0", "1", "0", "3", "0")
+.inds = c("0", "1", "4", "3", "0")
 df4delegates = tibble::tibble(generation = .gens4, individual = .inds) %>%
   dplyr::left_join(.df4unrooted, by = c("generation", "individual")) %>%
   print()
@@ -506,6 +504,12 @@ ggsave("fig4.pdf", fig4, width = 15, height = 4, family = "Helvetica", device = 
 
 # #######1#########2#########3#########4
 
+fig5df$adata[[1]] %>%
+  dplyr::count(species, generation, wt = copy_number) %>%
+  dplyr::group_by(species) %>%
+  dplyr::group_modify(~head(.))
+
+
 fig5df = .metadata %>%
   dplyr::filter(coexist == 2L, xi == 0.001, n == 1000L, lower == 6L, upper == 24L, repl == 3L) %>%
   dplyr::mutate(
@@ -529,8 +533,6 @@ saveRDS(fig5df, "fig5.rds")
   dplyr::mutate(generation = as.integer(generation)) %>%
   dplyr::filter(individual != "total") %>%
   print()
-
-.max_copy_number = .inds_df5$data %>% purrr::map_int(~max(.x$copy_number)) %>% max() %>% print()
 
 .timepoints_df = fig5df$tdata[[1]] %>%
   dplyr::filter(generation %in% .gens5) %>%
