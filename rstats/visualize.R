@@ -91,7 +91,7 @@ ggsave("fig2_candidates.pdf", fig2cand_plts, width = 8, height = 4)
 
 fig4cand = .metadata %>% dplyr::transmute(n, repl, lapply(indir, read_activity)) %>% print()
 .p = fig4cand %>% tidyr::unnest() %>%
-  ggplot_activity(500, "#aa0000") +
+  ggplot_activity(1000, "#aa0000") +
   coord_cartesian(xlim = c(3000, 6000)) +
   facet_wrap(~n + repl)
 .p
@@ -157,29 +157,25 @@ fig6candidates = df6act %>%
 fig6candidates
 ggsave("fig6candidates.pdf", fig6candidates, width = 7, height = 9.9, scale = 2)
 
+fig6candidates_c8 = df6act %>%
+  dplyr::filter(coexist == 8L) %>%
+  dplyr::filter((generation %% 500) == 0) %>%
+  ggplot_activity() +
+  facet_wrap(~label, ncol = 6L) +
+  theme_minimal()
+fig6candidates_c8
+ggsave("fig6candidates-c8.pdf", fig6candidates_c8, width = 9.9, height = 7, scale = 2)
+
 .fig6repl = tibble::tribble(
-     ~n,  ~xi, ~lower, ~upper, ~coexist, ~repl,
-   500L, 1e-3,     6L,    18L,       8L,    4L,
-   500L, 1e-3,     6L,    24L,       8L,    1L,
-   500L, 1e-3,     6L,    24L,       8L,    2L,
-   500L, 1e-3,     9L,    18L,       8L,    2L,
-   500L, 1e-3,     9L,    18L,       8L,    3L,
-   500L, 1e-3,     9L,    24L,       8L,    3L,
-  1000L, 1e-3,     6L,    18L,       8L,    1L,
-  1000L, 1e-3,     6L,    18L,       8L,    3L,
-  1000L, 1e-3,     6L,    18L,       8L,    4L,
-  1000L, 1e-3,     6L,    24L,       8L,    1L,
-  1000L, 1e-3,     6L,    24L,       8L,    2L,
-  1000L, 1e-3,     6L,    24L,       8L,    4L,
-  1000L, 1e-3,     6L,    30L,       8L,    1L,
-  1000L, 1e-3,     9L,    18L,       8L,    1L,
-  1000L, 1e-3,     9L,    18L,       8L,    3L,
-  1000L, 1e-3,     9L,    24L,       8L,    4L,
-  1000L, 1e-3,     9L,    30L,       8L,    1L,
-  1000L, 1e-3,     9L,    30L,       8L,    3L
+     ~n, ~coexist, ~lower, ~upper, ~repl,
+  # 1000L,       8L,     6L,    18L,    1L,
+  1000L,       8L,     6L,    18L,    3L,
+  1000L,       8L,     6L,    30L,    1L,
+  1000L,       8L,     9L,    18L,    5L,
+  1000L,       8L,     9L,    30L,    1L,
 ) %>% print()
 
-.fig6actidy = .metadata %>%
+df6 = .metadata %>%
   dplyr::right_join(.fig6repl, by = names(.fig6repl)) %>%
   dplyr::mutate(
     label = sprintf("n=%d l=%d u=%d repl=%d", n, lower, upper, repl),
@@ -190,11 +186,13 @@ ggsave("fig6candidates.pdf", fig6candidates, width = 7, height = 9.9, scale = 2)
   dplyr::mutate(copy_number = copy_number / n) %>%
   print()
 
-.fig6candidates = .fig6actidy %>%
+fig6 = df6 %>%
+  dplyr::rename(lowerbound = lower, upperbound = upper) %>%
   ggplot_activity() +
-  facet_wrap(~ label, ncol = 3L)
-.fig6candidates
-ggsave("fig6candidates.pdf", .fig6candidates, width = 14, height = 14)
+  facet_grid(upperbound ~ lowerbound, labeller = label_both) +
+  theme(strip.background = element_blank())
+fig6
+ggsave("fig6.pdf", fig6, width = 10, height = 4)
 
 # ~/git/teaposon/run.py -p3 -j2 -r10 te2fig6
 
@@ -310,8 +308,7 @@ df2 = .metadata %>%
   dplyr::mutate(
     adata = purrr::map(indir, ~{read_activity(.) %>% dplyr::filter(.lbound <= generation, generation <= .ubound)}),
     tdata = purrr::map(indir, ~{
-      read_fastas(.x, interval = 100L) %>%
-        dplyr::filter(.lbound <= generation, generation <= .ubound) %>%
+      read_fastas(.x, interval = 100L, from = .lbound, to = .ubound) %>%
         add_phylo() %>%
         eval_treeshape()
     })
@@ -419,12 +416,12 @@ ggsave(sprintf("fig2_tree_candidates_%d.pdf", .repl), .p, width = 9.9, height = 
 # .fig2_right
 ggsave("fig2_right.pdf", .fig2_right, width = 9, height = 7, family = "Helvetica", device = cairo_pdf)
 
-fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(2, 9))
+fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(3.2, 9))
 ggsave("fig2.pdf", fig2, width = 12, height = 7, family = "Helvetica", device = cairo_pdf)
 
 # #######1#########2#########3#########4
 
-.df4 = .metadata %>% dplyr::filter(n == 1000L) %>% print()
+.df4 = .metadata %>% dplyr::filter(n == 1000L, str_detect(indir, "_063$")) %>% print()
 
 df4act = .df4 %>%
   dplyr::transmute(data = lapply(indir, read_activity)) %>%
@@ -467,21 +464,22 @@ fig4act = df4act %>%
   geom_vline(xintercept = .gens4, linetype = "dashed") +
   # geom_point(data = .timepoints_df, position = position_nudge(0, 3), shape = 25, fill = "#000000") +
   # geom_text(data = .timepoints_df, aes(label = label), position = position_nudge(-40, 2)) +
-  coord_cartesian(xlim = c(3700, 5500), ylim = c(0, 55), expand = FALSE) +
+  coord_cartesian(xlim = c(3700, 5500), ylim = c(0, 60), expand = FALSE) +
   scale_x_continuous(breaks = .gens4) +
   scale_y_continuous(breaks = c(0, 20, 40)) +
   theme(panel.grid.major = element_blank())
 fig4act
 ggsave("fig4_activity.pdf", fig4act, width = 4, height = 5, scale = 1)
 
-.inds = c("0", "1", "4", "3", "0")
+.inds = c("0", "4", "4", "4", "4")
 df4delegates = tibble::tibble(generation = .gens4, individual = .inds) %>%
   dplyr::left_join(.df4unrooted, by = c("generation", "individual")) %>%
   print()
 
-.annot_base = df4delegates %>% dplyr::distinct(generation) %>% head(1L) %>% print()
-.dsegm = .annot_base %>% dplyr::mutate(x = 5, xend = 8, y = -10, yend = -10) %>% print()
-.dtext = .annot_base %>% dplyr::mutate(x = 6.5, y = -12, label = "0.01") %>% print()
+df4delegates %>% dplyr::select(matches("^x|^y")) %>% dplyr::summarise_all(list(~min(.)))
+.annot_base = df4delegates %>% dplyr::distinct(generation) %>% tail(1L) %>% print()
+.dsegm = .annot_base %>% dplyr::mutate(x = 0, xend = 1.8, y = -2, yend = -2) %>% print()
+.dtext = .annot_base %>% dplyr::mutate(x = 0.9, y = -2.3, label = "0.005") %>% print()
 
 fig4trees = ggplot_tetree(df4delegates, colorbar = FALSE, hypercolor = "#aa0000") +
   geom_segment(data = .dsegm, aes(x, y, xend = xend, yend = yend), size = 1) +
@@ -491,9 +489,7 @@ fig4trees = ggplot_tetree(df4delegates, colorbar = FALSE, hypercolor = "#aa0000"
   theme(
     axis.line = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
     strip.background = element_blank(),
-    strip.text.x = element_text(size = 12, hjust = 0.2, vjust = 0),
-    panel.spacing = grid::unit(-8, "lines"),
-    legend.box.margin = margin(l = -9, unit = "lines")
+    strip.text.x = element_text(size = 12, hjust = 0.2, vjust = 0)
   )
 fig4trees
 ggsave("fig4_trees.pdf", fig4trees, width = 12, height = 4, scale = 1, family = "Helvetica", device = cairo_pdf)

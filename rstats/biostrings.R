@@ -31,7 +31,7 @@ read_fastas = function(dir, interval = 1000L, from = NULL, to = NULL) {
   if (is.null(to)) {to = max(.df$generation)}
   .generations = seq.int(0L, to, interval)
   .df %>%
-    dplyr::filter(generation %in% .generations, generation > from) %>%
+    dplyr::filter(generation %in% .generations, generation >= from) %>%
     dplyr::transmute(
       generation,
       seqs = purrr::map(path, read_tek_fasta)
