@@ -216,18 +216,26 @@ saveRDS(fig1df, "fig1.rds")
 # rsync -auv ilp15.local:~/working/te2-fig1/ ~/working/tek/te2-fig1/
 # fig1df = readRDS("fig1.rds")
 
+fig1df$tdata[[1]] %>% ggplot_evolution()
+
 fig1plts = fig1df %>%
   dplyr::arrange(desc(xi)) %>%
   dplyr::mutate(
-    tplot = purrr::map(tdata, ~{
+    tplot = purrr::imap(tdata, ~{
       .xmin = min(.x$generation)
-      ggplot_evolution(.x %>% dplyr::filter(generation > 500L), only_bi = TRUE) +
+      .p = ggplot_evolution(.x %>% dplyr::filter(generation > 500L), only_bi = TRUE) +
         coord_cartesian(xlim = c(.xmin, max(.x$generation))) +
         theme(
           axis.title = element_blank(),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank()
         )
+      if (.y == 1L) {
+        .p = .p +
+          annotate("rect", xmin = 25000L, xmax = 45000L, ymin = 0, ymax = 1, fill = NA, colour = "#666666", linetype = "dashed") +
+          annotate("text", label = "Fig. 2", x = 40500, y = 0.05, hjust = 0, vjust = 0)
+      }
+      .p
     }),
     aplot = purrr::map2(adata, n, ~{
       .p = ggplot_activity(.x, .y)
@@ -243,6 +251,7 @@ fig1plts = fig1df %>%
   ) %>%
   print()
 fig1plts$plt[[1]]
+fig1plts$plt[[2]]
 
 fig1 = cowplot::plot_grid(
   cowplot::plot_grid(
@@ -332,13 +341,18 @@ df2$tdata[[1]] %>% dplyr::arrange(abs(bimodality - 5 / 9))
 
 .fig2_left = df2 %>%
   dplyr::transmute(
-    aplot = purrr::map2(adata, n, ggplot_activity),
+    aplot = purrr::map2(adata, n, ~{
+      ggplot_activity(.x, .y) +
+        geom_vline(aes(xintercept = generation), .timepoints_df, linetype = "dashed", colour = "#666666") +
+        theme(panel.grid.major.x = element_blank())
+    }),
     tplot = purrr::map(tdata, ~{
       ggplot_evolution(.x, only_bi = TRUE) +
+        geom_vline(aes(xintercept = generation), .timepoints_df, linetype = "dashed", colour = "#666666") +
         geom_point(data = .timepoints_df, colour = "red", size = 3) +
         theme(
-          axis.title = element_blank(),
-          axis.text.x = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_blank(), axis.text.x = element_blank(),
           axis.ticks.x = element_blank()
         )
     })
@@ -349,6 +363,7 @@ df2$tdata[[1]] %>% dplyr::arrange(abs(bimodality - 5 / 9))
     cowplot::plot_grid(tplot + .scale_x, aplot, ncol = 1, rel_heights = c(1, 1), align = "v", axis = "lr")
   }) %>%
   purrr::pluck(1L)
+.fig2_left
 ggsave("fig2_left.pdf", .fig2_left, width = 4, height = 9, family = "Helvetica")
 
 
@@ -416,7 +431,8 @@ ggsave(sprintf("fig2_tree_candidates_%d.pdf", .repl), .p, width = 9.9, height = 
 # .fig2_right
 ggsave("fig2_right.pdf", .fig2_right, width = 9, height = 7, family = "Helvetica", device = cairo_pdf)
 
-fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(3.2, 9))
+fig2 = cowplot::plot_grid(.fig2_left + coord_fixed(ratio = 1.0), .fig2_right, rel_widths = c(4, 9))
+fig2
 ggsave("fig2.pdf", fig2, width = 12, height = 7, family = "Helvetica", device = cairo_pdf)
 
 # #######1#########2#########3#########4
