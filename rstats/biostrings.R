@@ -1,5 +1,12 @@
 library(Biostrings)
 
+read_individuals = function(infile) {
+  message(infile)
+  .seqs = read_tek_fasta(infile, metadata = TRUE)
+  .mcols_all = tidy_metadata(.seqs, add_root = FALSE)
+  .nested_mcols = nest_metadata(.mcols_all, .seqs)
+}
+
 parse_fasta_header = function(x) {
   str_match_all(x, "(\\w+)=(\\S+)") %>%
   purrr::map_dfr(~{
