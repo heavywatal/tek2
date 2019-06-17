@@ -32,7 +32,7 @@ struct TransposonParams {
     double SPECIATION_RATE = 0.0;
     //! threshold distance required for speciation
     uint_fast32_t LOWER_THRESHOLD = LENGTH;
-    //! threshold distance that interaction between sepecies becomes zero
+    //! threshold distance that interaction between species becomes zero
     uint_fast32_t UPPER_THRESHOLD = LENGTH;
 };
 
