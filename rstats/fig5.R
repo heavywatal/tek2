@@ -35,14 +35,7 @@ ggsave("fig5facet_possible.pdf", .p5facet, width = 30, height = 20)
   facet_grid(coexist + lower ~ upper + repl, scale = "free_y")
 ggsave("fig5facet_narrow.pdf", .p5facet_narrow, width = 20, height = 12)
 
-}
-# #######1#########2#########3#########4#########5#########6#########7#########
-
-source("~/git/teaposon/rstats/read.R")
-.indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
-.metadata = read_metadata(.indirs) %>% print()
-
-fig5df = .metadata %>%
+df5 = .metadata %>%
   dplyr::filter(coexist == 2L, xi == 0.001, n == 1000L, lower == 6L, upper == 24L, repl == 3L) %>%
   dplyr::mutate(
     adata = purrr::map(indir, read_activity),
@@ -55,10 +48,19 @@ fig5df = .metadata %>%
   ) %>%
   print()
 
-saveRDS(fig5df, "fig5.rds")
+saveRDS(df5, "df5.rds")
+
+}
+# #######1#########2#########3#########4#########5#########6#########7#########
+
+source("~/git/teaposon/rstats/read.R")
+.indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
+.metadata = read_metadata(.indirs) %>% print()
+
+df5 = readRDS("fig5.rds") %>% print()
 
 .gens5 = c(17000L, 22000L, 27000L, 30000L, 40000L)
-.infiles5 = fs::path(fig5df$indir, sprintf("generation_%05d.fa.gz", .gens5))
+.infiles5 = fs::path(df5$indir, sprintf("generation_%05d.fa.gz", .gens5))
 .inds_df5 = .infiles5 %>%
   setNames(str_extract(., "(?<=generation_)\\d+")) %>%
   purrr::map_dfr(read_individuals, .id = "generation") %>%
@@ -66,38 +68,38 @@ saveRDS(fig5df, "fig5.rds")
   dplyr::filter(individual != "total") %>%
   print()
 
-.timepoints_df = fig5df$tdata[[1]] %>%
+.timepoints_df = df5$tdata[[1]] %>%
   dplyr::filter(generation %in% .gens5) %>%
   dplyr::transmute(generation, value = bimodality, stat = "bimodality") %>%
   print()
 
-fig5plts = fig5df %>%
-  dplyr::mutate(
-    tplot = purrr::map(tdata, ~{
-      .xmin = min(.x$generation)
-      ggplot_evolution(.x %>% dplyr::filter(generation > 500L), only_bi = TRUE) +
-        coord_cartesian(xlim = c(.xmin, max(.x$generation))) +
-        geom_point(data = .timepoints_df, colour = "red", size = 3) +
-        theme(
-          axis.title = element_blank(),
-          axis.text.x = element_blank(),
-          axis.ticks.x = element_blank()
-        )
-    }),
-    aplot = purrr::map2(adata, n, ~{
-      .p = ggplot_activity(.x, .y)
-      if (max(.x$copy_number) / .y < 100) {
-        .p = .p + theme(axis.title.y = element_text(margin = margin(r = 11.5)))
-      }
-      .p
-    }),
-    top = purrr::map2(tplot, aplot, ~{
-      cowplot::plot_grid(.x, .y + theme(legend.position = "none"),
-        ncol = 1, rel_heights = c(1, 1.2), align = "v", axis = "lr")
-    })
-  ) %>%
-  print()
-fig5plts$top[[1]]
+df5stat = df5$tdata[[1L]]
+fig5stat = df5stat %>%
+  dplyr::filter(generation > 800) %>%
+  ggplot_evolution(only_bi = TRUE) +
+  coord_cartesian(xlim = c(0, max(df5stat$generation))) +
+  geom_vline(aes(xintercept = generation), .timepoints_df, linetype = "dashed", colour = "#666666") +
+  geom_point(data = .timepoints_df, colour = "red", size = 3) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    axis.title = element_blank(), axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+fig5stat
+
+df5act = df5$adata[[1L]]
+fig5act = df5act %>%
+  ggplot_activity() +
+  geom_vline(xintercept = .gens5, linetype = "dashed", colour = "#666666") +
+  theme(legend.position = "none", panel.grid.major.x = element_blank())
+fig5act
+
+fig5top = cowplot::plot_grid(
+  fig5stat, fig5act,
+  ncol = 1L, rel_heights = c(1, 1.2), align = "v", axis = "lr"
+)
+fig5top
+
 
 .df_unrooted5 = .inds_df5 %>%
   purrr::pmap_df(function(phylo, data, generation, individual, ...) {
@@ -145,7 +147,7 @@ ggsave("fig5_bottom.pdf", .fig5_bottom, width = 10, height = 4, family = "Helvet
 .cbar = cowplot::get_legend(fig5plts$aplot[[1L]] + guides(fill = .guide_acti))
 
 fig5 = cowplot::plot_grid(
-  fig5plts$top[[1L]],
+  fig5top,
   cowplot::plot_grid(.fig5_bottom, .cbar, nrow = 1L, rel_widths = c(1, 0.1)),
   ncol = 1L, rel_heights = c(1.3, 1), labels = c("A", "B"), scale = 0.95
 )
