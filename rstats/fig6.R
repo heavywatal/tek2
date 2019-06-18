@@ -41,8 +41,9 @@ ggsave("fig6candidates-c8.pdf", fig6candidates_c8, width = 9.9, height = 7, scal
   1000L,       8L,     9L,    30L,    1L,
 ) %>% print()
 
-df6 = .metadata %>%
-  dplyr::right_join(.fig6repl, by = names(.fig6repl)) %>%
+df6nested = .fig6repl %>% dplyr::left_join(.metadata, by = names(.)) %>% print()
+
+df6 = df6nested %>%
   dplyr::mutate(
     label = sprintf("n=%d l=%d u=%d repl=%d", n, lower, upper, repl),
     adata = purrr::map(indir, read_activity),
@@ -59,3 +60,18 @@ fig6 = df6 %>%
   theme(strip.background = element_blank())
 fig6
 ggsave("fig6.pdf", fig6, width = 10, height = 4)
+
+df6summary = df6 %>% dplyr::count(lower, upper, generation, wt = copy_number) %>% print()
+.ylim = c(0, max(df6summary$n)) %>% print()
+
+plts = df6nested %>% purrr::pmap(function(n, lower, upper, indir, ...) {
+  data = read_activity(indir) %>% dplyr::mutate(copy_number = copy_number / n)
+  outfile = sprintf("fig6-l%d-u%d.pdf", lower, upper)
+  message(outfile)
+  p = ggplot_activity(data) +
+    coord_cartesian(ylim = .ylim) +
+    theme(axis.title = element_blank(), legend.position = "none")
+  ggsave(outfile, p, width = 5, height = 2)
+  p
+})
+cowplot::plot_grid(plotlist = plts)
