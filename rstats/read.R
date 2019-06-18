@@ -24,6 +24,6 @@ read_metadata = function(dirs) {
     dplyr::arrange(n, xi, coexist, lower, upper, repl)
 }
 
-source("~/git/teaposon/rstats/activity.R")
-source("~/git/teaposon/rstats/biostrings.R")
-source("~/git/teaposon/rstats/treestats.R")
+source("~/git/tek2/rstats/activity.R")
+source("~/git/tek2/rstats/biostrings.R")
+source("~/git/tek2/rstats/treestats.R")

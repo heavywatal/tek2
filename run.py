@@ -76,7 +76,7 @@ def te1fig2s():
 
 
 def iter_args(arg_maker, rest, concurrency, repeat, skip):
-    const = ['teaposon', '-j{}'.format(concurrency)] + rest
+    const = ['tek2', '-j{}'.format(concurrency)] + rest
     now = wopt.now()
     for i, v in enumerate(wopt.cycle(arg_maker(), repeat)):
         if i < skip:

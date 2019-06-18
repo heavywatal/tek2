@@ -22,7 +22,7 @@ saveRDS(fig1df, "fig1.rds")
 }
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-source("~/git/teaposon/rstats/read.R")
+source("~/git/tek2/rstats/read.R")
 
 fig1df = readRDS("fig1.rds")
 

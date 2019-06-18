@@ -1,7 +1,7 @@
-# @ILP22% ~/git/teaposon/run.py -p2 -j6 -r6 te2fig6
+# @ILP22% ~/git/tek2/run.py -p2 -j6 -r6 te2fig6
 # rsync -auv ilp22.local:~/working/te2-fig6/ ~/working/tek/te2-fig6/
 
-source("~/git/teaposon/rstats/read.R")
+source("~/git/tek2/rstats/read.R")
 .indirs = fs::dir_ls(regexp = "^r\\d+", type = "directory")
 .metadata = read_metadata(.indirs) %>% print()
 

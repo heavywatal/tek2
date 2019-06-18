@@ -1,6 +1,6 @@
 if (FALSE) {
 
-# @ILP23% ~/git/teaposon/run.py -p2 -j6 te2fig2 -r96
+# @ILP23% ~/git/tek2/run.py -p2 -j6 te2fig2 -r96
 
 fig2cand = .metadata %>%
   dplyr::filter(xi > 6e-4) %>%
@@ -84,7 +84,7 @@ ggsave("fig2_finalists.pdf", .pg, width = 7, height = 9.9, family = "Helvetica",
 }
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-source("~/git/teaposon/rstats/read.R")
+source("~/git/tek2/rstats/read.R")
 .indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
 .metadata = read_metadata(.indirs) %>% print()
 

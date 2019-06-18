@@ -1,6 +1,6 @@
 if (FALSE) {
 
-# @ilp15% ~/git/teaposon/run.py -p2 -j6 te2fig4 -r96
+# @ilp15% ~/git/tek2/run.py -p2 -j6 te2fig4 -r96
 
 fig4cand = .metadata %>% dplyr::transmute(n, repl, lapply(indir, read_activity)) %>% print()
 .p = fig4cand %>% tidyr::unnest() %>%
@@ -13,7 +13,7 @@ ggsave("fig4_candidates.png", .p, width = 16, height = 16)
 }
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-source("~/git/teaposon/rstats/read.R")
+source("~/git/tek2/rstats/read.R")
 .indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
 .metadata = read_metadata(.indirs) %>% print()
 

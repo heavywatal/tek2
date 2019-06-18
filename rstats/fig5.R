@@ -53,7 +53,7 @@ saveRDS(df5, "df5.rds")
 }
 # #######1#########2#########3#########4#########5#########6#########7#########
 
-source("~/git/teaposon/rstats/read.R")
+source("~/git/tek2/rstats/read.R")
 .indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
 .metadata = read_metadata(.indirs) %>% print()
 

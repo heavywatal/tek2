@@ -1,4 +1,4 @@
-# teaposon
+# tek2
 
 T. E. Kijima and H. Innan
 (2013) *Genetics* **195**, 3 pp.957-67
