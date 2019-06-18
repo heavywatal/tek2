@@ -15,7 +15,7 @@ configure_file(
 )
 
 # Be patient until 3.13 is popularized
-add_library(objlib OBJECT
+add_library(objlib STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/haploid.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/program.cpp
