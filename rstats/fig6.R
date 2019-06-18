@@ -53,6 +53,10 @@ df6 = df6nested %>%
   dplyr::mutate(copy_number = copy_number / n) %>%
   print()
 
+df6 %>%
+  dplyr::filter(generation == max(generation)) %>%
+  dplyr::count(lower, upper, species, wt = copy_number)
+
 fig6 = df6 %>%
   dplyr::rename(lowerbound = lower, upperbound = upper) %>%
   ggplot_activity() +

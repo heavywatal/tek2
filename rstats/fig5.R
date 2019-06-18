@@ -94,6 +94,11 @@ fig5act = df5act %>%
   theme(legend.position = "none", panel.grid.major.x = element_blank())
 fig5act
 
+df5act %>%
+  dplyr::filter(generation == max(generation)) %>%
+  dplyr::mutate(copy_number = copy_number / 1000) %>%
+  dplyr::count(species, wt = copy_number)
+
 fig5top = cowplot::plot_grid(
   fig5stat, fig5act,
   ncol = 1L, rel_heights = c(1, 1.2), align = "v", axis = "lr"
