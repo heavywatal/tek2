@@ -1,0 +1,36 @@
+language: cpp
+matrix:
+  include:
+  - os: osx
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-8
+    env:
+    - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-5
+    env:
+    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+before_install:
+- eval "${MATRIX_EVAL}"
+script:
+- mkdir build
+- cd build
+- cmake -DCMAKE_INSTALL_PREFIX=${HOME}/local ..
+- cmake --build . -- --jobs=2
+- cmake --build . --target install
+- ctest -V
+branches:
+  except:
+  - /^v?\d+\.\d+/
+notifications:
+  email: false
