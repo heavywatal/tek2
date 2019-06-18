@@ -20,11 +20,27 @@ add_compile_options(-march=native -Wall -Wextra -pedantic)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
+function(find_package_or_git package version repo)
+  find_package(${package} ${version} QUIET)
+  if(${package}_FOUND)
+    return()
+  endif()
+  set(subdir ${PROJECT_BINARY_DIR}/${package}-v${version})
+  if(NOT EXISTS ${subdir})
+    find_package(Git)
+    execute_process(COMMAND
+      ${GIT_EXECUTABLE} clone --recursive --depth=1 --branch=v${version} https://github.com/${repo}.git ${subdir}
+    )
+  endif()
+  message(STATUS "add_subdirectory(${subdir})")
+  add_subdirectory(${subdir} EXCLUDE_FROM_ALL)
+endfunction()
+
 find_package(Threads)
 find_package(ZLIB)
-find_package(sfmt 0.7.2)
-find_package(clippson 0.8.1)
-find_package(wtl 0.8.4)
+find_package_or_git(wtl 0.8.4 heavywatal/cxxwtl)
+find_package_or_git(clippson 0.8.1 heavywatal/clippson)
+find_package_or_git(sfmt 0.7.2 heavywatal/sfmt-class)
 
 add_subdirectory(src)
 
