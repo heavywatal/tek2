@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.8)
 project(tek2
   VERSION 0.1.0
   LANGUAGES CXX)

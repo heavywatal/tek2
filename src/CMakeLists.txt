@@ -14,13 +14,13 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp @ONLY
 )
 
-cmake_policy(SET CMP0076 NEW)
+# Be patient until 3.13 is popularized
 add_library(objlib OBJECT
-  haploid.cpp
-  population.cpp
-  program.cpp
-  transposon.cpp
-  version.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/haploid.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/program.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/transposon.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp
 )
 target_compile_features(objlib PUBLIC cxx_std_14)
 set_target_properties(objlib PROPERTIES
