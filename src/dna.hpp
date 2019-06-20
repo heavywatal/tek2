@@ -54,18 +54,19 @@ class DNA {
     }
 
     //! get i-th nucleotide
-    uint_fast8_t operator[](uint_fast32_t i) const noexcept {
-        return (has_3bonds_[i] << 1) + is_pyrimidine_[i];
+    const char& operator[](uint_fast32_t i) const noexcept {
+        return translate(get(i));
     }
-    //! get i-th nucleotide as char
-    const char& at(uint_fast32_t i) const noexcept {
-        return translate(operator[](i));
+
+    //! get i-th nucleotide as integer
+    uint_fast8_t get(uint_fast32_t i) const noexcept {
+        return (has_3bonds_[i] << 1) + is_pyrimidine_[i];
     }
 
     //! translate integer to nucleotide character and print
     std::ostream& write(std::ostream& ost) const {
         for (unsigned int i=0; i<N; ++i) {
-            ost << at(i);
+            ost << operator[](i);
         }
         return ost;
     }
@@ -94,9 +95,11 @@ class DNA {
           });
     }
 
-    //! sequence as two bitsets: {00: A, 01: T, 10: G, 11: C}
-    std::bitset<N> has_3bonds_;    // {0: AT, 1: GC}
-    std::bitset<N> is_pyrimidine_; // {0: AG, 1: TC}
+    // sequence as two bitsets: {00: A, 01: T, 10: G, 11: C}
+    //! {0: AT, 1: GC}
+    std::bitset<N> has_3bonds_;
+    //! {0: AG, 1: TC}
+    std::bitset<N> is_pyrimidine_;
 };
 
 /*! @brief Homolog class
@@ -108,7 +111,7 @@ class Homolog {
 
     Homolog& operator+=(const DNA<N>& seq) noexcept {
         for (uint_fast32_t i=0; i<N; ++i) {
-            ++counts_[i][seq[i]];
+            ++counts_[i][seq.get(i)];
         }
         return *this;
     }
