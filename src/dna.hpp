@@ -26,13 +26,13 @@ class DNA {
     DNA() = default;
     //! default copy constructor
     DNA(const DNA&) = default;
-    //! move constructor
+    //! default move constructor
     DNA(DNA&&) noexcept = default;
-    // //! construct from sequence
+    //! construct from sequence
     DNA(std::valarray<uint_fast8_t>&& s) noexcept {
         for (unsigned i=0; i<N; ++i) {
-            is_pyrimidine_.set(i, (0b00000010u & s[i]) >> 1);
-            has_3bonds_.set(i, 0b00000001u & s[i]);
+            has_3bonds_.set(i, (0b00000010u & s[i]) >> 1);
+            is_pyrimidine_.set(i, 0b00000001u & s[i]);
         }
     }
 
@@ -49,13 +49,13 @@ class DNA {
         while ((0b00000011u & random_bits) == 0u) {
             random_bits >>= 2;
         }
-        is_pyrimidine_.set(i, (0b00000010u & random_bits) >> 1);
-        has_3bonds_.set(i, 0b00000001u & random_bits);
+        has_3bonds_.set(i, (0b00000010u & random_bits) >> 1);
+        is_pyrimidine_.set(i, 0b00000001u & random_bits);
     }
 
     //! get i-th nucleotide
     uint_fast8_t operator[](uint_fast32_t i) const noexcept {
-        return (is_pyrimidine_[i] << 1) + has_3bonds_[i];
+        return (has_3bonds_[i] << 1) + is_pyrimidine_[i];
     }
     //! get i-th nucleotide as char
     const char& at(uint_fast32_t i) const noexcept {
@@ -83,7 +83,7 @@ class DNA {
   private:
     //! translate integer to character
     static const char& translate(uint_fast8_t x) noexcept {
-        static const std::string NUCLEOTIDE = "ACGT";
+        static const std::string NUCLEOTIDE = "ATGC";
         return NUCLEOTIDE[x];
     }
     //! count the number of trues
@@ -94,9 +94,9 @@ class DNA {
           });
     }
 
-    //! sequence as two bitsets: {00: A, 01: G, 10: T, 11: C}
-    std::bitset<N> is_pyrimidine_; // {0: AG, 1: TC}
+    //! sequence as two bitsets: {00: A, 01: T, 10: G, 11: C}
     std::bitset<N> has_3bonds_;    // {0: AT, 1: GC}
+    std::bitset<N> is_pyrimidine_; // {0: AG, 1: TC}
 };
 
 /*! @brief Homolog class

@@ -3,6 +3,9 @@
 #include <random>
 
 int main() {
+    tek::DNA<4> letters(std::valarray<uint_fast8_t>{0, 1, 2, 3});
+    std::cerr << letters << std::endl;
+
     std::mt19937_64 engine;
     constexpr uint_fast32_t n = 30u;
     tek::DNA<n> x;
