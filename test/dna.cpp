@@ -14,12 +14,19 @@ int main() {
     for (uint_fast32_t i=0u; i<n; ++i) {
         y.flip(i, engine);
     }
+    tek::DNA<n> z = y;
+    for (uint_fast32_t i=0u; i<n; ++i) {
+        z.flip(i, engine);
+    }
     std::cerr << y << std::endl;
+    std::cerr << z << std::endl;
     std::cerr << (x - y) << std::endl;
+    std::cerr << z.count() << std::endl;
 
     tek::Homolog<n> counter;
     counter += x;
     counter += y;
-    counter += y;
+    counter += z;
+    counter += z;
     std::cerr << tek::DNA<n>(counter.majority()) << std::endl;
 }

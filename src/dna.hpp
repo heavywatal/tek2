@@ -31,8 +31,8 @@ class DNA {
     //! construct from sequence
     DNA(std::valarray<uint_fast8_t>&& s) noexcept {
         for (unsigned i=0; i<N; ++i) {
-            has_3bonds_.set(i, (0b00000010u & s[i]) >> 1);
-            is_pyrimidine_.set(i, 0b00000001u & s[i]);
+            has_3bonds_.set(i, 0b10u & s[i]);
+            is_pyrimidine_.set(i, 0b01u & s[i]);
         }
     }
 
@@ -46,11 +46,11 @@ class DNA {
     void flip(uint_fast32_t i, URBG& engine) noexcept {
         typename URBG::result_type random_bits = 0u;
         while ((random_bits = engine()) == 0u) {;}
-        while ((0b00000011u & random_bits) == 0u) {
+        while ((0b11u & random_bits) == 0u) {
             random_bits >>= 2;
         }
-        has_3bonds_.set(i, (0b00000010u & random_bits) >> 1);
-        is_pyrimidine_.set(i, 0b00000001u & random_bits);
+        if (0b10u & random_bits) {has_3bonds_.flip(i);}
+        if (0b01u & random_bits) {is_pyrimidine_.flip(i);}
     }
 
     //! get i-th nucleotide
