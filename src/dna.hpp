@@ -10,7 +10,6 @@
 #include <valarray>
 #include <vector>
 #include <numeric>
-#include <string>
 #include <iostream>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
@@ -23,14 +22,14 @@ template <size_t N>
 class DNA {
   public:
     //! default constructor
-    DNA() = default;
+    DNA() noexcept = default;
     //! default copy constructor
     DNA(const DNA&) = default;
     //! default move constructor
     DNA(DNA&&) noexcept = default;
     //! construct from sequence
     DNA(std::valarray<uint_fast8_t>&& s) noexcept {
-        for (unsigned i=0; i<N; ++i) {
+        for (uint_fast32_t i=0; i<N; ++i) {
             has_3bonds_.set(i, 0b10u & s[i]);
             is_pyrimidine_.set(i, 0b01u & s[i]);
         }
@@ -47,7 +46,7 @@ class DNA {
         typename URBG::result_type random_bits = 0u;
         while ((random_bits = engine()) == 0u) {;}
         while ((0b11u & random_bits) == 0u) {
-            random_bits >>= 2;
+            random_bits >>= 2u;
         }
         if (0b10u & random_bits) {has_3bonds_.flip(i);}
         if (0b01u & random_bits) {is_pyrimidine_.flip(i);}
@@ -60,12 +59,12 @@ class DNA {
 
     //! get i-th nucleotide as integer
     uint_fast8_t get(uint_fast32_t i) const noexcept {
-        return (has_3bonds_[i] << 1) + is_pyrimidine_[i];
+        return (has_3bonds_[i] << 1u) + is_pyrimidine_[i];
     }
 
     //! translate integer to nucleotide character and print
     std::ostream& write(std::ostream& ost) const {
-        for (unsigned int i=0; i<N; ++i) {
+        for (uint_fast32_t i=0; i<N; ++i) {
             ost << operator[](i);
         }
         return ost;
@@ -84,15 +83,8 @@ class DNA {
   private:
     //! translate integer to character
     static const char& translate(uint_fast8_t x) noexcept {
-        static const std::string NUCLEOTIDE = "ATGC";
+        static constexpr char NUCLEOTIDE[] = "ATGC";
         return NUCLEOTIDE[x];
-    }
-    //! count the number of trues
-    static uint_fast32_t count(const std::valarray<bool>& v) noexcept {
-        return std::accumulate(std::begin(v), std::end(v), 0u,
-          [](uint_fast32_t x, bool b) {
-              if (b) {return ++x;} else {return x;}
-          });
     }
 
     // sequence as two bitsets: {00: A, 01: T, 10: G, 11: C}
