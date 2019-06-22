@@ -31,6 +31,8 @@ script:
 - ctest -V
 branches:
   except:
-  - /^v?\d+\.\d+/
+  - "/^v?\\d+\\.\\d+/"
 notifications:
   email: false
+  slack:
+    secure: W/+deVw5cCuav60JxfeQ880GbZlwTgomaBDwEEWJAQyTw7ahxnJlXLe9Hv3ruLYFvKDBtq53Xid29bJtQmKxQC9YVIFSsJ/PHJPcxqFz8Er/ZdsqMHjFguaGi5JkxfVN1DAtqSisOyOgA80a62vE38lqkba0/hTLx9DvbC16k1UQlsH5xEbAKRSZMng5CXOL173GJcZ2XPtwSdhiDBkcFayVYQi1JPeLLqoxzCM9rfoIH23Ip5by7SuSECNJlUmFfEky7ayTZu6kYXnZ7GMWYH4sh5kjatgAtLOQ9RVqgDegUSbEojfINjIVSB4P+OyNQzj1E8TcoO6cRgwdCnW0npJ+8QY1602wpemmU4p5296/UVaUxnZcp+seuQ6ctbwRcO79zd4ZeyHbfwBrJ5wyzI/94/+tekQDgQc7q1hR9ptlNxGvK4STK2p/JVAjeBydlIgLBCsrotEk8WvA4VoXOc2V9YS7ahwWUGwnEj/SrG4brPeZ/I59+uk+RDnIRA60g30xyEz6IKFk+/UUDbJsEs8orudSixdcUH37m1bTY/3/Ey4kYfsK6hITcvrpGSbTRvXOgz2T89pKtc/bP1zuU/ZziqLQxDOHi1qBpRTYQ56uEISDjPr1+vCsAzKVpxbbA2EXn2AnEPr8y1teIKwbZkJlGZpCvX8eOv1gzPZlItA=
