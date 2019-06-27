@@ -7,6 +7,7 @@
 
 #include <iosfwd>
 #include <vector>
+#include <random>
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 
@@ -85,10 +86,14 @@ class Population {
     static void param(const param_type& p) {PARAM_ = p;}
     //! Get #PARAM_
     static const param_type& param() {return PARAM_;}
+    //! Set #SEEDER_ seed
+    static void seed(std::mt19937_64::result_type value) {SEEDER_.seed(value);}
 
   private:
     //! Parameters shared among instances
     static param_type PARAM_;
+    //! seed generator for Haploid::URBG
+    static std::mt19937_64 SEEDER_;
 
     //! proceed one generation and return fitness record
     std::vector<double> step(double previous_max_fitness=1.0);

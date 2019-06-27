@@ -38,6 +38,7 @@ inline void once_in_a_run(size_t now, size_t then, Haploid* hapl = nullptr) {
 }
 
 Population::param_type Population::PARAM_;
+std::mt19937_64 Population::SEEDER_;
 
 Population::Population(const size_t size, const size_t num_founders) {HERE;
     Haploid::initialize(size, THETA, RHO);
@@ -99,7 +100,6 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
 
 std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
-    static Haploid::URBG seeder(std::random_device{}());
     static wtl::ThreadPool pool(param().CONCURRENCY);
     static std::mutex mtx;
     static std::vector<Haploid> nextgen;
@@ -109,7 +109,7 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     std::vector<double> fitness_record;
     fitness_record.reserve(num_gametes);
     auto task = [num_gametes,previous_max_fitness,&fitness_record,this](bool dummy) {
-        Haploid::URBG engine(seeder());
+        Haploid::URBG engine(SEEDER_());
         std::uniform_int_distribution<size_t> dist_idx(0u, num_gametes / 2u - 1u);
         while (dummy) {
             const size_t mother_idx = dist_idx(engine);

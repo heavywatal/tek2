@@ -44,6 +44,7 @@ inline clipp::group general_options(nlohmann::json* vm) {HERE;
 */
 inline clipp::group program_options(nlohmann::json* vm) {HERE;
     const std::string outdir = wtl::strftime("tek_%Y%m%d_%H%M%S");
+    const int seed = static_cast<int>(std::random_device{}()); // 32-bit signed integer for R
     return (
       wtl::option(vm, {"n", "popsize"}, 500u),
       wtl::option(vm, {"q", "initial"}, 1u,
@@ -58,7 +59,8 @@ inline clipp::group program_options(nlohmann::json* vm) {HERE;
         "interval of recording"),
       wtl::option(vm, {"r", "record"}, 3,
         "enum Recording"),
-      wtl::option(vm, {"o", "outdir"}, outdir)
+      wtl::option(vm, {"o", "outdir"}, outdir),
+      wtl::option(vm, {"seed"}, seed)
     ).doc("Program:");
 }
 
@@ -174,6 +176,7 @@ void Program::main() {HERE;
     const size_t record_interval_ = VM.at("interval");
     const int record_flags_ = VM.at("record");
     const std::string outdir_ = VM.at("outdir");
+    Population::seed(VM.at("seed"));
     wtl::ChDir cd_outdir(outdir_, true);
     while (true) {
         Population pop(popsize_, initial_freq_);
