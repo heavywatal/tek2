@@ -94,8 +94,7 @@ class DNA {
     std::bitset<N> is_pyrimidine_;
 };
 
-/*! @brief Homolog class
-*/
+//! @cond
 template <size_t N>
 class Homolog {
   public:
@@ -119,6 +118,7 @@ class Homolog {
   private:
     std::vector<std::vector<uint_fast32_t>> counts_;
 };
+//! @endcond
 
 } // namespace tek
 

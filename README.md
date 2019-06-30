@@ -2,6 +2,11 @@
 
 [![Build Status](https://travis-ci.com/heavywatal/tek2.svg?branch=master)](https://travis-ci.com/heavywatal/tek2)
 
+*tek2* is a population genetic simulation framework of transposons.
+
+
+## Reference
+
 T. E. Kijima and H. Innan
 (2013) *Genetics* **195**, 3 pp.957-67
 [[pmid:24002643](http://www.ncbi.nlm.nih.gov/pubmed/24002643)]
@@ -9,8 +14,6 @@ T. E. Kijima and H. Innan
 Population genetics and molecular evolution of DNA sequences in transposable elements. I. A simulation framework
 
 [Project page on GitHub](https://github.com/heavywatal/tek2)
-
-@ref params
 
 
 ## Requirements
@@ -30,7 +33,7 @@ The following libraries are optional or automatically installed:
 ## Installation
 
 The easiest way is to use [Homebrew](https://brew.sh/)/[Linuxbrew](http://linuxbrew.sh/).
-The following command installs tekka and all the dependencies:
+The following command installs tek2 and all the dependencies:
 ```sh
 brew install heavywatal/tap/tek2
 ```
@@ -46,3 +49,9 @@ cmake -DCMAKE_INSTALL_PREFIX=$YOUR_PREFIX ..
 make -j2
 make install
 ```
+
+
+## API Document
+
+- [Online documentation generated with doxygen](https://heavywatal.github.io/tek2/)
+- @ref params

@@ -216,8 +216,7 @@ class Transposon {
     uint_fast32_t species_ = 0;
 };
 
-/*! @brief TransposonFamily class
-*/
+//! @cond
 class TransposonFamily {
   public:
     TransposonFamily() noexcept = default;
@@ -239,6 +238,7 @@ class TransposonFamily {
     Homolog<Transposon::NUM_SYNONYMOUS_SITES> synonymous_sites_;
     uint_fast32_t size_ = 0u;
 };
+//! @endcond
 
 } // namespace tek
 
