@@ -104,7 +104,6 @@ haploid_options(nlohmann::json* vm, HaploidParams* p) {HERE;
     ------------------- | ------------- | -------------------------
     `-a,--alpha`        | \f$\alpha\f$  | TransposonParams::ALPHA
     `-b,--beta`         | \f$\beta\f$   | TransposonParams::BETA
-    `--spec`            |               | TransposonParams::SPECIATION_RATE
     `-l,--lower`        | \f$d_l\f$     | TransposonParams::LOWER_THRESHOLD
     `-u,--upper`        | \f$d_u\f$     | TransposonParams::UPPER_THRESHOLD
 */
@@ -113,7 +112,6 @@ transposon_options(nlohmann::json* vm, TransposonParams* p) {HERE;
     return (
       wtl::option(vm, {"a", "alpha"}, &p->ALPHA),
       wtl::option(vm, {"b", "beta"}, &p->BETA),
-      wtl::option(vm, {"spec"}, &p->SPECIATION_RATE),
       wtl::option(vm, {"l", "lower"}, &p->LOWER_THRESHOLD),
       wtl::option(vm, {"u", "upper"}, &p->UPPER_THRESHOLD)
     ).doc("Transposon:");

@@ -28,8 +28,6 @@ struct TransposonParams {
     double ALPHA = 0.7;
     //! \f$\beta\f$, exponent of activity curve
     unsigned int BETA = 6u;
-    //! speciation rate per mutation
-    double SPECIATION_RATE = 0.0;
     //! threshold distance required for speciation
     uint_fast32_t LOWER_THRESHOLD = LENGTH;
     //! threshold distance that interaction between species becomes zero
@@ -76,15 +74,11 @@ class Transposon {
     template <class URBG>
     void mutate(URBG& engine) noexcept {
         thread_local std::uniform_int_distribution<uint_fast32_t> UNIF_LEN(0u, LENGTH - 1u);
-        thread_local std::bernoulli_distribution BERN_SPECIATION(param().SPECIATION_RATE);
         auto pos = UNIF_LEN(engine);
         if (pos >= NUM_NONSYNONYMOUS_SITES) {
             synonymous_sites_.flip(pos -= NUM_NONSYNONYMOUS_SITES, engine);
         } else {
             nonsynonymous_sites_.flip(pos, engine);
-        }
-        if (param().SPECIATION_RATE > 0.0 && BERN_SPECIATION(engine)) {
-            speciate();
         }
     }
 
