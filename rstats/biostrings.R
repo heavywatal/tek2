@@ -1,5 +1,9 @@
 library(Biostrings)
 
+sample_size = 10L
+origin_seq = Biostrings::DNAStringSet(c("0x0" = str_dup("A", 300L)))
+origin_name = names(origin_seq)
+
 read_individuals = function(infile) {
   message(infile)
   .seqs = read_tek_fasta(infile, metadata = TRUE)
@@ -44,12 +48,6 @@ read_fastas = function(dir, interval = 1000L, from = NULL, to = NULL) {
       seqs = purrr::map(path, read_tek_fasta)
     )
 }
-# .tbl = read_fastas("lower10_upper30_20180130T172206_00") %>% print()
-
-
-origin_seq = Biostrings::DNAStringSet(c("0x0" = str_dup("A", 300L)))
-origin_name = names(origin_seq)
-sample_size = 10L
 
 #' @param x BStringSet with metadata
 tidy_mcols = function(x) {
@@ -93,7 +91,7 @@ freq_in_samples = function(.mcols) {
     count_holders() %>%
     dplyr::transmute(
       label,
-      is_major = (copy_number > 5),
+      is_major = (copy_number > 5L),
       is_fixed = (copy_number == sample_size)
     )
 }

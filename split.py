@@ -13,7 +13,7 @@ def iter_values():
 
 
 def iter_args(rest, concurrency, repeat, skip):
-    const = ['tek', '-j{}'.format(concurrency)] + rest
+    const = ['tek2', '-j{}'.format(concurrency)] + rest
     const.extend(['-i10000', '-g10000', '-s100000'])
     now = wopt.now()
     for i, v in enumerate(wopt.cycle(iter_values(), repeat)):

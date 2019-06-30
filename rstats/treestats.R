@@ -1,7 +1,8 @@
 library(tidyverse)
 library(ape)
-library(aptree)  # library(apTreeshape)
+# devtools::install_github("https://github.com/heavywatal/aptree")
 # wtl::refresh("aptree")
+library(aptree)
 
 ggplot_tetree = function(data, colorbar=TRUE, hypercolor = NA) {
   .max_copy_number = max(data[["copy_number"]], na.rm = TRUE)
@@ -47,8 +48,6 @@ label_both_tree = function(labels, multi_line = TRUE) {
   out
 }
 
-# #######1#########2#########3#########4#########5#########6#########7#########
-
 add_phylo = function(.tbl, root=NULL) {
   .tbl %>%
     dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method = "hamming")) %>%
@@ -71,11 +70,6 @@ nest_metadata = function(.tidy_metadata, dss) {
     add_phylo(root = origin_name)
 }
 
-# .tblphy = .tbl %>% add_phylo() %>% print()
-# .phy = .tblphy$phylo[[5L]]
-# library(ggtree)
-# ggtree(.phy)
-
 eval_treeshape = function(.tblphy) {
   dplyr::transmute(.tblphy,
     generation,
@@ -87,7 +81,6 @@ eval_treeshape = function(.tblphy) {
     bimodality = purrr::map_dbl(distmat, wtl::bimodality)
   )
 }
-# .tblstats = .tblphy %>% eval_treeshape() %>% print()
 
 make_range_stats = function(generation=0L) {
   tibble::tibble(
@@ -122,45 +115,3 @@ ggplot_evolution = function(.tblstats, only_bi = FALSE) {
     strip.text = element_text(size = 12, family = "Helvetica"),
   )
 }
-# .tblstats %>% ggplot_evolution()
-
-# #######1#########2#########3#########4#########5#########6#########7#########
-if (FALSE) {
-
-main = function(indir, interval=2000L) {
-  message(indir)
-  label = fs::path_file(indir)
-  read_fastas(indir, interval = interval) %>%
-    add_phylo() %>%
-    eval_treeshape() %>%
-    ggplot_evolution() +
-    labs(title = label)
-}
-
-root = "~/working/te2-0207"
-indirs = fs::dir_ls(root, regexp = "\\d+$", type = "directory") %>%
-    str_subset("xi10e|xi5e") %>%
-    print()
-# indirs[1] %>% main()
-.plt = purrr::map(indirs, main, interval = 1000L)
-ggsave("shapestats-0207.pdf", .plt, height = 5, width = 5)
-
-eval_treeshape_all = function(.tblphy) {
-  .tblphy %>%
-    dplyr::mutate(sstat = purrr::map(phylo, ~{
-      aptree::as.treeshape(.x, "pda") %>%
-      aptree::calc_stat_all()
-    })) %>%
-    dplyr::select(generation, sstat) %>%
-    tidyr::unnest()
-}
-# .tblstats = .tblphy %>% eval_treeshape_all() %>% print()
-# .tblstats %>% ggplot_evolution()
-
-root = "~/working/tek-spec-0130"
-indirs = fs::dir_ls(root, regexp = "\\d+$", type = "directory") %>%
-    str_subset("xi10e|xi5e") %>%
-    print()
-wtl::mcmap(indirs, main, interval = 500L)
-
-} # if (FALSE)
