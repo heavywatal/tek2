@@ -31,9 +31,9 @@ int main() {
     std::cout << mut << std::endl;
     std::cout << "Hamming distance: " << mut - wt << std::endl;
     tek::TransposonFamily family;
-    family += wt;
-    family += wt;
-    family += mut;
+    family.collect(wt);
+    family.collect(wt);
+    family.collect(mut);
     family.majority().write_fasta(std::cout);
     activity_function();
     return 0;

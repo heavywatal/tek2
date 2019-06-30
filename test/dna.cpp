@@ -24,9 +24,9 @@ int main() {
     std::cerr << z.count() << std::endl;
 
     tek::Homolog<n> counter;
-    counter += x;
-    counter += y;
-    counter += z;
-    counter += z;
+    counter.collect(x);
+    counter.collect(y);
+    counter.collect(z);
+    counter.collect(z);
     std::cerr << tek::DNA<n>(counter.majority()) << std::endl;
 }

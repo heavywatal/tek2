@@ -101,11 +101,10 @@ class Homolog {
   public:
     Homolog() noexcept: counts_(N, {0u, 0u, 0u, 0u}) {}
 
-    Homolog& operator+=(const DNA<N>& seq) noexcept {
+    void collect(const DNA<N>& seq) noexcept {
         for (uint_fast32_t i=0; i<N; ++i) {
             ++counts_[i][seq.get(i)];
         }
-        return *this;
     }
 
     DNA<N> majority() const noexcept {

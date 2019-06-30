@@ -222,11 +222,10 @@ class TransposonFamily {
   public:
     TransposonFamily() noexcept = default;
 
-    TransposonFamily& operator+=(const Transposon& x) noexcept {
-        nonsynonymous_sites_ += x.nonsynonymous_sites();
-        synonymous_sites_ += x.synonymous_sites();
+    void collect(const Transposon& x) noexcept {
+        nonsynonymous_sites_.collect(x.nonsynonymous_sites());
+        synonymous_sites_.collect(x.synonymous_sites());
         ++size_;
-        return *this;
     }
 
     Transposon majority() const noexcept {

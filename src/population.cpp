@@ -147,7 +147,7 @@ void Population::eval_species_distance() {
     std::unordered_map<uint_fast32_t, TransposonFamily> counter;
     for (const auto& chr: gametes_) {
         for (const auto& p: chr) {
-            counter[p.second->species()] += *p.second;
+            counter[p.second->species()].collect(*p.second);
         }
     }
     std::unordered_map<uint_fast32_t, Transposon> centers;
