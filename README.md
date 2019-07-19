@@ -32,7 +32,7 @@ The following libraries are optional or automatically installed:
 
 ## Installation
 
-The easiest way is to use [Homebrew](https://brew.sh/)/[Linuxbrew](http://linuxbrew.sh/).
+The easiest way is to use [Homebrew](https://brew.sh/).
 The following command installs tek2 and all the dependencies:
 ```sh
 brew install heavywatal/tap/tek2
