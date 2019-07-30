@@ -39,7 +39,7 @@ endfunction()
 find_package(Threads)
 find_package(ZLIB)
 find_package_or_git(wtl 0.8.4 heavywatal/cxxwtl)
-find_package_or_git(clippson 0.8.1 heavywatal/clippson)
+find_package_or_git(clippson 0.8.2 heavywatal/clippson)
 find_package_or_git(sfmt 0.7.2 heavywatal/sfmt-class)
 
 add_subdirectory(src)
