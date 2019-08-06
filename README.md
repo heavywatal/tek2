@@ -7,6 +7,10 @@
 
 ## Reference
 
+W. M. Iwasaki, T. E. Kijima, and H. Innan
+(submitted)
+Population Genetics and Molecular Evolution of DNA Sequences in Transposable Elements. II. Accumulation of Variation and Evolution of a New Subfamily
+
 T. E. Kijima and H. Innan
 (2013) *Genetics* **195**, 3 pp.957-67
 [[pmid:24002643](http://www.ncbi.nlm.nih.gov/pubmed/24002643)]
