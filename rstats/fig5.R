@@ -89,7 +89,9 @@ fig5stat
 
 df5act = df5$adata[[1L]]
 fig5act = df5act %>%
-  ggplot_activity() +
+  ggplot_activity(popsize = 1000) +
+  annotate("text", x = 8000, y = 6, label = expression(italic(i) == 0)) +
+  annotate("text", x = 35000, y = 28, label = expression(italic(i) == 122)) +
   geom_vline(xintercept = .gens5, linetype = "dashed", colour = "#666666") +
   theme(legend.position = "none", panel.grid.major.x = element_blank())
 fig5act
@@ -149,12 +151,19 @@ ggsave("fig5_tree_candidates.pdf", .p, width = 9.9, height = 7, scale = 2, devic
 ggsave("fig5_bottom.pdf", .fig5_bottom, width = 10, height = 4, family = "Helvetica", device = cairo_pdf)
 
 .guide_acti = guide_colorbar(title = "Activity\nLevel", barheight = 11, reverse = TRUE)
-.cbar = cowplot::get_legend(fig5plts$aplot[[1L]] + guides(fill = .guide_acti))
+.cbar = cowplot::get_legend(ggplot_activity(df5act) + guides(fill = .guide_acti))
 
 fig5 = cowplot::plot_grid(
   fig5top,
   cowplot::plot_grid(.fig5_bottom, .cbar, nrow = 1L, rel_widths = c(1, 0.1)),
-  ncol = 1L, rel_heights = c(1.3, 1), labels = c("A", "B"), scale = 0.95
+  ncol = 1L, rel_heights = c(1.3, 1), labels = c("A", "B"), scale = 0.95,
+  label_fontfamily = "Helvetica"
 )
 fig5
 ggsave("fig5.pdf", fig5, width = 10, height = 8, family = "Helvetica", device = cairo_pdf)
+# cairo bug: italic i = 0
+
+dev.off()
+quartz(width = 10, height = 8, family = "Helvetica")
+fig5
+quartz.save("fig5-quartz.pdf", type = "pdf")
