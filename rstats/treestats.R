@@ -48,6 +48,16 @@ label_both_tree = function(labels, multi_line = TRUE) {
   out
 }
 
+add_origin_seq = function(.tbl) {
+  dplyr::mutate(.tbl, seqs = purrr::map(seqs, ~{
+    if (origin_name %in% names(.x)) {
+      .x
+    } else {
+      c(.x, origin_seq)
+    }
+  }))
+}
+
 add_phylo = function(.tbl, root=NULL) {
   .tbl %>%
     dplyr::mutate(distmat = purrr::map(seqs, Biostrings::stringDist, method = "hamming")) %>%
@@ -67,6 +77,7 @@ nest_metadata = function(.tidy_metadata, dss) {
   .tidy_metadata %>%
     tidyr::nest(-individual) %>%
     dplyr::mutate(seqs = purrr::map(data, ~{.useqs[.x$label]})) %>%
+    add_origin_seq() %>%
     add_phylo(root = origin_name)
 }
 

@@ -88,7 +88,7 @@ source("~/git/tek2/rstats/read.R")
 .indirs = fs::dir_ls(regexp = "^n\\d+", type = "directory")
 .metadata = read_metadata(.indirs) %>% print()
 
- .repl = 43L; .lbound = 25000L; .ubound = 45000L
+.repl = 43L; .lbound = 25000L; .ubound = 45000L
 
 df2 = .metadata %>%
   dplyr::filter(n == 1000L, repl == .repl) %>%
@@ -140,6 +140,7 @@ df2$tdata[[1]] %>% dplyr::arrange(abs(bimodality - 5 / 9))
 .fig2_left
 ggsave("fig2_left.pdf", .fig2_left, width = 4, height = 7, family = "Helvetica")
 
+source("~/git/tek2/rstats/read.R")
 .infiles = fs::path(.metadata$indir[.repl], sprintf("generation_%05d.fa.gz", .gens[[as.character(.repl)]]))
 .all_inds_df = .infiles %>%
   setNames(str_extract(., "(?<=generation_)\\d+")) %>%
@@ -185,6 +186,7 @@ ggsave(sprintf("fig2_tree_candidates_%d.pdf", .repl), .p, width = 9.9, height = 
 .fig2_right = ggplot_tetree(.delegates_df) +
   geom_segment(data = .dsegm, aes(x, y, xend = xend, yend = yend), size = 1) +
   geom_text(data = .dtext, aes(x, y, label = label)) +
+  geom_point(data = filter_0x0, aes(xend, yend), shape = 15) +
   facet_wrap(~ generation + BI, labeller = label_both_tree, nrow = 2L) +
   theme_classic() +
   theme(
@@ -192,7 +194,7 @@ ggsave(sprintf("fig2_tree_candidates_%d.pdf", .repl), .p, width = 9.9, height = 
     strip.background = element_blank(),
     strip.text.x = element_text(size = 12, hjust = 0, margin = margin(6, 12, 3, 12))
   )
-# .fig2_right
+.fig2_right
 ggsave("fig2_right.pdf", .fig2_right, width = 9, height = 7, family = "Helvetica", device = cairo_pdf)
 
 fig2 = cowplot::plot_grid(.fig2_left, .fig2_right, rel_widths = c(4, 9))

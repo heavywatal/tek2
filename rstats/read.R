@@ -24,6 +24,8 @@ read_metadata = function(dirs) {
     dplyr::arrange(n, xi, coexist, lower, upper, repl)
 }
 
+filter_0x0 = function(x) dplyr::filter(x, label == "0x0")
+
 source("~/git/tek2/rstats/activity.R")
 source("~/git/tek2/rstats/biostrings.R")
 source("~/git/tek2/rstats/treestats.R")

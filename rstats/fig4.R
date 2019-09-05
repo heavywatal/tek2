@@ -110,6 +110,7 @@ df4delegates %>% dplyr::select(matches("^x|^y")) %>% dplyr::summarise_all(list(~
 fig4trees = ggplot_tetree(df4delegates, colorbar = TRUE, hypercolor = "#660000") +
   geom_segment(data = .dsegm, aes(x, y, xend = xend, yend = yend), size = 1) +
   geom_text(data = .dtext, aes(x, y, label = label)) +
+  geom_point(data = filter_0x0, aes(xend, yend), shape = 15) +
   facet_wrap(~ generation, labeller = label_both_tree, nrow = 2L) +
   theme_classic(base_size = 13) +
   theme(
