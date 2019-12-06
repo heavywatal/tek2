@@ -8,7 +8,8 @@
 ## Reference
 
 W. M. Iwasaki, T. E. Kijima, and H. Innan
-(submitted)
+(2019) *Mol. Biol. Evol.* (in press)
+[doi:10.1534/genetics.113.150292](https://doi.org/10.1093/molbev/msz220)
 Population Genetics and Molecular Evolution of DNA Sequences in Transposable Elements. II. Accumulation of Variation and Evolution of a New Subfamily
 
 T. E. Kijima and H. Innan
