@@ -6,17 +6,18 @@
 
 
 ## Reference
+
 W. M. Iwasaki, T. E. Kijima, and H. Innan
-(2019) *Mol. Biol. Evol.* **37**(2):355–364
-[pmid:31580443](https://www.ncbi.nlm.nih.gov/pubmed/31580443)
-[doi:10.1534/genetics.113.150292](https://doi.org/10.1093/molbev/msz220)
-Population Genetics and Molecular Evolution of DNA Sequences in Transposable Elements. II. Accumulation of Variation and Evolution of a New Subfamily
+(2020) *Mol. Biol. Evol.* **37**(2):355–364.
+[pmid:31580443](https://www.ncbi.nlm.nih.gov/pubmed/31580443).
+[doi:10.1534/genetics.113.150292](https://doi.org/10.1093/molbev/msz220).
+Population Genetics and Molecular Evolution of DNA Sequences in Transposable Elements. II. Accumulation of Variation and Evolution of a New Subfamily.
 
 T. E. Kijima and H. Innan
-(2013) *Genetics* **195**(3):957–967
-[[pmid:24002643](https://www.ncbi.nlm.nih.gov/pubmed/24002643)]
-[[doi:10.1534/genetics.113.150292](http://dx.doi.org/10.1534/genetics.113.150292)]
-Population genetics and molecular evolution of DNA sequences in transposable elements. I. A simulation framework
+(2013) *Genetics* **195**(3):957–967.
+[pmid:24002643](https://www.ncbi.nlm.nih.gov/pubmed/24002643).
+[doi:10.1534/genetics.113.150292](http://dx.doi.org/10.1534/genetics.113.150292).
+Population genetics and molecular evolution of DNA sequences in transposable elements. I. A simulation framework.
 
 [Project page on GitHub](https://github.com/heavywatal/tek2)
 
