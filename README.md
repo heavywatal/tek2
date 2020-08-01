@@ -1,6 +1,6 @@
 # tek2
 
-[![Build Status](https://travis-ci.com/heavywatal/tek2.svg?branch=master)](https://travis-ci.com/heavywatal/tek2)
+[![Build status](https://github.com/heavywatal/tek2/workflows/build/badge.svg)](https://github.com/heavywatal/tek2/actions)
 
 *tek2* is a population genetic simulation framework of transposons.
 
