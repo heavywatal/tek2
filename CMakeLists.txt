@@ -23,6 +23,12 @@ add_compile_options(-march=native -Wall -Wextra -pedantic)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
+function(import_env variable)
+  if(DEFINED ENV{${variable}})
+    set(${variable} $ENV{${variable}} PARENT_SCOPE)
+  endif()
+endfunction()
+
 function(find_package_or_fetch package version repo)
   find_package(${package} ${version} QUIET)  # 3.24
   if(${package}_FOUND)
