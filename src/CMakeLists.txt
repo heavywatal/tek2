@@ -19,7 +19,7 @@ add_library(objlib STATIC
   population.cpp
   program.cpp
   transposon.cpp
-  version.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
 )
 target_compile_features(objlib PUBLIC cxx_std_17)
 set_target_properties(objlib PROPERTIES
