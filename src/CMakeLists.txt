@@ -7,22 +7,21 @@ execute_process(
 if(GIT_DESCRIBE)
   set(PROJECT_VERSION ${GIT_DESCRIBE})
 endif()
-message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
+cmake_print_variables(PROJECT_VERSION)
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp.in
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp @ONLY
+  version.cpp.in
+  version.cpp @ONLY
 )
 
-# Be patient until 3.13 is popularized
 add_library(objlib STATIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/haploid.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/program.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/transposon.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp
+  haploid.cpp
+  population.cpp
+  program.cpp
+  transposon.cpp
+  version.cpp
 )
-target_compile_features(objlib PUBLIC cxx_std_14)
+target_compile_features(objlib PUBLIC cxx_std_17)
 set_target_properties(objlib PROPERTIES
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
