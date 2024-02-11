@@ -26,7 +26,7 @@ set_target_properties(objlib PROPERTIES
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
 )
-target_include_directories(objlib INTERFACE
+target_include_directories(objlib PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 target_link_libraries(objlib PUBLIC
