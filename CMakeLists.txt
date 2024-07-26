@@ -62,8 +62,8 @@ endfunction()
 find_package(Threads)
 find_package(ZLIB)
 find_package_or_fetch(wtl 0.9.0 heavywatal/cxxwtl)
-find_package_or_fetch(clippson 0.8.6 heavywatal/clippson)
-find_package_or_fetch(sfmt 0.7.3 heavywatal/sfmt-class)
+find_package_or_fetch(clippson 0.8.7 heavywatal/clippson)
+find_package_or_fetch(sfmt 0.7.5 heavywatal/sfmt-class)
 
 add_subdirectory(src)
 
