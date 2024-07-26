@@ -102,9 +102,9 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     const size_t num_gametes = gametes_.size();
     static wtl::ThreadPool pool(param().CONCURRENCY);
     static std::mutex mtx;
-    static std::vector<Haploid> nextgen;
+    static std::vector<Haploid> next_gen;
     static std::vector<std::future<void>> ftrs;
-    nextgen.reserve(num_gametes);
+    next_gen.reserve(num_gametes);
     ftrs.reserve(num_gametes);
     std::vector<double> fitness_record;
     fitness_record.reserve(num_gametes);
@@ -126,10 +126,10 @@ std::vector<double> Population::step(const double previous_max_fitness) {
             egg.transpose_mutate(sperm, engine);
             std::lock_guard<std::mutex> lock(mtx);
             once_in_a_run(0, 0, &egg);
-            if (nextgen.size() >= num_gametes) break;
+            if (next_gen.size() >= num_gametes) break;
             fitness_record.push_back(fitness);
-            nextgen.push_back(std::move(egg));
-            nextgen.push_back(std::move(sperm));
+            next_gen.push_back(std::move(egg));
+            next_gen.push_back(std::move(sperm));
         }
     };
     for (size_t i=0u; i<param().CONCURRENCY; ++i) {
@@ -138,8 +138,8 @@ std::vector<double> Population::step(const double previous_max_fitness) {
     pool.wait();
     for (auto& f: ftrs) f.get(); // check exception
     ftrs.clear();
-    gametes_.swap(nextgen);
-    nextgen.clear();
+    gametes_.swap(next_gen);
+    next_gen.clear();
     return fitness_record;
 }
 

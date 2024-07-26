@@ -52,9 +52,9 @@ class Transposon {
     static constexpr double MAX_TRANSPOSITION_RATE = 0.01;
     //! @} params /2/////////3/////////4/////////5/////////6/////////7/////////
 
-    //! resiprocal of synonymous sites
+    //! reciprocal of synonymous sites
     static constexpr double OVER_SYNONYMOUS_SITES = 1.0 / NUM_SYNONYMOUS_SITES;
-    //! resiprocal of nonsynonymous sites
+    //! reciprocal of nonsynonymous sites
     static constexpr double OVER_NONSYNONYMOUS_SITES = 1.0 / NUM_NONSYNONYMOUS_SITES;
 
     //! default constructor
@@ -164,7 +164,7 @@ class Transposon {
 
     //! write summary
     std::ostream& write_summary(std::ostream&) const;
-    //! write sequqnce with header in FASTA format
+    //! write sequence with header in FASTA format
     std::ostream& write_fasta(std::ostream&) const;
     //! write metadata for FASTA header
     std::ostream& write_metadata(std::ostream&) const;

@@ -27,7 +27,7 @@ class Program {
     //! called from run()
     void main();
 
-    //! writen to "config.json"
+    //! written to "config.json"
     std::string config_;
 };
 

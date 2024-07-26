@@ -35,7 +35,7 @@ class DNA {
         }
     }
 
-    //! diviation from the original
+    //! deviation from the original
     uint_fast32_t count() const noexcept {
         return (is_pyrimidine_ | has_3bonds_).count();
     }
