@@ -147,8 +147,6 @@ class Transposon {
     static double INTERACTION_COEFS_get(uint_fast32_t x, uint_fast32_t y) {
         return INTERACTION_COEFS_.at((static_cast<uint_fast64_t>(x) << 32) | y);
     }
-    //! getter of #INTERACTION_COEFS_
-    static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS() noexcept {return INTERACTION_COEFS_;}
     //! getter of #nonsynonymous_sites_
     const DNA<NUM_NONSYNONYMOUS_SITES>& nonsynonymous_sites() const noexcept {return nonsynonymous_sites_;}
     //! getter of #synonymous_sites_
@@ -186,7 +184,7 @@ class Transposon {
 
   private:
     //! Parameters shared among instances
-    static param_type PARAM_;
+    static inline param_type PARAM_;
 
     //!
     /*! \f[
@@ -196,13 +194,13 @@ class Transposon {
     static double calc_activity(uint_fast32_t num_mutations);
 
     //! 1 - TransposonParams::ALPHA
-    static double THRESHOLD_;
+    static inline double THRESHOLD_;
     //! pre-calculated activity values
-    static std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
+    static inline std::array<double, NUM_NONSYNONYMOUS_SITES> ACTIVITY_;
     //! number of species; incremented by speciation
-    static std::atomic_uint_fast32_t NUM_SPECIES_;
+    static inline std::atomic_uint_fast32_t NUM_SPECIES_;
     //! interaction coefficients between species
-    static std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS_;
+    static inline std::unordered_map<uint_fast64_t, double> INTERACTION_COEFS_;
 
     //! nonsynonymous sites
     DNA<NUM_NONSYNONYMOUS_SITES> nonsynonymous_sites_;

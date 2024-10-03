@@ -104,7 +104,7 @@ class Haploid {
 
   private:
     //! Parameters shared among instances
-    static param_type PARAM_;
+    static inline param_type PARAM_;
 
     //! default copy assignment operator (private)
     Haploid& operator=(const Haploid&) = default;
@@ -136,19 +136,19 @@ class Haploid {
     static constexpr double PROP_FUNCTIONAL_SITES_ = 0.75;
 
     //! \f$L\mu = L\theta / 4N\f$, mutation rate per TE
-    static double MUTATION_RATE_;
+    static inline double MUTATION_RATE_ = 0.0;
     //! \f$L\phi\mu\f$, absolute indel rate per TE
-    static double INDEL_RATE_;
+    static inline double INDEL_RATE_ = 0.0;
     //! \f$c = \rho / 4N\f$, recombination rate per genome
-    static double RECOMBINATION_RATE_;
+    static inline double RECOMBINATION_RATE_ = 0.0;
     //! @} params
 
     //! \f$s_{GP}\f$ : coefficient of GP selection
-    static std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
+    static inline std::unordered_map<position_t, double> SELECTION_COEFS_GP_;
     //! original TE with no mutation and complete activity
     static std::shared_ptr<Transposon> ORIGINAL_TE_;
     //! readers-writer lock for #SELECTION_COEFS_GP_
-    static std::shared_timed_mutex MTX_;
+    static inline std::shared_timed_mutex MTX_;
 
     //! position => shptr to transposon
     std::map<position_t, std::shared_ptr<Transposon>> sites_;

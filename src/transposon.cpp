@@ -10,12 +10,6 @@
 
 namespace tek {
 
-Transposon::param_type Transposon::PARAM_;
-double Transposon::THRESHOLD_ = 0.0;
-std::array<double, Transposon::NUM_NONSYNONYMOUS_SITES> Transposon::ACTIVITY_;
-std::atomic_uint_fast32_t Transposon::NUM_SPECIES_{1u};
-std::unordered_map<uint_fast64_t, double> Transposon::INTERACTION_COEFS_;
-
 static_assert(std::is_nothrow_default_constructible<Transposon>{}, "");
 static_assert(std::is_nothrow_move_constructible<Transposon>{}, "");
 

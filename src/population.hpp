@@ -91,9 +91,9 @@ class Population {
 
   private:
     //! Parameters shared among instances
-    static param_type PARAM_;
+    static inline param_type PARAM_;
     //! seed generator for Haploid::URBG
-    static std::mt19937_64 SEEDER_;
+    static inline std::mt19937_64 SEEDER_;
 
     //! proceed one generation and return fitness record
     std::vector<double> step(double previous_max_fitness=1.0);

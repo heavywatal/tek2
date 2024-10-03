@@ -14,13 +14,7 @@
 
 namespace tek {
 
-Haploid::param_type Haploid::PARAM_;
-double Haploid::MUTATION_RATE_ = 0.0;
-double Haploid::RECOMBINATION_RATE_ = 0.0;
-double Haploid::INDEL_RATE_ = 0.0;
-std::unordered_map<Haploid::position_t, double> Haploid::SELECTION_COEFS_GP_;
 std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>();
-std::shared_timed_mutex Haploid::MTX_;
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 // static functions

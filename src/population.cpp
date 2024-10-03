@@ -37,9 +37,6 @@ inline void once_in_a_run(size_t now, size_t then, Haploid* hapl = nullptr) {
 }
 }
 
-Population::param_type Population::PARAM_;
-std::mt19937_64 Population::SEEDER_;
-
 Population::Population(const size_t size, const size_t num_founders) {HERE;
     Haploid::initialize(size, THETA, RHO);
     gametes_.reserve(size * 2u);
