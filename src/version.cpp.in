@@ -2,7 +2,7 @@
 
 namespace tek {
 
-const char* const PROJECT_NAME = "@PROJECT_NAME@";
-const char* const PROJECT_VERSION = "@PROJECT_VERSION@";
+constexpr const char* const PROJECT_NAME = "@PROJECT_NAME@";
+constexpr const char* const PROJECT_VERSION = "@PROJECT_VERSION@";
 
 }
