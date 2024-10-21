@@ -9,16 +9,12 @@ include(CMakePrintHelpers)
 include(FetchContent)
 include(GNUInstallDirs)
 cmake_print_variables(CMAKE_INSTALL_PREFIX)
-if(${CMAKE_INSTALL_PREFIX} MATCHES linuxbrew)
-  set(CMAKE_INSTALL_LIBDIR lib)
-endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 cmake_print_variables(CMAKE_BUILD_TYPE)
 set(CMAKE_CXX_FLAGS_DEV "-O2 -g")
-add_compile_options(-march=native -Wall -Wextra -pedantic)
 
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
@@ -29,7 +25,8 @@ function(import_env variable)
   endif()
 endfunction()
 
-function(find_package_or_fetch package version repo)
+function(find_package_or_fetch package tag repo)
+  string(REGEX REPLACE "^v" "" version ${tag})
   find_package(${package} ${version} QUIET)  # 3.24
   if(${package}_FOUND)
     cmake_print_variables(${package}_DIR)
@@ -39,8 +36,6 @@ function(find_package_or_fetch package version repo)
   import_env("FETCHCONTENT_SOURCE_DIR_${upackage}")
   if(IS_DIRECTORY "${FETCHCONTENT_SOURCE_DIR_${upackage}}")
     set(tag "HEAD")
-  else()
-    set(tag "v${version}")
   endif()
   cmake_print_variables(FETCHCONTENT_SOURCE_DIR_${upackage} tag)
   set(FETCHCONTENT_QUIET OFF)
@@ -61,9 +56,9 @@ endfunction()
 
 find_package(Threads)
 find_package(ZLIB)
-find_package_or_fetch(wtl 0.9.0 heavywatal/cxxwtl)
-find_package_or_fetch(clippson 0.8.7 heavywatal/clippson)
-find_package_or_fetch(sfmt 0.7.5 heavywatal/sfmt-class)
+find_package_or_fetch(wtl v0.9.0 heavywatal/cxxwtl)
+find_package_or_fetch(clippson v0.8.7 heavywatal/clippson)
+find_package_or_fetch(sfmt v0.7.5 heavywatal/sfmt-class)
 
 add_subdirectory(src)
 
@@ -72,9 +67,7 @@ target_link_libraries(${PROJECT_NAME}-exe PRIVATE objlib)
 set_target_properties(${PROJECT_NAME}-exe PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}
 )
-install(TARGETS ${PROJECT_NAME}-exe
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+install(TARGETS ${PROJECT_NAME}-exe)
 
 include(CTest)
 if(BUILD_TESTING)

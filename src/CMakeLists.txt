@@ -14,12 +14,17 @@ configure_file(
   version.cpp @ONLY
 )
 
-add_library(objlib STATIC
+add_library(objlib OBJECT
   haploid.cpp
   population.cpp
   program.cpp
   transposon.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
+)
+target_compile_options(objlib PUBLIC
+  -Wall -Wextra -pedantic
+  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>:-march=native>
+  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>:-march=armv8.3-a+sha3>
 )
 target_compile_features(objlib PUBLIC cxx_std_17)
 set_target_properties(objlib PROPERTIES
