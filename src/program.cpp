@@ -24,9 +24,9 @@ nlohmann::json VM;
 //! Options description for general purpose
 inline clipp::group general_options(nlohmann::json* vm) {HERE;
     return (
-      wtl::option(vm, {"h", "help"}, false, "print this help"),
-      wtl::option(vm, {"version"}, false, "print version"),
-      wtl::option(vm, {"v", "verbose"}, false, "verbose output")
+      clippson::option(vm, {"h", "help"}, false, "print this help"),
+      clippson::option(vm, {"version"}, false, "print version"),
+      clippson::option(vm, {"v", "verbose"}, false, "verbose output")
     ).doc("General:");
 }
 
@@ -46,21 +46,21 @@ inline clipp::group program_options(nlohmann::json* vm) {HERE;
     const std::string outdir = wtl::strftime("tek_%Y%m%d_%H%M%S");
     const int seed = static_cast<int>(std::random_device{}()); // 32-bit signed integer for R
     return (
-      wtl::option(vm, {"n", "popsize"}, 500u),
-      wtl::option(vm, {"q", "initial"}, 1u,
+      clippson::option(vm, {"n", "popsize"}, 500u),
+      clippson::option(vm, {"q", "initial"}, 1u,
         "initial number of individuals with TE"),
-      wtl::option(vm, {"g", "generations"}, 1000u,
+      clippson::option(vm, {"g", "generations"}, 1000u,
         "maximum number of generations to simulate"),
-      wtl::option(vm, {"H", "hyperactivate"}, 0u,
+      clippson::option(vm, {"H", "hyperactivate"}, 0u,
         "time to introduce a hyperactivating mutation"),
-      wtl::option(vm, {"s", "split"}, 0u,
+      clippson::option(vm, {"s", "split"}, 0u,
         "number of generations to simulate after population split"),
-      wtl::option(vm, {"i", "interval"}, 10u,
+      clippson::option(vm, {"i", "interval"}, 10u,
         "interval of recording"),
-      wtl::option(vm, {"r", "record"}, 3,
+      clippson::option(vm, {"r", "record"}, 3,
         "enum Recording"),
-      wtl::option(vm, {"o", "outdir"}, outdir),
-      wtl::option(vm, {"seed"}, seed)
+      clippson::option(vm, {"o", "outdir"}, outdir),
+      clippson::option(vm, {"seed"}, seed)
     ).doc("Program:");
 }
 
@@ -75,9 +75,9 @@ inline clipp::group program_options(nlohmann::json* vm) {HERE;
 inline clipp::group
 population_options(nlohmann::json* vm, PopulationParams* p) {HERE;
     return (
-      wtl::option(vm, {"sample"}, &p->SAMPLE_SIZE),
-      wtl::option(vm, {"j", "parallel"}, &p->CONCURRENCY),
-      wtl::option(vm, {"c", "coexist"}, &p->MAX_COEXISTENCE)
+      clippson::option(vm, {"sample"}, &p->SAMPLE_SIZE),
+      clippson::option(vm, {"j", "parallel"}, &p->CONCURRENCY),
+      clippson::option(vm, {"c", "coexist"}, &p->MAX_COEXISTENCE)
     ).doc("Population:");
 }
 
@@ -92,9 +92,9 @@ population_options(nlohmann::json* vm, PopulationParams* p) {HERE;
 inline clipp::group
 haploid_options(nlohmann::json* vm, HaploidParams* p) {HERE;
     return (
-      wtl::option(vm, {"xi"}, &p->XI),
-      wtl::option(vm, {"nu"}, &p->EXCISION_RATE),
-      wtl::option(vm, {"lambda"}, &p->MEAN_SELECTION_COEF)
+      clippson::option(vm, {"xi"}, &p->XI),
+      clippson::option(vm, {"nu"}, &p->EXCISION_RATE),
+      clippson::option(vm, {"lambda"}, &p->MEAN_SELECTION_COEF)
     ).doc("Haploid:");
 }
 
@@ -110,10 +110,10 @@ haploid_options(nlohmann::json* vm, HaploidParams* p) {HERE;
 inline clipp::group
 transposon_options(nlohmann::json* vm, TransposonParams* p) {HERE;
     return (
-      wtl::option(vm, {"a", "alpha"}, &p->ALPHA),
-      wtl::option(vm, {"b", "beta"}, &p->BETA),
-      wtl::option(vm, {"l", "lower"}, &p->LOWER_THRESHOLD),
-      wtl::option(vm, {"u", "upper"}, &p->UPPER_THRESHOLD)
+      clippson::option(vm, {"a", "alpha"}, &p->ALPHA),
+      clippson::option(vm, {"b", "beta"}, &p->BETA),
+      clippson::option(vm, {"l", "lower"}, &p->LOWER_THRESHOLD),
+      clippson::option(vm, {"u", "upper"}, &p->UPPER_THRESHOLD)
     ).doc("Transposon:");
 }
 
@@ -136,16 +136,16 @@ Program::Program(const std::vector<std::string>& arguments) {HERE;
       haploid_options(&VM, &haploid_params),
       transposon_options(&VM, &transposon_params)
     );
-    wtl::parse(cli, arguments);
-    auto fmt = wtl::doc_format();
+    clippson::parse(cli, arguments);
+    auto fmt = clippson::doc_format();
     if (vm_local["help"]) {
         std::cout << "Usage: " << PROJECT_NAME << " [options]\n\n";
         std::cout << clipp::documentation(cli, fmt) << "\n";
-        throw wtl::ExitSuccess();
+        throw exit_success();
     }
     if (vm_local["version"]) {
         std::cout << PROJECT_VERSION << "\n";
-        throw wtl::ExitSuccess();
+        throw exit_success();
     }
     Population::param(population_params);
     Haploid::param(haploid_params);

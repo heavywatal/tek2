@@ -16,7 +16,10 @@
 #include <random>
 #include <shared_mutex>
 
-namespace wtl {class sfmt19937_64;}
+namespace wtl {
+  template <class T> class sfmt19937_engine;
+  using sfmt19937_64 = sfmt19937_engine<uint64_t>;
+}
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 

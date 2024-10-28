@@ -7,8 +7,14 @@
 
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 namespace tek {
+
+class exit_success: public std::logic_error {
+  public:
+    exit_success() noexcept: std::logic_error("") {}
+};
 
 /*! @brief Program class
 */

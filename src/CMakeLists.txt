@@ -27,10 +27,7 @@ target_compile_options(objlib PUBLIC
   $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>:-march=armv8.3-a+sha3>
 )
 target_compile_features(objlib PUBLIC cxx_std_17)
-set_target_properties(objlib PROPERTIES
-  CXX_STANDARD_REQUIRED ON
-  CXX_EXTENSIONS OFF
-)
+set_target_properties(objlib PROPERTIES CXX_EXTENSIONS OFF)
 target_include_directories(objlib PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
