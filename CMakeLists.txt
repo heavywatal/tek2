@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(tek2
-  VERSION 0.2.1
+  VERSION 0.2.2
   LANGUAGES CXX)
 
 cmake_policy(SET CMP0169 OLD)  # 3.28
