@@ -19,9 +19,9 @@ std::shared_ptr<Transposon> Haploid::ORIGINAL_TE_ = std::make_shared<Transposon>
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////
 // static functions
 
-Haploid::Haploid(size_t n) {HERE;
+Haploid::Haploid(size_t n, URBG& engine) {HERE;
     for (size_t i=0; i<n; ++i) {
-        sites_.emplace(static_cast<position_t>(wtl::sfmt64()()), ORIGINAL_TE_);
+        sites_.emplace(static_cast<position_t>(engine()), ORIGINAL_TE_);
     }
 }
 

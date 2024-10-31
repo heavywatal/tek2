@@ -63,7 +63,7 @@ inline void recombination() {
     constexpr size_t n = 60u;
     tek::Haploid::URBG engine(std::random_device{}());
     tek::Haploid zero;
-    tek::Haploid one(n);
+    tek::Haploid one(n, engine);
     auto gamete = zero.gametogenesis(one, engine);
     const auto one_pos = positions(one.begin(), one.end(), n);
     const auto gam_pos = positions(gamete.begin(), gamete.end(), n);

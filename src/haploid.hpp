@@ -55,7 +55,7 @@ class Haploid {
     //! default constructor
     Haploid() = default;
     //! constructor for recombination test
-    Haploid(size_t);
+    Haploid(size_t, URBG&);
     //! default copy constructor
     Haploid(const Haploid&) = default;
     //! default move constructor
