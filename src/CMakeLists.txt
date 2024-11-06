@@ -14,27 +14,10 @@ configure_file(
   version.cpp @ONLY
 )
 
-add_library(objlib OBJECT
+target_sources(${PROJECT_NAME} PRIVATE
   haploid.cpp
   population.cpp
   program.cpp
   transposon.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
-)
-target_compile_options(objlib PUBLIC
-  -Wall -Wextra -pedantic
-  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>:-march=native>
-  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>:-march=armv8.3-a+sha3>
-)
-target_compile_features(objlib PUBLIC cxx_std_17)
-set_target_properties(objlib PROPERTIES CXX_EXTENSIONS OFF)
-target_include_directories(objlib PUBLIC
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-)
-target_link_libraries(objlib PUBLIC
-  wtl::wtl
-  wtl::sfmt
-  clippson::clippson
-  ZLIB::ZLIB
-  Threads::Threads
 )

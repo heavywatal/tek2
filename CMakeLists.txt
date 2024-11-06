@@ -62,10 +62,28 @@ find_package_or_fetch(wtl v0.9.1 heavywatal/cxxwtl)
 find_package_or_fetch(clippson v0.8.8 heavywatal/clippson)
 find_package_or_fetch(sfmt v0.7.6 heavywatal/sfmt-class)
 
+add_library(${PROJECT_NAME} STATIC)
+target_compile_options(${PROJECT_NAME} PUBLIC
+  -Wall -Wextra -pedantic
+  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>:-march=native>
+  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>:-march=armv8.3-a+sha3>
+)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  wtl::wtl
+  wtl::sfmt
+  clippson::clippson
+  ZLIB::ZLIB
+  Threads::Threads
+)
 add_subdirectory(src)
 
 add_executable(${PROJECT_NAME}-exe src/main.cpp)
-target_link_libraries(${PROJECT_NAME}-exe PRIVATE objlib)
+target_link_libraries(${PROJECT_NAME}-exe PRIVATE ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME}-exe PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}
 )
