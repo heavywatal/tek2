@@ -1,6 +1,6 @@
 #include "haploid.hpp"
 
-#include <sfmt.hpp>
+#include <pcglite/pcglite.hpp>
 #include <wtl/iostr.hpp>
 
 #include <random>

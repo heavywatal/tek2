@@ -16,9 +16,6 @@ endif()
 cmake_print_variables(CMAKE_BUILD_TYPE)
 set(CMAKE_CXX_FLAGS_DEV "-O2 -g")
 
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-
 function(import_env variable)
   if(DEFINED ENV{${variable}})
     set(${variable} $ENV{${variable}} PARENT_SCOPE)
@@ -60,7 +57,7 @@ find_package(Threads)
 find_package(ZLIB)
 find_package_or_fetch(wtl v0.9.1 heavywatal/cxxwtl)
 find_package_or_fetch(clippson v0.8.8 heavywatal/clippson)
-find_package_or_fetch(sfmt v0.7.6 heavywatal/sfmt-class)
+find_package_or_fetch(pcglite v0.1.2 heavywatal/pcglite)
 
 add_library(${PROJECT_NAME} STATIC)
 target_compile_options(${PROJECT_NAME} PUBLIC
@@ -75,10 +72,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
   wtl::wtl
-  wtl::sfmt
-  clippson::clippson
+  pcglite::pcglite
   ZLIB::ZLIB
   Threads::Threads
+  PRIVATE clippson::clippson
 )
 add_subdirectory(src)
 

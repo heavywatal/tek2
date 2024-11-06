@@ -10,7 +10,7 @@
 #include <wtl/zlib.hpp>
 #include <wtl/concurrent.hpp>
 #include <wtl/random.hpp>
-#include <sfmt.hpp>
+#include <pcglite/pcglite.hpp>
 #include <clippson/json.hpp>
 
 #include <unordered_map>

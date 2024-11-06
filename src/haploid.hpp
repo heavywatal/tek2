@@ -17,9 +17,9 @@
 #include <shared_mutex>
 
 //! @cond
-namespace wtl {
-  template <class T> class sfmt19937_engine;
-  using sfmt19937_64 = sfmt19937_engine<uint64_t>;
+namespace pcglite {
+  template <class T> class permuted_congruential_engine;
+  using pcg64 = permuted_congruential_engine<uint64_t>;
 }
 //! @endcond
 
@@ -48,7 +48,7 @@ class Haploid {
     //! Alias
     using param_type = HaploidParams;
     //! random number generator class
-    using URBG = wtl::sfmt19937_64;
+    using URBG = pcglite::pcg64;
     //! unsigned integer type for TE position
     using position_t = int32_t;
 
