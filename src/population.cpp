@@ -79,7 +79,7 @@ bool Population::evolve(const size_t max_generations, const size_t record_interv
             }
             if (static_cast<bool>(flags & Recording::sequence)) {
                 std::ostringstream outfile;
-                outfile << "generation_" << wtl::setfill0w(5) << t << ".fa.gz";
+                outfile << "generation_" << wtl::setfillw('0', 5) << t << ".fa.gz";
                 wtl::zlib::ofstream ozf(outfile.str());
                 write_fasta(ozf, param().SAMPLE_SIZE);
             }

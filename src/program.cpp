@@ -181,7 +181,11 @@ void Program::main() {HERE;
         auto flags = static_cast<Recording>(record_flags_);
         bool good = pop.evolve(num_generations_, record_interval_, flags, hyperactivate);
         if (!good) continue;
-        wtl::make_ofs("config.json") << config_;
+        {
+            std::ofstream ofs("config.json");
+            ofs.precision(std::cout.precision());
+            ofs << config_;
+        }
         if (static_cast<bool>(flags & Recording::sequence)) {
             wtl::zlib::ofstream ost("sequence.fa.gz");
             pop.write_fasta(ost);
