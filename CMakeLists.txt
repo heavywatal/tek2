@@ -54,15 +54,15 @@ function(find_package_or_fetch package tag repo)
 endfunction()
 
 find_package(Threads)
-find_package_or_fetch(wtl v0.9.2 heavywatal/cxxwtl)
+find_package_or_fetch(wtl v0.10.0 heavywatal/cxxwtl)
 find_package_or_fetch(clippson v0.8.8 heavywatal/clippson)
-find_package_or_fetch(pcglite v0.1.2 heavywatal/pcglite)
+find_package_or_fetch(pcglite v0.2.0 heavywatal/pcglite)
 
 add_library(${PROJECT_NAME} STATIC)
 target_compile_options(${PROJECT_NAME} PUBLIC
   -Wall -Wextra -pedantic
   $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>:-march=native>
-  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>:-march=armv8.3-a+sha3>
+  $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>:-march=armv8.4-a>
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
