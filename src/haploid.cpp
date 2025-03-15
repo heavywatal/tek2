@@ -10,7 +10,6 @@
 #include <pcglite/pcglite.hpp>
 
 #include <cmath>
-#include <numeric>
 
 namespace tek {
 
