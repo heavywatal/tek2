@@ -10,12 +10,6 @@
 
 namespace tek {
 
-static_assert(std::is_nothrow_default_constructible<Transposon>{}, "");
-static_assert(std::is_nothrow_move_constructible<Transposon>{}, "");
-
-static_assert(std::is_nothrow_default_constructible<DNA<3>>{}, "");
-static_assert(std::is_nothrow_move_constructible<DNA<3>>{}, "");
-
 void Transposon::param(const param_type& p) {HERE;
     PARAM_ = p;
     static bool has_been_executed = false;

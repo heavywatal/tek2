@@ -3,6 +3,10 @@
 #include <random>
 #include <iostream>
 #include <fstream>
+#include <type_traits>
+
+static_assert(std::is_nothrow_default_constructible_v<tek::Transposon>, "");
+static_assert(std::is_nothrow_move_constructible_v<tek::Transposon>, "");
 
 inline void activity_function() {
     std::ofstream ofs("tek-activity_function.tsv");

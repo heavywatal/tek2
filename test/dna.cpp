@@ -1,6 +1,10 @@
 #include "dna.hpp"
 
 #include <random>
+#include <type_traits>
+
+static_assert(std::is_nothrow_default_constructible_v<tek::DNA<3>>, "");
+static_assert(std::is_nothrow_move_constructible_v<tek::DNA<3>>, "");
 
 int main() {
     tek::DNA<4> letters(std::valarray<uint_fast8_t>{0, 1, 2, 3});
