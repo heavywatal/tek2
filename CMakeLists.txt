@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(tek2
-  VERSION 0.2.2
+  VERSION 0.2.3
   LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
