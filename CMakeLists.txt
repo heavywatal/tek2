@@ -30,27 +30,26 @@ endmacro()
 
 FetchContent_Declare(pcglite
   GIT_REPOSITORY https://github.com/heavywatal/pcglite.git
-  GIT_TAG 45fd73104aa1026624d87ea2f2e387c3498b34b0
+  GIT_TAG 4eff9c9088e8b503c63c5147eb2e0a994b07a57a
   EXCLUDE_FROM_ALL
-  FIND_PACKAGE_ARGS 0.2.1
+  FIND_PACKAGE_ARGS 0.2.2
 )
 
 FetchContent_Declare(clippson
   GIT_REPOSITORY https://github.com/heavywatal/clippson.git
-  GIT_TAG fb915f6f3b00e4854ab159aea38f620c4934da5c
+  GIT_TAG df72e9dc1ceac38a46db452e8102e807301784c5
   EXCLUDE_FROM_ALL
-  FIND_PACKAGE_ARGS 0.8.11
+  FIND_PACKAGE_ARGS 0.8.12
 )
 
 FetchContent_Declare(wtl
   GIT_REPOSITORY https://github.com/heavywatal/cxxwtl.git
-  GIT_TAG 64d10cd35a5690629bd84c89b2fb46b35215581a
+  GIT_TAG f66a31048c0d934c29882082099988d9423b6bf3
   EXCLUDE_FROM_ALL
-  FIND_PACKAGE_ARGS 0.10.2
+  FIND_PACKAGE_ARGS 0.11.2 COMPONENTS zlib threads
 )
 
 Pkg_MakeAvailable(pcglite clippson wtl)
-find_package(Threads)
 
 add_library(${PROJECT_NAME} STATIC)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -63,7 +62,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE wtl::wtl wtl::zlib clippson::clippson pcglite::pcglite Threads::Threads
+  PRIVATE wtl::wtl wtl::zlib wtl::threads clippson::clippson pcglite::pcglite
 )
 
 add_executable(${PROJECT_NAME}-exe src/main.cpp)
